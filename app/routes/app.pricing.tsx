@@ -16,6 +16,7 @@ export async function loader({ request }) {
   try {
     const auth = await authenticate.admin(request);
     const subInfo = await db.get_subscription_user.findFirst();
+    console.log(subInfo);
     return json({ subInfo });
   } catch (error) {
     console.error("Loader Error:", error);
@@ -27,6 +28,7 @@ export default function PricingPage() {
   const { subInfo, error } = useLoaderData();
   const actionData = useActionData();
   const submit = useSubmit();
+  console.log(subInfo);
 
   async function plan() {
     try {

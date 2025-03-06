@@ -17,7 +17,7 @@ import CreateStripeCustomerModel from "../component/model/CreateStripeCustomerMo
 import TableRow from "../component/table/TableRow";
 import { fetchSearchStripeCustomer, fetchStripeCustomers } from "../models/customer.server";
 
-import "../style/style.css";
+import "../styles/style.css";
 
 export async function loader({ request }) {
   const auth = await authenticate.admin(request);

@@ -11,14 +11,21 @@ generator client {
 }
 
 model Session {
-  id          String    @id @unique @default(uuid())
-  shop        String    @unique
-  state       String
-  isOnline    Boolean   @default(false)
-  scope       String?
-  expires     DateTime?
-  accessToken String
-  userId      BigInt?
+  id            String   @id
+  shop          String
+  state         String
+  isOnline      Boolean
+  scope         String
+  expires       DateTime?
+  accessToken   String
+  userId        String?
+  firstName     String?
+  lastName      String?
+  email         String?
+  accountOwner  Boolean
+  locale        String?
+  collaborator  Boolean
+  emailVerified Boolean
 }
 
 model User {

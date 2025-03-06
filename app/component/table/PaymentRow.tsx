@@ -33,7 +33,7 @@ export default function PaymentRow({ payment, isActive, setActiveIndex }) {
     symbolNative,
     customerdetail,
   } = payment;
-  console.log(payment);
+  // console.log(payment);
   const createddate = new Date(created * 1000).toLocaleString("en-US", {
     month: "long",
     day: "numeric",
@@ -93,7 +93,8 @@ export default function PaymentRow({ payment, isActive, setActiveIndex }) {
         </Badge>
       </IndexTable.Cell>
       <IndexTable.Cell></IndexTable.Cell>
-      <IndexTable.Cell>{customerdetail.name ? customerdetail.name : "--"}</IndexTable.Cell>
+
+      <IndexTable.Cell>{customerdetail ? customerdetail.name : "--"}</IndexTable.Cell>
       {/* Payment method Index cell */}
       {/* <IndexTable.Cell>{id ? id : "--"}</IndexTable.Cell>  */}
 

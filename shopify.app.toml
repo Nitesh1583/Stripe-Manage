@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "a707ffcad54fde6cb1463dfb03b7d0de"
-application_url = "https://part-william-chairman-assistance.trycloudflare.com"
+application_url = "https://senators-decided-frozen-thomson.trycloudflare.com"
 embedded = true
 name = "stripe-manage"
 handle = "stripe-manage"
@@ -19,9 +19,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://part-william-chairman-assistance.trycloudflare.com/auth/callback",
-  "https://part-william-chairman-assistance.trycloudflare.com/auth/shopify/callback",
-  "https://part-william-chairman-assistance.trycloudflare.com/api/auth/callback"
+  "https://senators-decided-frozen-thomson.trycloudflare.com/auth/callback",
+  "https://senators-decided-frozen-thomson.trycloudflare.com/auth/shopify/callback",
+  "https://senators-decided-frozen-thomson.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]

@@ -9,7 +9,7 @@ import PaymentRow from "../component/table/PaymentRow";
 import db from "../db.server";
 import { fetchSearchStripePaymentData, fetchStripePaymentData } from "../models/payment.server";
 import { authenticate } from "../shopify.server";
-import "../style/style.css";
+import "../styles/style.css";
 
 export async function loader({ request }) {
   const auth = await authenticate.admin(request);
