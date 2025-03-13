@@ -1,4 +1,6 @@
-import { json, useActionData, useLoaderData, useSubmit } from "@remix-run/react";
+import { useActionData, useLoaderData, useFetcher } from "@remix-run/react";
+import { redirectDocument, json } from "@remix-run/node";
+import { useEffect } from 'react';
 import {
   Banner,
   CalloutCard,
@@ -11,49 +13,49 @@ import {
 import { Stripe } from "stripe";
 import db from "../db.server";
 import { authenticate } from "../shopify.server";
+import { fetchStripeSubscriptionData} from "../models/pricing.server";
 
+// Loader function
 export async function loader({ request }) {
   try {
     const auth = await authenticate.admin(request);
-    const subInfo = await db.get_subscription_user.findFirst();
-    console.log(subInfo);
-    return json({ subInfo });
+    const userInfo = await db.user.findFirst({ //fetch from db tablename-> User
+      where: { shop: auth.session.shop },
+    });
+
+    if (!userInfo) return redirect("/app");
+    let subUserData = await fetchStripeSubscriptionData(userInfo); //fetch SubscriptionUser data from db
+    return json({ subUserData });
+
   } catch (error) {
-    console.error("Loader Error:", error);
-    return json({ subInfo: null, error: "Failed to load subscription information." });
+    return json({ subUserData: null, error: "Failed to load subscription information." });
   }
 }
 
+// Pricing page view function
 export default function PricingPage() {
-  const { subInfo, error } = useLoaderData();
+  const {subUserData, error, subInfo } = useLoaderData();
   const actionData = useActionData();
-  const submit = useSubmit();
-  console.log(subInfo);
+  const fetcher = useFetcher();
+  
+  const premiumUserData = subUserData.userinfo.premiumUser;
 
-  async function plan() {
-    try {
-      const stripe = new Stripe("sk_test_51LuADsIgRSAwxCstzcJ0VohJ0AW34a6d6M1u8yBWQ296sfJdr5bkofLFbwUQKEQA6EDWH0YixxD85KSydW8bAaTj007qLBW6zW");
 
-      const session = await stripe.checkout.sessions.create({
-        success_url: "https://admin.shopify.com/store/kodrite/apps/stripe-management-console/app/pricing",
-        line_items: [
-          {
-            price: "price_1PrutPIgRSAwxCstAcWVhcys",
-            quantity: 1,
-          },
-        ],
-        metadata: {
-          shop_url: subInfo?.shop || "unknown",
-        },
-        mode: "subscription",
-      });
+  // fetch Checkout Session URL and redirect (using plan() function on button click)
+  useEffect(() => {
+      if(fetcher.data?.success) {
+        if (fetcher.data?.redirectUrl) {
+          window.open(fetcher.data.redirectUrl); //redirect to checkout session
+        }
 
-      window.open(session.url, "_blank");
-    } catch (error) {
-        console.error("Plan Error:", error);
-      alert("Failed to initiate the subscription process. Please try again later.");
-    }
-  }
+        if (fetcher.data?.message) {
+          shopify.toast.show(fetcher.data?.message, { isError: false }); //show error 
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000);
+        }
+      }
+    }, [fetcher.data]);
 
   return (
     <Page title="Pricing" backAction={{ content: "Home", url: "/app" }}>
@@ -74,14 +76,24 @@ export default function PricingPage() {
         </Layout.Section>
         <Layout.Section>
           <Grid>
-            {subInfo ? (
+            {subUserData.subInfo != null ? (
               // After subscription show this grid
               <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 6, xl: 6 }}>
                 <CalloutCard
                   title="Subscription Active"
                   primaryAction={{
                     content: "Cancel Subscription",
-                    onAction: null,
+                    onAction: () => {
+                      let shopname = subUserData.shop;
+                      let StripeSecretKey = subUserData.userinfo.stripeSecretKey;
+                      if(subUserData.subInfo.subscription_status === 'active') {
+                        const subscriptionId = subUserData.subInfo.subscription_id;
+                        const rowId = subUserData.subInfo.id;
+
+                        fetcher.submit({ actionType: "cancelSubscription", subRowId: rowId, userSubId: subscriptionId, shop: shopname, stripeSecretKey: StripeSecretKey}, { method: "POST" });
+
+                      }
+                    },
                   }}
                 >
                   <Text as="p">Your Subscription Plan Amount is : $9.99</Text>
@@ -94,7 +106,22 @@ export default function PricingPage() {
                   title="Pricing plan"
                   primaryAction={{
                     content: "Buy $9.99",
-                    onAction: () => plan(),
+                    onAction: () => {
+                        let shop = subUserData.shop;
+                        let shopname = subUserData.shop;
+                        shopname = shopname.split('.');
+                        shopname = shopname[0];
+                        let StripeSecretKey = subUserData.userinfo.stripeSecretKey;
+
+                        const formData = new FormData();
+                        formData.append("actionType", "plan");
+                        formData.append("shopName", shopname);
+                        formData.append("shopurl", shop);
+                        formData.append("stripeSecretKey", StripeSecretKey);
+
+                          
+                        fetcher.submit({ actionType: "plan", shopName: shopname, shopurl: shop, stripeSecretKey: StripeSecretKey }, { method: "POST" });
+                    },
                   }}
                 >
                   <Text as="p">
@@ -116,11 +143,63 @@ export default function PricingPage() {
 }
 
 export async function action({ request }) {
-  const { method } = request;
-  switch (method) {
-    case "POST":
-      return json({ method: "POST method" });
-    default:
-      return json({ method: "Method not allowed" });
+  const formData = await request.formData();
+  if (formData.get("actionType") === 'cancelSubscription') {
+    const subscriptionId = formData.get("userSubId");
+    const StripeSecretKey = formData.get("stripeSecretKey");
+    const shopname = formData.get("shop");
+    const rowid = parseInt(formData.get("subRowId"));
+
+    const stripe = new Stripe(StripeSecretKey);
+    const cancelSubData = await stripe.subscriptions.cancel(subscriptionId);
+
+    if (cancelSubData) {
+      let canceledDate = new Date(cancelSubData.canceled_at * 1000)
+        .toISOString()
+        .split("T");
+      let subCancelDate = `${canceledDate[0]} ${canceledDate[1].split(".")[0]}`;
+      let subStatus = cancelSubData.status;
+
+      const subscriptionUpdate = await db.SubscriptionUser.update({
+            where: {id: rowid, subscription_id: subscriptionId, shop_url: shopname},
+            data: {
+              subscription_status: subStatus, 
+              sub_cancel_date : subCancelDate,
+            },
+          });
+      
+      const userUpdate = await db.user.update({
+            where: { shop: shopname},
+            data: {
+              premiumUser: parseInt(0),
+            },
+          });
+       
+      return json({ success: true, message: "Subscription canceled successfully!" });
+    }
+  }
+
+  if (formData.get("actionType") === "plan") {
+      let shopname = formData.get("shopName");
+      let secretStripeKey = formData.get("stripeSecretKey");
+      let shopurl = formData.get("shopurl");
+
+      const stripe = new Stripe(secretStripeKey);
+
+      const session = await stripe.checkout.sessions.create({
+        success_url: "https://admin.shopify.com/store/"+shopname+"/apps/stripe-manage/app/pricing",
+        line_items: [
+          {
+            price: "price_1PrutPIgRSAwxCstAcWVhcys",
+            quantity: 1,
+          },
+        ],
+        metadata: {
+          shop_url: shopurl,
+        },
+        mode: "subscription",
+      });
+
+      return json({success: true, redirectUrl: session.url}, { status: 200 });
   }
 }

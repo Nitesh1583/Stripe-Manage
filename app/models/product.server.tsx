@@ -43,7 +43,7 @@ export async function fetchStripeProducts(userInfo) {
     }),
   );
 
-  return { products: productsWithData, premiumUser: userInfo.premiumUser };
+  return { products: productsWithData, UserInfo:userInfo, premiumUser: userInfo.premiumUser };
 }
 
 // fetch single stripe product

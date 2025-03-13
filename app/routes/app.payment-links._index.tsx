@@ -8,6 +8,8 @@ import {
   Button,
   ActionList,
   Badge,
+  CalloutCard,
+  Text 
 } from "@shopify/polaris";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import {useState,useEffect} from "react";
@@ -45,7 +47,7 @@ export async function loader({ request }) {
 }
 
 export default function PaymentLinkPage() {
-  const { paymentLinks, premiumUser,isError,message,data } = useLoaderData();
+  const { paymentLinks, premiumUser,UserInfo, isError,message,data } = useLoaderData();
   const [isCopied, setIsCopied] = useState(false);
   const [isActiveIndex, setActiveIndex] = useState(null);
   const [activeProduct, setActiveProduct] = useState(null);
@@ -72,7 +74,6 @@ export default function PaymentLinkPage() {
       isError: actionData?.isError,
     });
   }, [actionData]);
-  console.log(actionData, "thi s is dhsfgus");
 
   const handleActivate = async (id) => {
     const formData=new FormData();
@@ -92,7 +93,22 @@ export default function PaymentLinkPage() {
       shopify.toast.show(message);
     }
   }, [isError]);
-  console.log(message)
+
+  // Date calculations
+  const subscriptionCreatedDate = UserInfo.createdAt; //DateTime format : 2025-03-07T11:27:57.468Z
+
+  const currentDate = new Date(); //DateTime format : Thu Mar 13 2025 13:16:10 GMT+0530 (India Standard Time)
+  
+  const subDate = new Date(subscriptionCreatedDate).toISOString().split("T")[0]; 
+  const currentDateFormatted = currentDate.toISOString().split("T")[0]; 
+
+  // Convert to Date objects (ensuring time is ignored)
+  const date1 = new Date(subDate);
+  const date2 = new Date(currentDateFormatted);
+
+  // Calculate the difference in days
+  const timeDifference = date2 - date1;
+  const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
 
   return (
     <Page
@@ -112,6 +128,7 @@ export default function PaymentLinkPage() {
         },
       ]}
     >
+    {premiumUser === 1 || daysDifference <= 7 ? (
       <Card>
         <IndexTable
           resourceName={{
@@ -260,6 +277,18 @@ export default function PaymentLinkPage() {
             })}
         </IndexTable>
       </Card>
+      ):(
+        <CalloutCard
+            title="No Trial/Subscription Found!"
+            primaryAction={{
+              content: "Buy Subscription",
+              url: "/app/pricing",
+            }}
+          >
+            <Text as="p">You trial period has ended. If you want to continue, click on the below button to buy the subscription.</Text>
+          </CalloutCard>
+      )}
+      
     </Page>
   );
 }

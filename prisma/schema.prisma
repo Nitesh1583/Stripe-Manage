@@ -34,7 +34,7 @@ model User {
   stripeSecretKey  String?
   email            String?
   shop             String            @unique
-  premiumUser      Boolean           @default(false)
+  premiumUser      Int?              @default(0) @db.TinyInt
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @default(now()) @updatedAt
   premiumPurchases PremiumPurchase[]
@@ -56,9 +56,12 @@ model PremiumPurchase {
 }
 
 model SubscriptionUser {
-  id              Int     @id
-  shop_url        String? @unique
+  id              Int     @id @default(autoincrement())
+  shop_url        String? 
   customer_id     String?
   subscription_id String?
+  subscription_status String?
+  sub_cancel_date String?
+  sub_update_date String?
   created_date    String?
 }

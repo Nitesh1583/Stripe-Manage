@@ -39,8 +39,6 @@ export async function createUser(formData, shop){
       return { message: "User already registred!", errors, isError: true };
     }
     else {
-
-
       const user = await db.user.create({
         data: {
           shop: shop,
@@ -49,7 +47,6 @@ export async function createUser(formData, shop){
           stripeSecretKey: stripeSecretKey
         }
       })
-
       return { message: "User created successfully", errors, user: user };
     }
   } catch (error) {
@@ -80,8 +77,17 @@ export async function updateUserAccountSetting(formData, shop){
       return { message: "Email already registred", isError: true };
     }
     const existingShop = await db.user.findFirst({ where: { shop: shop } });
-    if (shop !== existingShop.shop) {
-      return { message: "Chnages not allowed", isError: true };
+
+    if (existingShop == null) {
+      await db.user.upsert({
+        where: { shop: shop },
+        update: { email: email },
+        create: {
+          shop: shop, email: email,
+          // stripePublishKey: existingShop.stripePublishKey, stripeSecretKey: existingShop.stripeSecretKey
+        }
+      });
+      return { message: "Email saved successfully!", isError: false };
     }
     else {
       await db.user.upsert({
@@ -97,6 +103,7 @@ export async function updateUserAccountSetting(formData, shop){
 
   } catch (error) {
     return { message: `Unable to update account info ${error.message}`, isError: true };
+    // return { message: `${shop}`, isError: true };
   }
 }
 

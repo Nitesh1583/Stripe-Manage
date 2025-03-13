@@ -28,6 +28,7 @@ export async function fetchStripePaymentLinksData(userInfo) {
       paymentLinks: paymentLinksWithProducts,
       message: "Payment links fetched successfully",
       isError: false,
+      UserInfo:userInfo,
       premiumUser: userInfo.premiumUser,
       data: paymentLinks
     };

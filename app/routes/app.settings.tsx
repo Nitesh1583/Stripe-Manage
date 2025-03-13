@@ -25,7 +25,6 @@ export async function loader({ request }) {
   const userInfo = await db.user.findFirst({
     where: { shop: auth.session.shop },
   });
-  if (!userInfo) return redirect("/app");
   return json({ userInfo });
 }
 
@@ -35,6 +34,7 @@ export async function action({ request }) {
   const auth = await authenticate.admin(request);
   const shop = auth.session.shop;
   console.log(shop);
+
   switch (method) {
     case "POST":
       const updateInfoSetting = await updateUserAccountSetting(formData, shop);
@@ -56,7 +56,6 @@ export default function SettingsPage() {
   const shopify = useAppBridge();
 
   useEffect(() => {
-    console.log(actionData?.error);
     shopify.toast.show(actionData?.message, { isError: actionData?.isError });
   }, [actionData]);
   return (

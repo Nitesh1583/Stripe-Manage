@@ -5,7 +5,9 @@ import {
   IndexTable,
   Page,
   SkeletonThumbnail,
-  Thumbnail
+  Thumbnail,
+  CalloutCard,
+  Text 
 } from "@shopify/polaris";
 import { LockIcon, PlusIcon } from "@shopify/polaris-icons";
 import { useState } from "react";
@@ -27,7 +29,7 @@ export async function loader({ request }) {
 export default function DisputePage() {
   const shopify = useAppBridge();
   const navigate = useNavigate();
-  const { products, premiumUser } = useLoaderData();
+  const { products, premiumUser,UserInfo} = useLoaderData();
   const [model, setModel] = useState(false);
 
   const resourceName = {
@@ -36,6 +38,22 @@ export default function DisputePage() {
   };
   // const { selectedResources, allResourcesSelected, handleSelectionChange } =
   // useIndexResourceState(products);
+
+  // Date calculations
+  const subscriptionCreatedDate = UserInfo.createdAt; //DateTime format : 2025-03-07T11:27:57.468Z
+
+  const currentDate = new Date(); //DateTime format : Thu Mar 13 2025 13:16:10 GMT+0530 (India Standard Time)
+  
+  const subDate = new Date(subscriptionCreatedDate).toISOString().split("T")[0]; 
+  const currentDateFormatted = currentDate.toISOString().split("T")[0]; 
+
+  // Convert to Date objects (ensuring time is ignored)
+  const date1 = new Date(subDate);
+  const date2 = new Date(currentDateFormatted);
+
+  // Calculate the difference in days
+  const timeDifference = date2 - date1;
+  const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
 
   return (
     <>
@@ -64,8 +82,9 @@ export default function DisputePage() {
           { content: "Export", onAction: () => alert("Duplicate action") },
         ]}
       >
-
-        <Card>
+      {premiumUser === 1 || daysDifference <= 7 ? (
+        <>
+          <Card>
           <IndexTable
             resourceName={resourceName}
             // itemCount={products.length}
@@ -114,6 +133,19 @@ export default function DisputePage() {
               })}
           </IndexTable>
         </Card>
+        </>
+        ):(
+          <CalloutCard
+            title="No Trial/Subscription Found!"
+            primaryAction={{
+              content: "Buy Subscription",
+              url: "/app/pricing",
+            }}
+          >
+            <Text as="p">You trial period has ended. If you want to continue, click on the below button to buy the subscription.</Text>
+          </CalloutCard>
+      )}
+        
       </Page>
       <Outlet/>
     </>

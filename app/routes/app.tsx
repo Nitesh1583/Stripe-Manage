@@ -27,20 +27,18 @@ export const loader = async ({ request }) => {
 
 export default function App() {
   const { apiKey, userInfo, polarisTranslations } = useLoaderData();
+  // console.log(userInfo);
 
   return (
     <AppProvider i18n={polarisTranslations} isEmbeddedApp apiKey={apiKey}>
       {!userInfo ? (
         <NavMenu>
-          <Link to="/app" rel="home">
-            Dashboard
-          </Link>
+          <Link to="/app" rel="home">Dashboard</Link>
+          <Link to="/app/settings">Settings</Link>
         </NavMenu>
       ) : (
         <NavMenu>
-          <Link to="/app" rel="home">
-            Dashboard
-          </Link>
+          <Link to="/app" rel="home">Dashboard</Link>
           <Link to="/app/products">Products</Link>
           <Link to="/app/customers">Customers</Link>
           <Link to="/app/payments">Payments</Link>

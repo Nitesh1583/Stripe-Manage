@@ -12,7 +12,7 @@ export async function fetchStripeCustomers(userInfo) {
   try {
     const stripe = new Stripe(userInfo.stripeSecretKey);
     const customers = await stripe.customers.list();
-    return { customers: customers.data, premiumUser: userInfo.premiumUser,isError:false };
+    return { customers: customers.data, UserInfo:userInfo, premiumUser: userInfo.premiumUser,isError:false };
   } catch (error) {
     return { message: "Something went wrong. Try again later.", error,isError: true };
   }

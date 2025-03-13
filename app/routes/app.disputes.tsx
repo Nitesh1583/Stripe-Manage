@@ -9,7 +9,8 @@ import {
   IndexTable,
   Badge,
   Thumbnail,
-  InlineStack,
+  InlineStack,CalloutCard,
+  Text 
 } from "@shopify/polaris";
 import { useLoaderData, redirect } from "@remix-run/react";
 import { json } from "@remix-run/react";
@@ -23,16 +24,33 @@ export async function loader({request}) {
     where: { shop: auth.session.shop },
   });
   if (!userInfo) return redirect("/app");
-const disputeData=await fetchDisputesData(userInfo);
+  const disputeData=await fetchDisputesData(userInfo);
   return json(disputeData);
 }
 
 export default function DisputePage() {
-  const { disputes,premiumUser } = useLoaderData();
+  const { disputes, premiumUser, UserInfo} = useLoaderData();
   const resourceName = {
     singular: "disputes",
     plural: "disputes",
   };
+
+  // Date calculations
+  const subscriptionCreatedDate = UserInfo.createdAt; //DateTime format : 2025-03-07T11:27:57.468Z
+
+  const currentDate = new Date(); //DateTime format : Thu Mar 13 2025 13:16:10 GMT+0530 (India Standard Time)
+  
+  const subDate = new Date(subscriptionCreatedDate).toISOString().split("T")[0]; 
+  const currentDateFormatted = currentDate.toISOString().split("T")[0]; 
+
+  // Convert to Date objects (ensuring time is ignored)
+  const date1 = new Date(subDate);
+  const date2 = new Date(currentDateFormatted);
+
+  // Calculate the difference in days
+  const timeDifference = date2 - date1;
+  const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
     useIndexResourceState(disputes);
 
@@ -93,29 +111,43 @@ export default function DisputePage() {
     );
   });
   return (
-    <Page>
-      <ui-title-bar title="Dispute" />
-
-      <Card>
-        <IndexTable
-          resourceName={resourceName}
-          itemCount={disputes.length}
-          selectedItemsCount={
-            allResourcesSelected ? "All" : selectedResources.length
-          }
-          onSelectionChange={handleSelectionChange}
-          headings={[
-            { title: "Amount" },
-            { title: "Payment method" },
-            { title: "Description" },
-            { title: "Customer" },
-            { title: "Date" },
-            { title: "Action" },
-          ]}
-        >
-          {rowMarkup}
-        </IndexTable>
-      </Card>
+    <Page title="Dispute">
+      {/*<ui-title-bar title="Dispute" />*/}
+      {premiumUser === 1 || daysDifference <= 7 ? (
+        <>
+          <Card>
+            <IndexTable
+              resourceName={resourceName}
+              itemCount={disputes.length}
+              selectedItemsCount={
+                allResourcesSelected ? "All" : selectedResources.length
+              }
+              onSelectionChange={handleSelectionChange}
+              headings={[
+                { title: "Amount" },
+                { title: "Payment method" },
+                { title: "Description" },
+                { title: "Customer" },
+                { title: "Date" },
+                { title: "Action" },
+              ]}
+            >
+              {rowMarkup}
+            </IndexTable>
+          </Card>
+        </>
+        ):(
+          <CalloutCard
+            title="No Trial/Subscription Found!"
+            primaryAction={{
+              content: "Buy Subscription",
+              url: "/app/pricing",
+            }}
+          >
+            <Text as="p">You trial period has ended. If you want to continue, click on the below button to buy the subscription.</Text>
+          </CalloutCard>
+        )}
+      
     </Page>
   );
 }
