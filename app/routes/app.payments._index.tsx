@@ -101,7 +101,7 @@ export default function PaymentsPage() {
                 { title: "Id" },
                 { title: "Amount" },
                 { title: "Status" },
-                { title: "Products" },
+                // { title: "Products" },
                 { title: "Customer" },
                 { title: "Date" },
                 { title: "Action" },

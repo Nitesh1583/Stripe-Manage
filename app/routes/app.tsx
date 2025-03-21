@@ -45,7 +45,6 @@ export default function App() {
           <Link to="/app/disputes">Disputes</Link>
           <Link to="/app/payment-links">Payment Links</Link>
           <Link to="/app/pricing">Pricing</Link>
-          {/*<Link to="/app/save-checkout-details">Details</Link>*/}
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
       )}

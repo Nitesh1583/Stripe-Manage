@@ -14,6 +14,7 @@ import {
   ReturnIcon
 } from "@shopify/polaris-icons";
 import { useEffect, useState } from "react";
+
 export default function PaymentRow({ payment, isActive, setActiveIndex }) {
   const [isCopied, setIsCopied] = useState(false);
   const shopify = useAppBridge();
@@ -33,7 +34,7 @@ export default function PaymentRow({ payment, isActive, setActiveIndex }) {
     symbolNative,
     customerdetail,
   } = payment;
-  // console.log(payment);
+  console.log(payment);
   const createddate = new Date(created * 1000).toLocaleString("en-US", {
     month: "long",
     day: "numeric",
@@ -67,7 +68,7 @@ export default function PaymentRow({ payment, isActive, setActiveIndex }) {
       onNavigation={`/app/payment/${id}`}
     >
       <IndexTable.Cell>{`${orderID}`}</IndexTable.Cell>
-      <IndexTable.Cell>{`${symbolNative} ${amount} ${currencycode}`}</IndexTable.Cell>
+      <IndexTable.Cell>{`${symbolNative} ${amount/100} ${currencycode}`}</IndexTable.Cell>
       <IndexTable.Cell>
         <Badge
           tone={
@@ -92,7 +93,7 @@ export default function PaymentRow({ payment, isActive, setActiveIndex }) {
               : "Pending"}
         </Badge>
       </IndexTable.Cell>
-      <IndexTable.Cell></IndexTable.Cell>
+      {/*<IndexTable.Cell></IndexTable.Cell>*/}
 
       <IndexTable.Cell>{customerdetail ? customerdetail.name : "--"}</IndexTable.Cell>
       {/* Payment method Index cell */}

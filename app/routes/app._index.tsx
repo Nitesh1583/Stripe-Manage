@@ -112,220 +112,233 @@ export default function Index() {
 
   return (
     <Page>
-      <TitleBar title="Remix app template">
+      {/*<TitleBar title="Remix app template">
         <button variant="primary" onClick={generateProduct}>
           Generate a product
         </button>
-      </TitleBar>
+      </TitleBar>*/}
       <BlockStack gap="500">
         <Layout>
           <Layout.Section>
             <Card>
               <BlockStack gap="500">
                 <BlockStack gap="200">
-                  <Text as="h2" variant="headingMd">
-                    Congrats on creating a new Shopify app 🎉
+                  <Text as="h2" variant="headingLg">
+                    The Ultimate Stripe Console Management Dashboard for Shopify 🎉
                   </Text>
                   <Text variant="bodyMd" as="p">
-                    This embedded app template uses{" "}
-                    <Link
-                      url="https://shopify.dev/docs/apps/tools/app-bridge"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      App Bridge
-                    </Link>{" "}
-                    interface examples like an{" "}
-                    <Link url="/app/additional" removeUnderline>
-                      additional page in the app nav
-                    </Link>
-                    , as well as an{" "}
-                    <Link
-                      url="https://shopify.dev/docs/api/admin-graphql"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      Admin GraphQL
-                    </Link>{" "}
-                    mutation demo, to provide a starting point for app
-                    development.
+                    Tired of juggling multiple platforms to manage your payments? Say hello to Stripe Console App, the all-in-one payment management dashboard designed exclusively for Shopify. Unlike traditional payment processors, Stripe Console is not a payment gateway—it’s a powerful management console that brings Stripe-like functionality directly into your Shopify environment. Now you can manage payments, customers, products, disputes, and more, all from one centralized, user-friendly dashboard.
                   </Text>
                 </BlockStack>
                 <BlockStack gap="200">
-                  <Text as="h3" variant="headingMd">
-                    Get started with products
-                  </Text>
-                  <Text as="p" variant="bodyMd">
-                    Generate a product with GraphQL and get the JSON output for
-                    that product. Learn more about the{" "}
-                    <Link
-                      url="https://shopify.dev/docs/api/admin-graphql/latest/mutations/productCreate"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      productCreate
-                    </Link>{" "}
-                    mutation in our API references.
+                  <Text variant="bodyMd" as="p">
+                    With Stripe Console, you get the same robust features as Stripe’s management console, but with the added advantage of seamless integration into Shopify. No more switching between platforms or dealing with complex setups—everything you need is right at your fingertips, within Shopify.
                   </Text>
                 </BlockStack>
-                <InlineStack gap="300">
-                  <Button loading={isLoading} onClick={generateProduct}>
-                    Generate a product
-                  </Button>
-                  {fetcher.data?.product && (
-                    <Button
-                      url={`shopify:admin/products/${productId}`}
-                      target="_blank"
-                      variant="plain"
-                    >
-                      View product
-                    </Button>
-                  )}
-                </InlineStack>
-                {fetcher.data?.product && (
-                  <>
-                    <Text as="h3" variant="headingMd">
-                      {" "}
-                      productCreate mutation
+                <BlockStack gap="200">
+                  <Text as="h2" variant="headingMd">
+                    Key Features of Stripe Console App:
+                  </Text>
+                </BlockStack>
+                <BlockStack gap="100">
+                    <Text as="h4" variant="headingSm">
+                      1. Centralized Payment Management:
                     </Text>
-                    <Box
-                      padding="400"
-                      background="bg-surface-active"
-                      borderWidth="025"
-                      borderRadius="200"
-                      borderColor="border"
-                      overflowX="scroll"
-                    >
-                      <pre style={{ margin: 0 }}>
-                        <code>
-                          {JSON.stringify(fetcher.data.product, null, 2)}
-                        </code>
-                      </pre>
-                    </Box>
-                    <Text as="h3" variant="headingMd">
-                      {" "}
-                      productVariantsBulkUpdate mutation
+                    <BlockStack gap="50">
+                      <Text as="p" variant="bodyMd">
+                        * View and manage all your payments in one place with the Payments Manage List.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        * Track transactions, filter by status, and export data for reporting.
+                      </Text>
+                    </BlockStack>
+                </BlockStack>
+                
+                <BlockStack gap="200">
+                    <Text as="h4" variant="headingSm">
+                      2. Customer Management:
                     </Text>
-                    <Box
-                      padding="400"
-                      background="bg-surface-active"
-                      borderWidth="025"
-                      borderRadius="200"
-                      borderColor="border"
-                      overflowX="scroll"
-                    >
-                      <pre style={{ margin: 0 }}>
-                        <code>
-                          {JSON.stringify(fetcher.data.variant, null, 2)}
-                        </code>
-                      </pre>
-                    </Box>
-                  </>
-                )}
+                    <BlockStack gap="100">
+                      <Text as="p" variant="bodyMd">
+                        * Access a comprehensive Customers List to view customer details, payment history, and activity.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        * Improve customer relationships with better insights and interaction.
+                      </Text>
+                    </BlockStack>
+                </BlockStack>
+                
+                <BlockStack gap="200">
+                    <Text as="h4" variant="headingSm">
+                      3. Product Sales Tracking:
+                    </Text>
+                    <BlockStack gap="100">
+                      <Text as="p" variant="bodyMd">
+                        * Monitor your Products Sold List to see which items are performing best.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        * Gain valuable insights into your sales trends and inventory performance.
+                      </Text>
+                    </BlockStack>
+                </BlockStack>
+                
+                <BlockStack gap="200">
+                    <Text as="h4" variant="headingSm">
+                      4. Dispute Resolution:
+                    </Text>
+                    <BlockStack gap="100">
+                      <Text as="p" variant="bodyMd">
+                        * Manage and resolve disputes efficiently with the Disputes List.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        * Stay on top of chargebacks and customer issues with real-time updates.  
+                      </Text>
+                    </BlockStack>
+                </BlockStack>
+                
+
+                <BlockStack gap="200">
+                    <Text as="h4" variant="headingSm">
+                      5. Payment Links Management:
+                    </Text>
+                    <BlockStack gap="100">
+                      <Text as="p" variant="bodyMd">
+                        * Create, track, and manage Payment Links for seamless transactions.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        * Simplify the payment process for your customers with easy-to-use links.
+                      </Text>
+                    </BlockStack>
+                </BlockStack>
+                
+
+                <BlockStack gap="200">
+                    <Text as="h4" variant="headingSm">
+                      6. Improved Accessibility:
+                    </Text>
+
+                    <BlockStack gap="100">
+                      <Text as="p" variant="bodyMd">
+                        * Everything is integrated into Shopify, so you don’t need to log in to a separate platform.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        * Enjoy a streamlined workflow with all your payment management tools in one place.
+                      </Text>
+                    </BlockStack>
+                </BlockStack>
+                
+
+                <BlockStack gap="200">
+                    <Text as="h4" variant="headingSm">
+                      7. Enhanced User Experience:
+                    </Text>
+                    <BlockStack gap="100">
+                      <Text as="p" variant="bodyMd">
+                        * A clean, intuitive interface designed for ease of use.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        * Customizable views and filters to suit your business needs..
+                      </Text>
+                    </BlockStack>
+                </BlockStack>
+                
+
+                <BlockStack gap="200">
+                    <Text as="h4" variant="headingSm">
+                      8. Real-Time Analytics and Reporting:
+                    </Text>
+                    <BlockStack gap="100">
+                      <Text as="p" variant="bodyMd">
+                        * Generate detailed reports on payments, customers, and products.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        * Make data-driven decisions with real-time insights.
+                      </Text>
+                    </BlockStack>
+                </BlockStack>
+                
+
+                <BlockStack gap="200">
+                    <Text as="h4" variant="headingSm">
+                      9. 7-Day Free Trial:
+                    </Text>
+
+                    <BlockStack gap="100">
+                      <Text as="p" variant="bodyMd">
+                        * Try Stripe Console App risk-free for 7 days and experience the benefits of a centralized payment management dashboard.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        *  After the trial, continue with a subscription-based plan tailored to your business needs.
+                      </Text>
+                    </BlockStack>
+                </BlockStack>
+                
+
+                <BlockStack gap="200">
+                    <Text as="h4" variant="headingSm">
+                      Why Choose Stripe Console App?
+                    </Text>
+
+                    <BlockStack gap="100">
+                      <Text as="p" variant="bodyMd">
+                        • All-in-One Dashboard: Manage payments, customers, products, disputes, and more—all within Shopify.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        • Seamless Integration: No need to switch between platforms or manage multiple logins. Everything is built into Shopify.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        • Improved Accessibility: Access your payment management tools directly from your Shopify dashboard.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        • Better Interaction: Enjoy a more cohesive and interactive experience with all your payment data in one place.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        • Cost-Effective: A subscription-based model ensures you only pay for what you need, without hidden fees.
+                      </Text>
+                    </BlockStack>
+                </BlockStack>
+                
+
+                <BlockStack gap="200">
+                    <Text as="h4" variant="headingSm">
+                      How It Works:
+                    </Text>
+                    <BlockStack gap="100">
+                      <Text as="p" variant="bodyMd">
+                        1.Install the App: Add Stripe Console App to your Shopify store in just a few clicks.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        2.Start Your Free Trial: Explore all the features risk-free for 7 days.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        3.Manage Payments: Use the dashboard to manage payments, customers, products, disputes, and more—all within Shopify.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        4.Upgrade to a Subscription: Continue using the app with a flexible subscription plan after your trial ends.
+                      </Text>
+                    </BlockStack>
+                </BlockStack>
+                
+
+                <BlockStack gap="200">
+                    <Text as="h4" variant="headingSm">
+                      Transform Your Payment Management Today
+                    </Text>
+
+                    <BlockStack gap="100">
+                       <Text as="p" variant="bodyMd">
+                        Stripe Console App is the ultimate solution for Shopify merchants who want to streamline their payment management without the hassle of external platforms. Whether you’re a small business or a growing enterprise, Stripe Console App gives you the tools you need to stay in control of your payments, customers, and sales—all from the comfort of your Shopify dashboard.
+                      </Text>
+                     </BlockStack>
+                </BlockStack>
+                 
+                 <BlockStack gap="200">
+                    <Text as="h4" variant="headingSm">
+                      Ready to simplify your payment management? Install Stripe Console today and start your 7-day free trial. Experience the future of payment management, built exclusively for Shopify.
+                    </Text>
+                </BlockStack>
               </BlockStack>
             </Card>
-          </Layout.Section>
-          <Layout.Section variant="oneThird">
-            <BlockStack gap="500">
-              <Card>
-                <BlockStack gap="200">
-                  <Text as="h2" variant="headingMd">
-                    App template specs
-                  </Text>
-                  <BlockStack gap="200">
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        Framework
-                      </Text>
-                      <Link
-                        url="https://remix.run"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        Remix
-                      </Link>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        Database
-                      </Text>
-                      <Link
-                        url="https://www.prisma.io/"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        Prisma
-                      </Link>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        Interface
-                      </Text>
-                      <span>
-                        <Link
-                          url="https://polaris.shopify.com"
-                          target="_blank"
-                          removeUnderline
-                        >
-                          Polaris
-                        </Link>
-                        {", "}
-                        <Link
-                          url="https://shopify.dev/docs/apps/tools/app-bridge"
-                          target="_blank"
-                          removeUnderline
-                        >
-                          App Bridge
-                        </Link>
-                      </span>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        API
-                      </Text>
-                      <Link
-                        url="https://shopify.dev/docs/api/admin-graphql"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        GraphQL API
-                      </Link>
-                    </InlineStack>
-                  </BlockStack>
-                </BlockStack>
-              </Card>
-              <Card>
-                <BlockStack gap="200">
-                  <Text as="h2" variant="headingMd">
-                    Next steps
-                  </Text>
-                  <List>
-                    <List.Item>
-                      Build an{" "}
-                      <Link
-                        url="https://shopify.dev/docs/apps/getting-started/build-app-example"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        {" "}
-                        example app
-                      </Link>{" "}
-                      to get started
-                    </List.Item>
-                    <List.Item>
-                      Explore Shopify’s API with{" "}
-                      <Link
-                        url="https://shopify.dev/docs/apps/tools/graphiql-admin-api"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        GraphiQL
-                      </Link>
-                    </List.Item>
-                  </List>
-                </BlockStack>
-              </Card>
-            </BlockStack>
           </Layout.Section>
         </Layout>
       </BlockStack>

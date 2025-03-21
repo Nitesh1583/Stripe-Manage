@@ -7,9 +7,9 @@ import {
   SkeletonThumbnail,
   Thumbnail,
   CalloutCard,
-  Text 
+  Text ,Popover,ActionList,
 } from "@shopify/polaris";
-import { LockIcon, PlusIcon } from "@shopify/polaris-icons";
+import { LockIcon, PlusIcon, MenuHorizontalIcon } from "@shopify/polaris-icons";
 import { useState } from "react";
 import db from "../db.server";
 import { fetchStripeProducts } from "../models/product.server";
@@ -31,6 +31,7 @@ export default function DisputePage() {
   const navigate = useNavigate();
   const { products, premiumUser,UserInfo} = useLoaderData();
   const [model, setModel] = useState(false);
+  console.log(products);  
 
   const resourceName = {
     singular: "products",
@@ -99,12 +100,13 @@ export default function DisputePage() {
               { title: "Price" },
               { title: "Created" },
               { title: "Updated" },
-              { title: "Action" },
+              // { title: "Action" },
             ]}
+            selectable={false}
           >
             {products &&
-              products.map((product, index) => {
-                const { id, price, images, name, created, updated } = product;
+              products.map((product, index, isActive) => {
+                const { id, price, currency, images, name, created, updated } = product;
                 const createddate = new Date(created * 1000).toLocaleString();
                 const updateddate = new Date(updated * 1000).toLocaleString();
                 return (
@@ -124,10 +126,9 @@ export default function DisputePage() {
                       )}
                     </IndexTable.Cell>
                     <IndexTable.Cell><span className="shopify-upr">{name}</span></IndexTable.Cell>
-                    <IndexTable.Cell>{price}</IndexTable.Cell>
+                    <IndexTable.Cell>{price} {currency}</IndexTable.Cell>
                     <IndexTable.Cell>{createddate}</IndexTable.Cell>
                     <IndexTable.Cell>{updateddate}</IndexTable.Cell>
-                    <IndexTable.Cell>{"--"}</IndexTable.Cell>
                   </IndexTable.Row>
                 );
               })}

@@ -121,7 +121,7 @@ export default function CustomerPage() {
             { title: "Email" },
             { title: "Default payment method" },
             { title: "Created" },
-            { title: "Action" },
+            // { title: "Action" },
           ]}
           selectable={false}
         >
