@@ -22,6 +22,7 @@ export async function fetchStripePaymentData(userInfo) {
       if (currencyData || customerDetail) {
         paymentData.push({
           ...element,
+          orderID: element.metadata?.order_id || "N/A",
           currencycode: currencyData.code,
           symbolNative: currencyData.symbolNative,
           customerdetail: customerDetail
@@ -34,12 +35,45 @@ export async function fetchStripePaymentData(userInfo) {
   }
 }
 
-export async function fetchSearchStripePaymentData(searchVal) {
-  try{
+export async function fetchSearchStripePaymentData(searchedVal, userInfo) {
+  try {
     const stripe = new Stripe(userInfo.stripeSecretKey);
     const { data } = await stripe.paymentIntents.list();
 
-  }catch (error) {
+    // Filter data based on search value
+    const filteredData = data.filter((item) => {
+      const orderId = item.metadata?.order_id || "";
+      const customerName = item.customer?.name || "";
+
+      return orderId.includes(searchedVal) || customerName.toLowerCase().includes(searchedVal.toLowerCase());
+    });
+
+    let paymentData = [];
+    for (let element of filteredData) {
+      let customerDetail = "No customer";
+      if (element.customer) {
+        const customer = await stripe.customers.retrieve(element.customer);
+        customerDetail = customer.name || "No Name";
+      }
+
+      const currencyData = currency.find(
+        (item) => item.code.toLowerCase() === element.currency.toLowerCase()
+      );
+
+      paymentData.push({
+        id: element.id,
+        orderID: element.metadata?.order_id || "N/A",
+        amount: element.amount,
+        currencycode: currencyData?.code || element.currency,
+        symbolNative: currencyData?.symbolNative || "$",
+        customerName: customerDetail,
+        created: element.created,
+        status: element.status,
+      });
+    }
+
+    return { payments: paymentData,  isError: false };
+  } catch (error) {
     return { message: "Something went wrong. Try again later.", isError: true };
   }
 }

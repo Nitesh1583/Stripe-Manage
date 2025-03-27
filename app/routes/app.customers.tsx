@@ -50,7 +50,10 @@ export default function CustomerPage() {
   const [activeIndex, setActiveIndex] = useState(null);
   const [searchedVal, setSearchedVal] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(10);
+
+
+  console.log(customers);
 
   const subscriptionCreatedDate = UserInfo.createdAt; //DateTime format : 2025-03-07T11:27:57.468Z
 
@@ -68,14 +71,17 @@ export default function CustomerPage() {
   const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
 
   const handleSearch = (event) => {
-    setSearchedVal(event.target.value);
+    // console.log(event);
+    setSearchedVal(event.target.value.toLowerCase());
   };
 
-  const filteredCustomers = customers.filter((row) =>
-    !searchedVal.length ||
-     row.email.toString().toLowerCase().includes(searchedVal.toString().toLowerCase()) ||
-     row.name.toString().toLowerCase().includes(searchedVal.toString().toLowerCase())
-   );
+  const filteredCustomers = customers.filter((row) => {
+    return (
+      !searchedVal ||
+      row?.name.toLowerCase().includes(searchedVal.toLowerCase()) ||
+     row?.email.toLowerCase().includes(searchedVal.toLowerCase()) // Search all relevant data
+    );
+  });
 
   const paginatedCustomers = filteredCustomers.slice(
     (currentPage - 1) * itemsPerPage,
@@ -90,16 +96,16 @@ export default function CustomerPage() {
     <Page
       title="Customers"
       backAction={{ content: "Home", url: "/app" }}
-      primaryAction={{
-        content: "Add customer",
-        onAction: () => setModel(!model),
-        // onAction: () => premiumUser?setModel(!model):navigate('/app/pricing'),
-        icon: premiumUser ? PlusIcon : LockIcon,
-      }}
-      secondaryActions={[
-        { content: "Export", onAction: () => alert("Duplicate action") },
-        { content: "import", onAction: () => alert("Duplicate action") },
-      ]}
+      // primaryAction={{
+      //   content: "Add customer",
+      //   onAction: () => setModel(!model),
+      //   onAction: () => premiumUser?setModel(!model):navigate('/app/pricing'),
+      //   icon: premiumUser ? PlusIcon : LockIcon,
+      // }}
+      // secondaryActions={[
+      //   { content: "Export", onAction: () => alert("Duplicate action") },
+      //   { content: "import", onAction: () => alert("Duplicate action") },
+      // ]}
     >
     {premiumUser === 1 || daysDifference <= 7 ? (
       <>
@@ -107,19 +113,19 @@ export default function CustomerPage() {
         <input id="search" type="text" placeholder="Search name or email" value={searchedVal} onChange={handleSearch} />
       </label>
 
-      <CreateStripeCustomerModel model={model} setModel={setModel} />
+      {/*<CreateStripeCustomerModel model={model} setModel={setModel} />*/}
 
       <Card>
         <IndexTable
           resourceName={{
-            singular: "customers",
+            singular: "customer",
             plural: "customers",
           }}
           itemCount={customers.length}
           headings={[
             { title: "Name" },
             { title: "Email" },
-            { title: "Default payment method" },
+            { title: "Card last4/Brand" },
             { title: "Created" },
             // { title: "Action" },
           ]}
@@ -128,13 +134,17 @@ export default function CustomerPage() {
           {paginatedCustomers.map((customer) => {
             return (
               <TableRow
-                isActive={activeIndex === customer?.id}
-                setActiveIndex={setActiveIndex}
                 key={customer?.id}
                 customer={customer}
+                setActiveIndex={setActiveIndex}
+                isActive={activeIndex === customer?.id}
+                
               />
             );
           })}
+          {/*{filteredCustomers.map((customer) => (
+            <TableRow key={customer.id} customer={customer} />
+          ))}*/}
         </IndexTable>
         <Pagination
         hasPrevious={currentPage > 1}

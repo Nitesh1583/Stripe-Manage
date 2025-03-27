@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "a707ffcad54fde6cb1463dfb03b7d0de"
-application_url = "https://sides-seniors-judgment-calm.trycloudflare.com"
+application_url = "https://airports-sheet-peru-brings.trycloudflare.com"
 embedded = true
 name = "stripe-console"
 handle = "stripe-console"
@@ -19,9 +19,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://sides-seniors-judgment-calm.trycloudflare.com/auth/callback",
-  "https://sides-seniors-judgment-calm.trycloudflare.com/auth/shopify/callback",
-  "https://sides-seniors-judgment-calm.trycloudflare.com/api/auth/callback"
+  "https://airports-sheet-peru-brings.trycloudflare.com/auth/callback",
+  "https://airports-sheet-peru-brings.trycloudflare.com/auth/shopify/callback",
+  "https://airports-sheet-peru-brings.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]

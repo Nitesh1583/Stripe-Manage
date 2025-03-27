@@ -334,7 +334,7 @@ export default function Index() {
                  
                  <BlockStack gap="200">
                     <Text as="h4" variant="headingSm">
-                      Ready to simplify your payment management? Install Stripe Console today and start your 7-day free trial. Experience the future of payment management, built exclusively for Shopify.
+                      Ready to simplify your payment management? Install Stripe Console App today and start your 7-day free trial. Experience the future of payment management, built exclusively for Shopify.
                     </Text>
                 </BlockStack>
               </BlockStack>

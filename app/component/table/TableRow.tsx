@@ -3,13 +3,28 @@ import { useAppBridge } from "@shopify/app-bridge-react";
 import { ActionList, Badge, Button, IndexTable, Popover } from "@shopify/polaris";
 import { DeleteIcon, ClipboardIcon, DataPresentationIcon, EditIcon, MenuHorizontalIcon } from "@shopify/polaris-icons";
 import { useEffect, useState } from "react";
+// import { fetchSearchStripeCustomer, fetchStripeCustomers, fetchStripeCustomerData } from "../../models/customer.server";
 
 export default function TableRow({ customer, isActive, setActiveIndex }) {
-  const { created, id, name, email, invoice_settings, default_payment_method} = customer;
+  const { created, id, name, email, last4, brand, invoice_settings, default_payment_method} = customer;
   console.log(customer);
-  console.log(customer.invoice_settings);
-  console.log(customer.invoice_settings.default_payment_method);
+  // console.log(customer.invoice_settings);
+  // console.log(customer.invoice_settings.default_payment_method);
   // const createddate = new Date(created * 1000).toLocaleString();
+
+  // const [last4, setLast4] = useState("Loading...");
+  
+  // useEffect(() => {
+  //   async function fetchCardLast4() {
+  //     if (invoice_settings?.default_payment_method) {
+  //       const data = await fetchStripeCustomerData(id, customer);
+  //       setLast4(data.last4);
+  //     } else {
+  //       setLast4("N/A");
+  //     }
+  //   }
+  //   fetchCardLast4();
+  // }, [invoice_settings?.default_payment_method]);
 
   // Add new code --->
   const [isCopied, setIsCopied] = useState(false);
@@ -33,44 +48,9 @@ export default function TableRow({ customer, isActive, setActiveIndex }) {
     >
       <IndexTable.Cell>{name}</IndexTable.Cell>
       <IndexTable.Cell>{email}</IndexTable.Cell>
-      <IndexTable.Cell>{customer ? customer.invoice_settings.default_payment_method : "--"}</IndexTable.Cell>
+      {/*<IndexTable.Cell>{customer ? customer.invoice_settings.default_payment_method : "--"}</IndexTable.Cell>*/}
+       <IndexTable.Cell>{last4}/{[brand]}</IndexTable.Cell>
       <IndexTable.Cell>{createddate}</IndexTable.Cell>
-      
-      {/*Next IndexCell working with Action Column using on Customer Page*/}
-      {/*<IndexTable.Cell>
-        <Popover
-          active={isActive}
-          activator={
-            <Button
-              variant="plain"
-              icon={MenuHorizontalIcon}
-              onClick={() => setActiveIndex(customer.id)}
-            />
-          }
-          autofocusTarget="first-node"
-          onClose={() => setActiveIndex("")}
-        >
-          <ActionList
-            actionRole="menuitem"
-            sections={[
-              {
-                title: "Customer options",
-                items: [
-                  {
-                    content: "Edit customer",
-                    icon: EditIcon,
-                  },
-                  {
-                    destructive: true,
-                    content: "Delete customer",
-                    icon: DeleteIcon,
-                  },
-                ],
-              },
-            ]}
-          />
-        </Popover>
-      </IndexTable.Cell>*/}
     </IndexTable.Row>
   );
 }

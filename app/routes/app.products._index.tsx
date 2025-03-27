@@ -30,8 +30,7 @@ export default function DisputePage() {
   const shopify = useAppBridge();
   const navigate = useNavigate();
   const { products, premiumUser,UserInfo} = useLoaderData();
-  const [model, setModel] = useState(false);
-  console.log(products);  
+  const [model, setModel] = useState(false);  
 
   const resourceName = {
     singular: "products",
@@ -56,6 +55,9 @@ export default function DisputePage() {
   const timeDifference = date2 - date1;
   const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
 
+  console.log(products);
+  console.log(premiumUser);
+
   return (
     <>
       <Modal
@@ -74,14 +76,14 @@ export default function DisputePage() {
       <Page
         title="Products"
         backAction={{ content: "Home", url: "/app" }}
-        primaryAction={{
-          content: "Add product",
-          onAction: () => (premiumUser ? setModel(!model) : redirect("/app")),
-          icon: premiumUser ? PlusIcon : LockIcon,
-        }}
-        secondaryActions={[
-          { content: "Export", onAction: () => alert("Duplicate action") },
-        ]}
+        // primaryAction={{
+        //   content: "Add product",
+        //   onAction: () => (premiumUser ? setModel(!model) : redirect("/app")),
+        //   icon: premiumUser ? PlusIcon : LockIcon,
+        // }}
+        // secondaryActions={[
+        //   { content: "Export", onAction: () => alert("Duplicate action") },
+        // ]}
       >
       {premiumUser === 1 || daysDifference <= 7 ? (
         <>

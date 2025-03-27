@@ -1,17 +1,7 @@
 import { json, redirect, useLoaderData } from "@remix-run/react";
-import {
-  Card,
-  IndexTable,
-  Page,
-  Pagination,
-  CalloutCard,
-  Text 
-} from "@shopify/polaris";
-import {
-  LockIcon,
-  PlusIcon
-} from "@shopify/polaris-icons";
-import { useState } from "react";
+import { Card,IndexTable,Page,Pagination,CalloutCard,Text } from "@shopify/polaris";
+import {LockIcon,PlusIcon } from "@shopify/polaris-icons";
+import {useEffect, useState } from "react";
 
 import db from "../db.server";
 import { authenticate } from "../shopify.server";
@@ -27,24 +17,27 @@ export async function loader({ request }) {
 
   if (!userInfo) return redirect("/app");
 
-  let paymentData = await fetchStripePaymentData(userInfo);
-  let searchVal = '';
-  const handleSearch = async (event) =>{
-    searchVal = event.target.value;
+  // Get search query from the request
+  const url = new URL(request.url);
+  const searchVal = url.searchParams.get('search') || '';  // Get search parameter from the URL
 
-    if(searchVal != ''){
-      paymentData = await fetchSearchStripePaymentData(searchVal);
-    }
-  }
+  // Fetch data based on the search query
+  let paymentData = searchVal ? await fetchSearchStripePaymentData(searchVal, userInfo) : await fetchStripePaymentData(userInfo);
+
   return json(paymentData);
 }
+
 
 export default function PaymentsPage() {
   const { payments, premiumUser, UserInfo } = useLoaderData();
   const [ activeIndex, setActiveIndex ]=useState(null);
   const [ searchedVal, setSearchedVal ] = useState("");
   const [ currentPage, setCurrentPage ] = useState(1);
-  const [ itemsPerPage  ] = useState(5);
+  const [ itemsPerPage  ] = useState(10);
+
+  const [filteredPayments, setFilteredPayments] = useState(payments || []);
+  console.log(payments);
+
 
   // Date calculations
   const subscriptionCreatedDate = UserInfo.createdAt; //DateTime format : 2025-03-07T11:27:57.468Z
@@ -62,14 +55,24 @@ export default function PaymentsPage() {
   const timeDifference = date2 - date1;
   const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
 
+  // Function to handle search input change
   const handleSearch = (event) => {
     setSearchedVal(event.target.value);
   }
 
-  const filteredPayments = payments.filter((row) =>
-    !searchedVal.length ||
-    row.id.toString().toLowerCase().includes(searchedVal.toString().toLowerCase())
-  );
+  // Filter payments based on searchValue (Order ID or Customer Name)
+  useEffect(() => {
+    const filteredData = payments.filter((payment) => {
+      const orderId = payment.order_id || "";
+      const customerName = payment.customerdetail?.name || "";
+      return (
+        orderId.includes(searchedVal) ||
+        customerName.toLowerCase().includes(searchedVal.toLowerCase())
+      );
+    });
+
+    setFilteredPayments(filteredData);
+  }, [searchedVal, payments]);
 
   const paginatedPayments = filteredPayments.slice(
     (currentPage - 1) * itemsPerPage,
@@ -85,23 +88,16 @@ export default function PaymentsPage() {
       {premiumUser === 1 || daysDifference <= 7 ? (
         <>
           <label htmlFor="search">
-            <input
-              id="search"
-              type="text"
-              placeholder="Search Product"
-              value={searchedVal}
-              onChange={handleSearch}
-            />
+            <input id="search" type="text" value={searchedVal} onChange={handleSearch} placeholder="Search by Order ID or Customer Name" />
           </label>
           <Card>
             <IndexTable
               resourceName={{ singular: `payment`, plural: "payments" }}
-              itemCount={payments.length}
+              itemCount={filteredPayments.length}
               headings={[
                 { title: "Id" },
                 { title: "Amount" },
                 { title: "Status" },
-                // { title: "Products" },
                 { title: "Customer" },
                 { title: "Date" },
                 { title: "Action" },
