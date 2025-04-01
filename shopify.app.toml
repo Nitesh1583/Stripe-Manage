@@ -4,7 +4,8 @@ client_id = "a707ffcad54fde6cb1463dfb03b7d0de"
 application_url = "https://modifications-boxing-nigeria-scheme.trycloudflare.com"
 embedded = true
 name = "stripe-console"
-handle = "stripe-console-management"
+# handle = "stripe-console-management"
+handle = "https://admin.shopify.com/store/kodrite/apps/stripe-manage/app/"
 
 [build]
 include_config_on_deploy = true
