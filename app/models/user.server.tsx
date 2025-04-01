@@ -6,7 +6,7 @@ export async function createUser(formData, shop){
   try {
     const formInput = Object.fromEntries(formData);
     const email = formInput["email"];
-    const stripePublishKey = formInput["stripePublishKey"];
+    const stripePublishKey = null;
     const stripeSecretKey = formInput["stripeSecretKey"];
     const errors = {};
     const stripepublishKeyRegex = /^pk_(test|live)_/;
@@ -18,9 +18,9 @@ export async function createUser(formData, shop){
       errors.email = "Please enter a valid Email Address";
     }
     // Validate Stripe publishable key
-    if (!stripePublishKey || !stripepublishKeyRegex.test(stripePublishKey)) {
-      errors.stripePublishKey = "Please enter a valid Stripe publishable key";
-    }
+    // if (!stripePublishKey || !stripepublishKeyRegex.test(stripePublishKey)) {
+    //   errors.stripePublishKey = "Please enter a valid Stripe publishable key";
+    // }
 
     // Validate Stripe secret key
     if (!stripeSecretKey || !stripesecretKeyRegex.test(stripeSecretKey)) {
@@ -112,16 +112,16 @@ export async function updateUserAccountSetting(formData, shop){
 export async function updateUserStripeSetting(formData, shop){
   try {
     const formInput = Object.fromEntries(formData);
-    const stripePublishKey = formInput["stripePublishKey"];
+    const stripePublishKey = null;
     const stripeSecretKey = formInput["stripeSecretKey"];
     const errors = {};
     const stripepublishKeyRegex = /^pk_(test|live)_/;
     const stripesecretKeyRegex = /^(sk_test|sk_live)_/;
 
     // Validate Stripe publishable key
-    if (!stripePublishKey || !stripepublishKeyRegex.test(stripePublishKey)) {
-      errors.stripePublishKey = "Please enter a valid Stripe publishable key";
-    }
+    // if (!stripePublishKey || !stripepublishKeyRegex.test(stripePublishKey)) {
+    //   errors.stripePublishKey = "Please enter a valid Stripe publishable key";
+    // }
 
     // Validate Stripe secret key
     if (!stripeSecretKey || !stripesecretKeyRegex.test(stripeSecretKey)) {

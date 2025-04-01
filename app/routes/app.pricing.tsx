@@ -1,6 +1,6 @@
 import { useActionData, useLoaderData, useFetcher } from "@remix-run/react";
 import { redirectDocument, json } from "@remix-run/node";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Banner,
   CalloutCard,
@@ -37,6 +37,7 @@ export default function PricingPage() {
   const {subUserData, error, subInfo } = useLoaderData();
   const actionData = useActionData();
   const fetcher = useFetcher();
+  const [loading, setLoading] = useState(false);
   
   const premiumUserData = subUserData.userinfo.premiumUser;
 
@@ -44,6 +45,7 @@ export default function PricingPage() {
   // fetch Checkout Session URL and redirect (using plan() function on button click)
   useEffect(() => {
       if(fetcher.data?.success) {
+        setLoading(false);
         if (fetcher.data?.redirectUrl) {
           window.open(fetcher.data.redirectUrl); //redirect to checkout session
         }
@@ -60,7 +62,7 @@ export default function PricingPage() {
   return (
     <Page title="Pricing" backAction={{ content: "Home", url: "/app" }}>
       <Layout>
-        <Layout.Section>
+        {/*<Layout.Section>
           {error && (
             <Banner status="critical" title="Error">
               <Text as="p">{error}</Text>
@@ -73,7 +75,7 @@ export default function PricingPage() {
               payment processing capabilities today.
             </Text>
           </Banner>
-        </Layout.Section>
+        </Layout.Section>*/}
         <Layout.Section>
           <Grid>
             {subUserData.subInfo != null ? (
@@ -82,10 +84,12 @@ export default function PricingPage() {
                 <CalloutCard
                   title="Subscription Active"
                   primaryAction={{
-                    content: "Cancel Subscription",
+                    content: loading ? "Cancelling..." : "Cancel Subscription",
                     onAction: () => {
+                      setLoading(true);
                       let shopname = subUserData.shop;
-                      let StripeSecretKey = subUserData.userinfo.stripeSecretKey;
+                      // let StripeSecretKey = subUserData.userinfo.stripeSecretKey;
+                      let StripeSecretKey = "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";
                       if(subUserData.subInfo.subscription_status === 'active') {
                         const subscriptionId = subUserData.subInfo.subscription_id;
                         const rowId = subUserData.subInfo.id;
@@ -94,6 +98,7 @@ export default function PricingPage() {
 
                       }
                     },
+                    disabled: loading,
                   }}
                 >
                   <Text as="p">Your Subscription Plan Amount is : $9.99</Text>
@@ -103,7 +108,7 @@ export default function PricingPage() {
               // Before subscription show this grid
               <Grid.Cell columnSpan={{ xs: 6, sm: 3, md: 3, lg: 6, xl: 6 }}>
                 <CalloutCard
-                  title="Pricing plan"
+                  title="Stripe Console Pricing"
                   primaryAction={{
                     content: "Buy $9.99",
                     onAction: () => {
@@ -111,7 +116,8 @@ export default function PricingPage() {
                         let shopname = subUserData.shop;
                         shopname = shopname.split('.');
                         shopname = shopname[0];
-                        let StripeSecretKey = subUserData.userinfo.stripeSecretKey;
+                        // let StripeSecretKey = subUserData.userinfo.stripeSecretKey;
+                        let StripeSecretKey = "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";
 
                         const formData = new FormData();
                         formData.append("actionType", "plan");
@@ -125,12 +131,14 @@ export default function PricingPage() {
                   }}
                 >
                   <Text as="p">
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                    {/*Choose the Perfect Plan for Your Business*/} 
                   </Text>
                   <List type="bullet" gap="loose">
-                    <List.Item>Lorem ipsum</List.Item>
-                    <List.Item>Dolor sit amet</List.Item>
-                    <List.Item>Consectetur adipiscing</List.Item>
+                    <List.Item>No Need to login stripe—everything is within Shopify.</List.Item>
+                    <List.Item> Customer management with detailed insights for better engagement.</List.Item>
+                    <List.Item>Monitor your Products Sold List to see which items are performing best.</List.Item>
+                    <List.Item>Customizable dashboard views and filters.</List.Item>
+                    <List.Item>View and manage all your payments in one place with the Payments Manage List.</List.Item>
                   </List>
                 </CalloutCard>
               </Grid.Cell>
@@ -188,9 +196,12 @@ export async function action({ request }) {
 
       const session = await stripe.checkout.sessions.create({
         success_url: "https://admin.shopify.com/store/"+shopname+"/apps/stripe-manage/app/pricing",
+        cancel_url: "https://admin.shopify.com/store/"+shopname+"/apps/stripe-manage/app/pricing",
         line_items: [
           {
-            price: "price_1PrutPIgRSAwxCstAcWVhcys",
+            // price: "price_1PrutPIgRSAwxCstAcWVhcys",
+            // price: "price_1R8xqJJdWsBpCfQKAu2aZRpJ",
+            price: "price_1R8zSVHACfpAz0Akbqwkx7rc", //live mode
             quantity: 1,
           },
         ],

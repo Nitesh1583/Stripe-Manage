@@ -1,12 +1,12 @@
 import { Outlet, redirect, useLoaderData, useNavigate } from "@remix-run/react";
 import { Modal, TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import {
-  Card,
+  Card,Banner,
   IndexTable,
   Page,
   SkeletonThumbnail,
   Thumbnail,
-  CalloutCard,
+  CalloutCard,Layout,
   Text ,Popover,ActionList,
 } from "@shopify/polaris";
 import { LockIcon, PlusIcon, MenuHorizontalIcon } from "@shopify/polaris-icons";
@@ -29,8 +29,8 @@ export async function loader({ request }) {
 export default function DisputePage() {
   const shopify = useAppBridge();
   const navigate = useNavigate();
-  const { products, premiumUser,UserInfo} = useLoaderData();
-  const [model, setModel] = useState(false);  
+  const { products, premiumUser, UserInfo, subdata} = useLoaderData();
+  const [model, setModel] = useState(false); 
 
   const resourceName = {
     singular: "products",
@@ -47,16 +47,41 @@ export default function DisputePage() {
   const subDate = new Date(subscriptionCreatedDate).toISOString().split("T")[0]; 
   const currentDateFormatted = currentDate.toISOString().split("T")[0]; 
 
-  // Convert to Date objects (ensuring time is ignored)
-  const date1 = new Date(subDate);
-  const date2 = new Date(currentDateFormatted);
+  const userTakesub = UserInfo.subCount;
+  let daysDifference = 0;
+  let newTrialEndDate = 0; 
 
-  // Calculate the difference in days
-  const timeDifference = date2 - date1;
-  const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+  if (userTakesub == 0) {
 
-  console.log(products);
-  console.log(premiumUser);
+      // Convert to Date objects (ensuring time is ignored)
+      const date1 = new Date(subDate);
+      const date2 = new Date(currentDateFormatted);
+
+
+      // Calculate the difference in days
+      const timeDifference = date2 - date1;
+      daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+
+      const trialEndDate = new Date(date1);
+      trialEndDate.setDate(trialEndDate.getDate() + 6);
+
+      const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      // hour: "numeric",
+      // minute: "numeric",
+      // hour12: true,
+    };
+
+    newTrialEndDate = trialEndDate.toLocaleString("en-US", options);
+  }
+
+  if (daysDifference == 0 && userTakesub == 0) {
+    daysDifference = 1;
+  }
+
+
 
   return (
     <>
@@ -85,8 +110,35 @@ export default function DisputePage() {
         //   { content: "Export", onAction: () => alert("Duplicate action") },
         // ]}
       >
-      {premiumUser === 1 || daysDifference <= 7 ? (
+
+      {(premiumUser == 0 && daysDifference <= 7  && userTakesub == 0) ?
         <>
+          <Layout>  
+            <Layout.Section>
+              <CalloutCard
+                title=""
+                primaryAction={{
+                  content: "Upgrade Now",
+                  url: "/app/pricing",
+                }}
+              >
+                <Text as="p" tone="critical">
+                  Time is running out! Your free trial of Stripe Console ends on {newTrialEndDate} and we’d hate for you to lose access to all the premium features you’ve been enjoying.
+                </Text>
+              </CalloutCard>
+            </Layout.Section>
+          </Layout>
+        </>
+      :''}
+
+      {((premiumUser == 1 && userTakesub == 1) || (daysDifference <= 7 && daysDifference != 0) ) ? (
+        <>
+        <Layout>
+         <Layout.Section>
+           {/*Add for spacing*/}
+         </Layout.Section>  
+         
+         <Layout.Section>
           <Card>
           <IndexTable
             resourceName={resourceName}
@@ -109,8 +161,22 @@ export default function DisputePage() {
             {products &&
               products.map((product, index, isActive) => {
                 const { id, price, currency, images, name, created, updated } = product;
-                const createddate = new Date(created * 1000).toLocaleString();
-                const updateddate = new Date(updated * 1000).toLocaleString();
+                const createddate = new Date(created * 1000).toLocaleString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                  hour: "numeric",
+                  minute: "numeric",
+                  hour12: true,
+                });
+                const updateddate = new Date(updated * 1000).toLocaleString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                  hour: "numeric",
+                  minute: "numeric",
+                  hour12: true,
+                });
                 return (
                   <IndexTable.Row
                     id={id}
@@ -136,6 +202,8 @@ export default function DisputePage() {
               })}
           </IndexTable>
         </Card>
+        </Layout.Section> 
+        </Layout>
         </>
         ):(
           <CalloutCard

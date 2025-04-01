@@ -49,7 +49,7 @@ export default function TableRow({ customer, isActive, setActiveIndex }) {
       <IndexTable.Cell>{name}</IndexTable.Cell>
       <IndexTable.Cell>{email}</IndexTable.Cell>
       {/*<IndexTable.Cell>{customer ? customer.invoice_settings.default_payment_method : "--"}</IndexTable.Cell>*/}
-       <IndexTable.Cell>{last4}/{[brand]}</IndexTable.Cell>
+       <IndexTable.Cell>{(last4 && brand) ? last4+"/"+brand : "No default Payment Method"} </IndexTable.Cell>
       <IndexTable.Cell>{createddate}</IndexTable.Cell>
     </IndexTable.Row>
   );

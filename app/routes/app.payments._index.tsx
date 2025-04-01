@@ -1,5 +1,5 @@
 import { json, redirect, useLoaderData } from "@remix-run/react";
-import { Card,IndexTable,Page,Pagination,CalloutCard,Text } from "@shopify/polaris";
+import { Card,IndexTable,Page,Pagination,CalloutCard,Text,Layout } from "@shopify/polaris";
 import {LockIcon,PlusIcon } from "@shopify/polaris-icons";
 import {useEffect, useState } from "react";
 
@@ -29,15 +29,14 @@ export async function loader({ request }) {
 
 
 export default function PaymentsPage() {
-  const { payments, premiumUser, UserInfo } = useLoaderData();
+  const { payments, premiumUser, UserInfo, subdata } = useLoaderData();
   const [ activeIndex, setActiveIndex ]=useState(null);
   const [ searchedVal, setSearchedVal ] = useState("");
   const [ currentPage, setCurrentPage ] = useState(1);
-  const [ itemsPerPage  ] = useState(10);
+  const [ itemsPerPage  ] = useState(5);
+   console.log(subdata);
 
   const [filteredPayments, setFilteredPayments] = useState(payments || []);
-  console.log(payments);
-
 
   // Date calculations
   const subscriptionCreatedDate = UserInfo.createdAt; //DateTime format : 2025-03-07T11:27:57.468Z
@@ -47,13 +46,40 @@ export default function PaymentsPage() {
   const subDate = new Date(subscriptionCreatedDate).toISOString().split("T")[0]; 
   const currentDateFormatted = currentDate.toISOString().split("T")[0]; 
 
-  // Convert to Date objects (ensuring time is ignored)
-  const date1 = new Date(subDate);
-  const date2 = new Date(currentDateFormatted);
+  const userTakesub = UserInfo.subCount;
+  let daysDifference = 0;
+  let newTrialEndDate = 0; 
 
-  // Calculate the difference in days
-  const timeDifference = date2 - date1;
-  const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+  if (userTakesub == 0) {
+
+      // Convert to Date objects (ensuring time is ignored)
+      const date1 = new Date(subDate);
+      const date2 = new Date(currentDateFormatted);
+
+      // Calculate the difference in days
+      const timeDifference = date2 - date1;
+      const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+
+      const trialEndDate = new Date(date1);
+      trialEndDate.setDate(trialEndDate.getDate() + 6);
+
+      const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      // hour: "numeric",
+      // minute: "numeric",
+      // hour12: true,
+    };
+
+    // const newTrialEndDate = trialEndDate.toLocaleString("en-US", options).replace(" at", " at");
+    newTrialEndDate = trialEndDate.toLocaleString("en-US", options);
+  }
+
+  if (daysDifference == 0 && userTakesub == 0) {
+    daysDifference = 1;
+  }
+
 
   // Function to handle search input change
   const handleSearch = (event) => {
@@ -85,8 +111,37 @@ export default function PaymentsPage() {
 
   return (
     <Page title="Payments">
-      {premiumUser === 1 || daysDifference <= 7 ? (
+      
+      {(premiumUser == 0 && daysDifference <= 7  && userTakesub == 0) ?
         <>
+          <Layout>  
+            <Layout.Section>
+              <CalloutCard
+                title=""
+                primaryAction={{
+                  content: "Upgrade Now",
+                  url: "/app/pricing",
+                }}
+              >
+                <Text as="p" tone="critical">
+                  Time is running out! Your free trial of Stripe Console ends on {newTrialEndDate} and we’d hate for you to lose access to all the premium features you’ve been enjoying.
+                </Text>
+              </CalloutCard>
+            </Layout.Section>
+          </Layout>
+        </>
+      :''}
+
+      {((premiumUser == 1 && userTakesub == 1) || (daysDifference <= 7 && daysDifference != 0) ) ? (
+        <>
+        <Layout>
+         <Layout.Section>
+           {/*Add for spacing*/}
+         </Layout.Section>  
+         
+         <Layout.Section>
+
+
           <label htmlFor="search">
             <input id="search" type="text" value={searchedVal} onChange={handleSearch} placeholder="Search by Order ID or Customer Name" />
           </label>
@@ -121,6 +176,8 @@ export default function PaymentsPage() {
               currentPage={currentPage}
             />
           </Card>
+          </Layout.Section> 
+        </Layout>
         </>
       ) : (
           <CalloutCard

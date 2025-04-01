@@ -1,6 +1,6 @@
-
 import { Stripe } from "stripe";
 import { currency } from "../utils/currency";
+import db from "../db.server";
 //Fetch Stripe Products
 
 export async function fetchStripeProducts(userInfo) {
@@ -10,6 +10,7 @@ export async function fetchStripeProducts(userInfo) {
   const currencyData= currency.find((item)=>{
     return item.code === products.currency;
   })
+  const existingShop = await db.SubscriptionUser.findFirst({ where: { shop_url: userInfo.shop, sub_cancel_date: null }}); 
 
   const productsWithData = await Promise.all(
     products.data.map(async (product) => {
@@ -17,7 +18,6 @@ export async function fetchStripeProducts(userInfo) {
         product: product.id,
         limit: 1,
       });
-
 
       // let imageUrls = [];
       // if (product.images && product.images.length > 0) {
@@ -43,7 +43,7 @@ export async function fetchStripeProducts(userInfo) {
     }),
   );
 
-  return { products: productsWithData, UserInfo:userInfo, premiumUser: userInfo.premiumUser };
+  return { products: productsWithData, UserInfo:userInfo, premiumUser: userInfo.premiumUser, subdata: existingShop, isError:false};
 }
 
 // fetch single stripe product

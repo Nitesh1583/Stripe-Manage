@@ -9,7 +9,7 @@ import {
   ActionList,
   Badge,
   CalloutCard,
-  Text 
+  Text,Layout,
 } from "@shopify/polaris";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import {useState,useEffect} from "react";
@@ -33,7 +33,7 @@ import {
   StopCircleIcon,
 } from "@shopify/polaris-icons";
 // import PaymentLinkRow from "../component/table/PaymentLinkRow";
-import { deactivateStripePaymenyLink, fetchStripePaymentLinksData } from "../models/paymentlinks.server";
+import { deactivateStripePaymenytLink, fetchStripePaymentLinksData } from "../models/paymentlinks.server";
 
 export async function loader({ request }) {
   const auth = await authenticate.admin(request);
@@ -47,7 +47,7 @@ export async function loader({ request }) {
 }
 
 export default function PaymentLinkPage() {
-  const { paymentLinks, premiumUser,UserInfo, isError,message,data } = useLoaderData();
+  const { paymentLinks, premiumUser,UserInfo, isError,message,data, subdata } = useLoaderData();
   const [isCopied, setIsCopied] = useState(false);
   const [isActiveIndex, setActiveIndex] = useState(null);
   const [activeProduct, setActiveProduct] = useState(null);
@@ -102,33 +102,85 @@ export default function PaymentLinkPage() {
   const subDate = new Date(subscriptionCreatedDate).toISOString().split("T")[0]; 
   const currentDateFormatted = currentDate.toISOString().split("T")[0]; 
 
-  // Convert to Date objects (ensuring time is ignored)
-  const date1 = new Date(subDate);
-  const date2 = new Date(currentDateFormatted);
+  const userTakesub = UserInfo.subCount;
+  let daysDifference = 0;
+  let newTrialEndDate = 0; 
 
-  // Calculate the difference in days
-  const timeDifference = date2 - date1;
-  const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+  if (userTakesub == 0) {
+
+    // Convert to Date objects (ensuring time is ignored)
+    const date1 = new Date(subDate);
+    const date2 = new Date(currentDateFormatted);
+
+    // Calculate the difference in days
+    const timeDifference = date2 - date1;
+    const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+
+    const trialEndDate = new Date(date1);
+    trialEndDate.setDate(trialEndDate.getDate() + 6);
+
+    const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      // hour: "numeric",
+      // minute: "numeric",
+      // hour12: true,
+    };
+
+    newTrialEndDate = trialEndDate.toLocaleString("en-US", options);
+  }
+
+  if (daysDifference == 0 && userTakesub == 0) {
+    daysDifference = 1;
+  }
 
   return (
     <Page
       title="Payment Links"
       backAction={{ content: "Home", url: "/app" }}
-      primaryAction={{
-        content: "New",
-        onAction: () =>premiumUser?navigate("/app/payment-links/create"):navigate("/app/pricing") ,
-        icon: premiumUser?PlusIcon:LockIcon,
-      }}
-      secondaryActions={[
-        {
-          content: "Export",
-          onAction: () => alert("Duplicate action"),
-          // icon:premiumUser?ExportIcon:LockIcon
-          icon: ExportIcon,
-        },
-      ]}
+      // primaryAction={{
+      //   content: "New",
+      //   onAction: () =>premiumUser?navigate("/app/payment-links/create"):navigate("/app/pricing") ,
+      //   icon: premiumUser?PlusIcon:LockIcon,
+      // }}
+      // secondaryActions={[
+      //   {
+      //     content: "Export",
+      //     onAction: () => alert("Duplicate action"),
+      //     // icon:premiumUser?ExportIcon:LockIcon
+      //     icon: ExportIcon,
+      //   },
+      // ]}
     >
-    {premiumUser === 1 || daysDifference <= 7 ? (
+    {(premiumUser == 0 && daysDifference <= 7  && userTakesub == 0) ?
+        <>
+          <Layout>  
+            <Layout.Section>
+              <CalloutCard
+                title=""
+                primaryAction={{
+                  content: "Upgrade Now",
+                  url: "/app/pricing",
+                }}
+              >
+                <Text as="p" tone="critical">
+                  Time is running out! Your free trial of Stripe Console ends on {newTrialEndDate} and we’d hate for you to lose access to all the premium features you’ve been enjoying.
+                </Text>
+              </CalloutCard>
+            </Layout.Section>
+          </Layout>
+        </>
+      :''}
+
+      {((premiumUser == 1 && userTakesub == 1) || (daysDifference <= 7 && daysDifference != 0) ) ? (
+      <>
+        <Layout>
+         <Layout.Section>
+          {/*Add for spacing*/}
+         </Layout.Section>  
+         
+         <Layout.Section>
       <Card>
         <IndexTable
           resourceName={{
@@ -277,6 +329,9 @@ export default function PaymentLinkPage() {
             })}
         </IndexTable>
       </Card>
+      </Layout.Section> 
+        </Layout>
+        </>
       ):(
         <CalloutCard
             title="No Trial/Subscription Found!"

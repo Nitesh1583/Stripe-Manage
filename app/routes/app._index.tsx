@@ -237,7 +237,7 @@ export default function Index() {
                         * A clean, intuitive interface designed for ease of use.
                       </Text>
                       <Text as="p" variant="bodyMd">
-                        * Customizable views and filters to suit your business needs..
+                        * Customizable views and filters to suit your business needs.
                       </Text>
                     </BlockStack>
                 </BlockStack>

@@ -54,6 +54,7 @@ export default function SettingsPage() {
   const [email, setEmail] = useState(userInfo?userInfo?.email:"");
   const [stripeApiKeys, setStripeApiKeys] = useState(userInfo);
   const shopify = useAppBridge();
+  console.log(userInfo);
 
   useEffect(() => {
     shopify.toast.show(actionData?.message, { isError: actionData?.isError });
@@ -86,13 +87,16 @@ export default function SettingsPage() {
             </FormLayout>
           </Form>
         </Card>
+        {(userInfo != null) ?
         <Card>
           <Form method={"PATCH"}>
             <FormLayout>
               <Text as="h3" variant="headingMd">
                 Update stripe apikeys
               </Text>
-              <TextField
+
+              {/*Stripe publishable key*/}
+              {/*<TextField
                 type="text"
                 label="Stripe publishable key"
                 onChange={(value) =>
@@ -109,7 +113,8 @@ export default function SettingsPage() {
                     ? actionData?.errors.stripePublishKey
                     : null
                 }
-              />
+              />*/}
+              
               <TextField
                 type="password"
                 label="Stripe secret key"
@@ -134,6 +139,7 @@ export default function SettingsPage() {
             </FormLayout>
           </Form>
         </Card>
+      :''}
       </BlockStack>
     </Page>
   );

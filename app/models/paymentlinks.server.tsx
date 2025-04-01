@@ -1,11 +1,14 @@
 import Stripe from "stripe";
 import { currency } from "../utils/currency";
+import db from "../db.server";
 
 export async function fetchStripePaymentLinksData(userInfo) {
   try {
     const stripe = new Stripe(userInfo.stripeSecretKey);
     const paymentLinks = await stripe.paymentLinks.list();
     const paymentLinksWithProducts = [];
+    const existingShop = await db.SubscriptionUser.findFirst({ where: { shop_url: userInfo.shop, sub_cancel_date: null }}); 
+
     await Promise.all(
       paymentLinks.data.map(async (link,index) => {
         const lineItems = await stripe.paymentLinks.listLineItems(link.id );
@@ -30,7 +33,8 @@ export async function fetchStripePaymentLinksData(userInfo) {
       isError: false,
       UserInfo:userInfo,
       premiumUser: userInfo.premiumUser,
-      data: paymentLinks
+      data: paymentLinks,
+      subdata: existingShop
     };
   } catch (error) {
     return { message: error.message, isError: true };
@@ -65,7 +69,7 @@ export async function createStripePaymentLink(userInfo, formdata) {
 
 // Deactivate payment link using id
 
-export async function deactivateStripePaymenyLink(userInfo, id) {
+export async function deactivateStripePaymenytLink(userInfo, id) {
   try {
     const stripe = new Stripe(userInfo.stripeSecretKey);
     const {active} = await stripe.paymentLinks.retrieve(id);
