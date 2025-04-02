@@ -33,7 +33,6 @@ export async function action({ request }) {
   const formData = await request.formData();
   const auth = await authenticate.admin(request);
   const shop = auth.session.shop;
-  console.log(shop);
 
   switch (method) {
     case "POST":
