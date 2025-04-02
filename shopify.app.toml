@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "a707ffcad54fde6cb1463dfb03b7d0de"
-application_url = "https://modifications-boxing-nigeria-scheme.trycloudflare.com"
+application_url = "https://cia-worried-reports-findlaw.trycloudflare.com"
 embedded = true
 name = "stripe-console"
 handle = "stripe-console-management"
@@ -19,9 +19,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://modifications-boxing-nigeria-scheme.trycloudflare.com/auth/callback",
-  "https://modifications-boxing-nigeria-scheme.trycloudflare.com/auth/shopify/callback",
-  "https://modifications-boxing-nigeria-scheme.trycloudflare.com/api/auth/callback"
+  "https://cia-worried-reports-findlaw.trycloudflare.com/auth/callback",
+  "https://cia-worried-reports-findlaw.trycloudflare.com/auth/shopify/callback",
+  "https://cia-worried-reports-findlaw.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
