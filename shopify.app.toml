@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "a707ffcad54fde6cb1463dfb03b7d0de"
-application_url = "https://loving-territories-trout-skiing.trycloudflare.com"
+application_url = "https://sectors-compiled-donna-translations.trycloudflare.com"
 embedded = true
 name = "stripe-console"
 handle = "stripe-console-management"
@@ -19,9 +19,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://loving-territories-trout-skiing.trycloudflare.com/auth/callback",
-  "https://loving-territories-trout-skiing.trycloudflare.com/auth/shopify/callback",
-  "https://loving-territories-trout-skiing.trycloudflare.com/api/auth/callback"
+  "https://sectors-compiled-donna-translations.trycloudflare.com/auth/callback",
+  "https://sectors-compiled-donna-translations.trycloudflare.com/auth/shopify/callback",
+  "https://sectors-compiled-donna-translations.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
