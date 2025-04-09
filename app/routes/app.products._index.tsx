@@ -50,6 +50,10 @@ export default function DisputePage() {
   const userTakesub = UserInfo.subCount;
   let daysDifference = 0;
   let newTrialEndDate = 0; 
+  let date1 = '';
+  let date2 = '';
+  let trialEndDate = '';
+
   if (daysDifference == 0 && userTakesub == 0) {
     daysDifference = 1;
   }
@@ -60,14 +64,13 @@ export default function DisputePage() {
       const date1 = new Date(subDate);
       const date2 = new Date(currentDateFormatted);
 
-
       // Calculate the difference in days
       const timeDifference = date2 - date1;
       daysDifference = timeDifference / (1000 * 60 * 60 * 24);
 
+
       const trialEndDate = new Date(date1);
       trialEndDate.setDate(trialEndDate.getDate() + 6);
-
       const options = {
       year: "numeric",
       month: "long",
@@ -79,11 +82,6 @@ export default function DisputePage() {
 
     newTrialEndDate = trialEndDate.toLocaleString("en-US", options);
   }
-
-  
-
-  
-
 
   return (
     <>
@@ -113,7 +111,7 @@ export default function DisputePage() {
         // ]}
       >
 
-      {(premiumUser == 0 && daysDifference <= 7  && userTakesub == 0) ?
+      {(premiumUser == 0 && userTakesub == 0 && daysDifference <= 7) ?
         <>
           <Layout>  
             <Layout.Section>
@@ -133,7 +131,7 @@ export default function DisputePage() {
         </>
       :''}
 
-      {((premiumUser == 1 && userTakesub == 1) || (daysDifference <= 7 && daysDifference != 0) ) ? (
+      {(userTakesub == 1 || (userTakesub == 0 && daysDifference <= 7)) ? (
         <>
         <Layout>
          <Layout.Section>
@@ -208,6 +206,8 @@ export default function DisputePage() {
         </Layout>
         </>
         ):(
+          // Show only if trial has ended and no subscription
+        (userTakesub == 0 && daysDifference > 7) && (
           <CalloutCard
             title="No Trial/Subscription Found!"
             primaryAction={{
@@ -215,12 +215,14 @@ export default function DisputePage() {
               url: "/app/pricing",
             }}
           >
-            <Text as="p">You trial period has ended. If you want to continue, click on the below button to buy the subscription.</Text>
+            <Text as="p">
+              Your trial period has ended. If you want to continue, click on the below button to buy the subscription.
+            </Text>
           </CalloutCard>
+        )
       )}
         
       </Page>
-      <Outlet/>
     </>
   );
 }

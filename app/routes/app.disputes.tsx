@@ -47,33 +47,45 @@ export default function DisputePage() {
   let daysDifference = 0;
   let newTrialEndDate = 0; 
 
+  let date1 = '';
+  let date2 = '';
+  let trialEndDate = '';
+
   if (daysDifference == 0 && userTakesub == 0) {
     daysDifference = 1;
   }
 
   if (userTakesub == 0) {
-    // Convert to Date objects (ensuring time is ignored)
-    const date1 = new Date(subDate);
-    const date2 = new Date(currentDateFormatted);
 
-    // Calculate the difference in days
-    const timeDifference = date2 - date1;
-    const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+      // Convert to Date objects (ensuring time is ignored)
+      const date1 = new Date(subDate);
+      const date2 = new Date(currentDateFormatted);
 
-    const trialEndDate = new Date(date1);
-    trialEndDate.setDate(trialEndDate.getDate() + 6);
+      // console.log("currentDateFormatted:", currentDateFormatted);
+      // console.log("User Created add to date fucntion:", date1);
+      // console.log("Current Date: ", date2);
 
-    const options = {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        // hour: "numeric",
-        // minute: "numeric",
-        // hour12: true,
+      // Calculate the difference in days
+      const timeDifference = date2 - date1;
+      daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+      // console.log("Days Diff: ", daysDifference); //Days Difff: 
+
+
+      const trialEndDate = new Date(date1);
+      trialEndDate.setDate(trialEndDate.getDate() + 6);
+
+      // console.log("New Trial End Date: ", trialEndDate); //New End Trial Date:
+      const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      // hour: "numeric",
+      // minute: "numeric",
+      // hour12: true,
     };
 
-    // const newTrialEndDate = trialEndDate.toLocaleString("en-US", options).replace(" at", " at");
     newTrialEndDate = trialEndDate.toLocaleString("en-US", options);
+    // console.log("New Trial End Date: ", newTrialEndDate); //New End Trial Date:
   }
 
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
@@ -139,7 +151,7 @@ export default function DisputePage() {
     <Page title="Dispute">
       {/*<ui-title-bar title="Dispute" />*/}
 
-      {(premiumUser == 0 && daysDifference <= 7  && userTakesub == 0) ?
+      {(premiumUser == 0 && userTakesub == 0 && daysDifference <= 7) ?
         <>
           <Layout>  
             <Layout.Section>
@@ -159,7 +171,7 @@ export default function DisputePage() {
         </>
       :''}
 
-      {((premiumUser == 1 && userTakesub == 1) || (daysDifference <= 7 && daysDifference != 0) ) ? (
+      {(userTakesub == 1 || (userTakesub == 0 && daysDifference <= 7)) ? (
         <>
         <Layout>
          <Layout.Section>
@@ -191,6 +203,8 @@ export default function DisputePage() {
         </Layout>
         </>
         ):(
+          // Show only if trial has ended and no subscription
+        (userTakesub == 0 && daysDifference > 7) && (
           <CalloutCard
             title="No Trial/Subscription Found!"
             primaryAction={{
@@ -198,8 +212,11 @@ export default function DisputePage() {
               url: "/app/pricing",
             }}
           >
-            <Text as="p">You trial period has ended. If you want to continue, click on the below button to buy the subscription.</Text>
+            <Text as="p">
+              Your trial period has ended. If you want to continue, click on the below button to buy the subscription.
+            </Text>
           </CalloutCard>
+        )
         )}
       
     </Page>

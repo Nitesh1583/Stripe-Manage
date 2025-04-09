@@ -199,8 +199,6 @@ export async function action({ request }) {
         cancel_url: "https://admin.shopify.com/store/"+shopname+"/apps/stripe-manage/app/pricing",
         line_items: [
           {
-            // price: "price_1PrutPIgRSAwxCstAcWVhcys",
-            // price: "price_1R8xqJJdWsBpCfQKAu2aZRpJ",
             price: "price_1R8zSVHACfpAz0Akbqwkx7rc", //live mode
             quantity: 1,
           },

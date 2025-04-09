@@ -50,6 +50,10 @@ export default function PaymentsPage() {
   let daysDifference = 0;
   let newTrialEndDate = 0; 
 
+  let date1 = '';
+  let date2 = '';
+  let trialEndDate = '';
+
   if (daysDifference == 0 && userTakesub == 0) {
     daysDifference = 1;
   }
@@ -59,10 +63,11 @@ export default function PaymentsPage() {
       // Convert to Date objects (ensuring time is ignored)
       const date1 = new Date(subDate);
       const date2 = new Date(currentDateFormatted);
-
+      
       // Calculate the difference in days
       const timeDifference = date2 - date1;
-      const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+      daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+
 
       const trialEndDate = new Date(date1);
       trialEndDate.setDate(trialEndDate.getDate() + 6);
@@ -76,11 +81,8 @@ export default function PaymentsPage() {
       // hour12: true,
     };
 
-    // const newTrialEndDate = trialEndDate.toLocaleString("en-US", options).replace(" at", " at");
     newTrialEndDate = trialEndDate.toLocaleString("en-US", options);
   }
-
-  
 
 
   // Function to handle search input change
@@ -114,7 +116,7 @@ export default function PaymentsPage() {
   return (
     <Page title="Payments">
       
-      {(premiumUser == 0 && daysDifference <= 7  && userTakesub == 0) ?
+      {(premiumUser == 0 && userTakesub == 0 && daysDifference <= 7) ?
         <>
           <Layout>  
             <Layout.Section>
@@ -134,7 +136,7 @@ export default function PaymentsPage() {
         </>
       :''}
 
-      {((premiumUser == 1 && userTakesub == 1) || (daysDifference <= 7 && daysDifference != 0) ) ? (
+      {(userTakesub == 1 || (userTakesub == 0 && daysDifference <= 7)) ? (
         <>
         <Layout>
          <Layout.Section>
@@ -182,6 +184,8 @@ export default function PaymentsPage() {
         </Layout>
         </>
       ) : (
+          // Show only if trial has ended and no subscription
+        (userTakesub == 0 && daysDifference > 7) && (
           <CalloutCard
             title="No Trial/Subscription Found!"
             primaryAction={{
@@ -189,8 +193,11 @@ export default function PaymentsPage() {
               url: "/app/pricing",
             }}
           >
-            <Text as="p">You trial period has ended. If you want to continue, click on the below button to buy the subscription.</Text>
+            <Text as="p">
+              Your trial period has ended. If you want to continue, click on the below button to buy the subscription.
+            </Text>
           </CalloutCard>
+        )
 
       )}
     </Page>

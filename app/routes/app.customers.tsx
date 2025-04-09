@@ -61,6 +61,9 @@ export default function CustomerPage() {
   const userTakesub = UserInfo.subCount;
   let daysDifference = 0;
   let newTrialEndDate = 0; 
+  let date1 = '';
+  let date2 = '';
+  let trialEndDate = '';
 
   if (daysDifference == 0 && userTakesub == 0) {
     daysDifference = 1;
@@ -68,18 +71,19 @@ export default function CustomerPage() {
 
   if (userTakesub == 0) {
 
-    // Convert to Date objects (ensuring time is ignored)
-    const date1 = new Date(subDate);
-    const date2 = new Date(currentDateFormatted);
+      // Convert to Date objects (ensuring time is ignored)
+      const date1 = new Date(subDate);
+      const date2 = new Date(currentDateFormatted);
 
-    // Calculate the difference in days
-    const timeDifference = date2 - date1;
-    const daysDifference = timeDifference / (1000 * 60 * 60 * 24);
+      // Calculate the difference in days
+      const timeDifference = date2 - date1;
+      daysDifference = timeDifference / (1000 * 60 * 60 * 24);
 
-    const trialEndDate = new Date(date1);
-    trialEndDate.setDate(trialEndDate.getDate() + 6);
 
-    const options = {
+      const trialEndDate = new Date(date1);
+      trialEndDate.setDate(trialEndDate.getDate() + 6);
+      
+      const options = {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -88,11 +92,8 @@ export default function CustomerPage() {
       // hour12: true,
     };
 
-    // const newTrialEndDate = trialEndDate.toLocaleString("en-US", options).replace(" at", " at");
     newTrialEndDate = trialEndDate.toLocaleString("en-US", options);
   }
-
-  
 
   const handleSearch = (event) => {
     // console.log(event);
@@ -131,7 +132,7 @@ export default function CustomerPage() {
       //   { content: "import", onAction: () => alert("Duplicate action") },
       // ]}
     >
-      {(premiumUser == 0 && daysDifference <= 7  && userTakesub == 0) ?
+      {(premiumUser == 0 && userTakesub == 0 && daysDifference <= 7) ?
         <>
           <Layout>  
             <Layout.Section>
@@ -151,7 +152,7 @@ export default function CustomerPage() {
         </>
       :''}
 
-      {((premiumUser == 1 && userTakesub == 1) || (daysDifference <= 7 && daysDifference != 0) ) ? (
+      {(userTakesub == 1 || (userTakesub == 0 && daysDifference <= 7)) ? (
       <>
       <Layout>
         
@@ -204,15 +205,20 @@ export default function CustomerPage() {
       </Layout>
       </>
       ):(
-      <CalloutCard
+      // Show only if trial has ended and no subscription
+        (userTakesub == 0 && daysDifference > 7) && (
+          <CalloutCard
             title="No Trial/Subscription Found!"
             primaryAction={{
               content: "Buy Subscription",
               url: "/app/pricing",
             }}
           >
-            <Text as="p">You trial period has ended. If you want to continue, click on the below button to buy the subscription.</Text>
+            <Text as="p">
+              Your trial period has ended. If you want to continue, click on the below button to buy the subscription.
+            </Text>
           </CalloutCard>
+        )
     )}
     </Page>
   );
