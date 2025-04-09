@@ -88,8 +88,8 @@ export default function PricingPage() {
                     onAction: () => {
                       setLoading(true);
                       let shopname = subUserData.shop;
-                      let StripeSecretKey = subUserData.userinfo.stripeSecretKey;
-                      // let StripeSecretKey = "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";
+                      // let StripeSecretKey = subUserData.userinfo.stripeSecretKey;
+                      let StripeSecretKey = process.env.STRIPE_SECRET_KEY;
                       if(subUserData.subInfo.subscription_status === 'active') {
                         const subscriptionId = subUserData.subInfo.subscription_id;
                         const rowId = subUserData.subInfo.id;
@@ -116,8 +116,8 @@ export default function PricingPage() {
                         let shopname = subUserData.shop;
                         shopname = shopname.split('.');
                         shopname = shopname[0];
-                        let StripeSecretKey = subUserData.userinfo.stripeSecretKey;
-                        // let StripeSecretKey = "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";
+                        // let StripeSecretKey = subUserData.userinfo.stripeSecretKey;
+                        let StripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
                         const formData = new FormData();
                         formData.append("actionType", "plan");
@@ -199,9 +199,9 @@ export async function action({ request }) {
         cancel_url: "https://admin.shopify.com/store/"+shopname+"/apps/stripe-manage/app/pricing",
         line_items: [
           {
-            price: "price_1PrutPIgRSAwxCstAcWVhcys",
+            // price: "price_1PrutPIgRSAwxCstAcWVhcys",
             // price: "price_1R8xqJJdWsBpCfQKAu2aZRpJ",
-            // price: "price_1R8zSVHACfpAz0Akbqwkx7rc", //live mode
+            price: "price_1R8zSVHACfpAz0Akbqwkx7rc", //live mode
             quantity: 1,
           },
         ],
