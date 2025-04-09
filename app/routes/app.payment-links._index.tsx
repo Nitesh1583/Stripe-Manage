@@ -106,6 +106,10 @@ export default function PaymentLinkPage() {
   let daysDifference = 0;
   let newTrialEndDate = 0; 
 
+  if (daysDifference == 0 && userTakesub == 0) {
+    daysDifference = 1;
+  }
+
   if (userTakesub == 0) {
 
     // Convert to Date objects (ensuring time is ignored)
@@ -131,9 +135,7 @@ export default function PaymentLinkPage() {
     newTrialEndDate = trialEndDate.toLocaleString("en-US", options);
   }
 
-  if (daysDifference == 0 && userTakesub == 0) {
-    daysDifference = 1;
-  }
+  
 
   return (
     <Page

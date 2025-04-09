@@ -50,6 +50,9 @@ export default function DisputePage() {
   const userTakesub = UserInfo.subCount;
   let daysDifference = 0;
   let newTrialEndDate = 0; 
+  if (daysDifference == 0 && userTakesub == 0) {
+    daysDifference = 1;
+  }
 
   if (userTakesub == 0) {
 
@@ -77,9 +80,7 @@ export default function DisputePage() {
     newTrialEndDate = trialEndDate.toLocaleString("en-US", options);
   }
 
-  if (daysDifference == 0 && userTakesub == 0) {
-    daysDifference = 1;
-  }
+  
 
   
 

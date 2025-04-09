@@ -47,6 +47,10 @@ export default function DisputePage() {
   let daysDifference = 0;
   let newTrialEndDate = 0; 
 
+  if (daysDifference == 0 && userTakesub == 0) {
+    daysDifference = 1;
+  }
+
   if (userTakesub == 0) {
     // Convert to Date objects (ensuring time is ignored)
     const date1 = new Date(subDate);
@@ -70,10 +74,6 @@ export default function DisputePage() {
 
     // const newTrialEndDate = trialEndDate.toLocaleString("en-US", options).replace(" at", " at");
     newTrialEndDate = trialEndDate.toLocaleString("en-US", options);
-  }
-
-  if (daysDifference == 0 && userTakesub == 0) {
-    daysDifference = 1;
   }
 
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
