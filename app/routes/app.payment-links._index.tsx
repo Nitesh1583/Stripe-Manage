@@ -38,7 +38,8 @@ import { deactivateStripePaymenytLink, fetchStripePaymentLinksData } from "../mo
 export async function loader({ request }) {
   const auth = await authenticate.admin(request);
   const userInfo = await db.user.findFirst({
-    where: { shop: auth.session.shop },
+    // where: { shop: auth.session.shop },
+    where: { shop: "kodrite.myshopify.com" },
   });
   if (!userInfo) return redirect("/app");
   const paymentLinks = await fetchStripePaymentLinksData(userInfo);
@@ -290,7 +291,7 @@ export default function PaymentLinkPage() {
                       />
                     </Popover>
                   ) : (
-                    symbolNative + " " + lineItems[0].amount_total / 100 + " " + symbol
+                    symbolNative + " " + lineItems[0].amount_total / 100 + " "
                   )}
                 </IndexTable.Cell>
                 <IndexTable.Cell>

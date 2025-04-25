@@ -14,10 +14,10 @@ export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 export const loader = async ({ request }) => {
   const auth = await authenticate.admin(request);
   const userInfo = await db.user.findFirst({
-    where: {
-      shop: auth.session.shop,
-    },
+    where: { shop: auth.session.shop },
+     where: { shop: "kodrite.myshopify.com" },
   });
+
   return json({
     apiKey: process.env.SHOPIFY_API_KEY || "",
     userInfo,
@@ -27,7 +27,7 @@ export const loader = async ({ request }) => {
 
 export default function App() {
   const { apiKey, userInfo, polarisTranslations } = useLoaderData();
-  // console.log(userInfo);
+  console.log(userInfo);
 
   return (
     <AppProvider i18n={polarisTranslations} isEmbeddedApp apiKey={apiKey}>

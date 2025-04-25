@@ -8,7 +8,8 @@ import { authenticate } from "../shopify.server";
 export async function loader({ request }) {
   const auth = await authenticate.admin(request);
   const userInfo = await db.user.findFirst({
-    where: { shop: auth.session.shop },
+   // where: { shop: auth.session.shop },
+     where: { shop: "kodrite.myshopify.com" },
   });
   if (!userInfo) return redirect("/app");
   const productResponse = await fetchStripeProducts(userInfo);

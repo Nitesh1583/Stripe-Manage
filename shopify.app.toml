@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "a707ffcad54fde6cb1463dfb03b7d0de"
-application_url = "https://sectors-compiled-donna-translations.trycloudflare.com"
+application_url = "https://arizona-undergraduate-gained-flashing.trycloudflare.com"
 embedded = true
 name = "stripe-console"
 handle = "stripe-console-management"
@@ -19,9 +19,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://sectors-compiled-donna-translations.trycloudflare.com/auth/callback",
-  "https://sectors-compiled-donna-translations.trycloudflare.com/auth/shopify/callback",
-  "https://sectors-compiled-donna-translations.trycloudflare.com/api/auth/callback"
+  "https://arizona-undergraduate-gained-flashing.trycloudflare.com/auth/callback",
+  "https://arizona-undergraduate-gained-flashing.trycloudflare.com/auth/shopify/callback",
+  "https://arizona-undergraduate-gained-flashing.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]

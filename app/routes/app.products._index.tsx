@@ -17,9 +17,10 @@ import { authenticate } from "../shopify.server";
 
 
 export async function loader({ request }) {
-  const auth = await authenticate.admin(request);
+   const auth = await authenticate.admin(request);
   const userInfo = await db.user.findFirst({
-    where: { shop: auth.session.shop },
+   // where: { shop: auth.session.shop },
+    where: { shop: "kodrite.myshopify.com" },
   });
   if (!userInfo) return redirect("/app");
   const productResponse = await fetchStripeProducts(userInfo);
@@ -29,9 +30,8 @@ export async function loader({ request }) {
 export default function DisputePage() {
   const shopify = useAppBridge();
   const navigate = useNavigate();
-  const { products, premiumUser, UserInfo, subdata} = useLoaderData();
+   const { products, premiumUser, UserInfo, subdata } = useLoaderData();
   const [model, setModel] = useState(false); 
-
   const resourceName = {
     singular: "products",
     plural: "products",
@@ -184,7 +184,7 @@ export default function DisputePage() {
                     // selected={selectedResources.includes(id)}
                     position={id}
                     // onNavigation={`product/${id}`}
-                    onClick={() => navigate(`${id}`)}
+                    // onClick={() => navigate(`${id}`)}
                   >
                     <IndexTable.Cell>
                       {images && images.length > 0 ? (

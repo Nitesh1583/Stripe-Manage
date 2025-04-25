@@ -20,7 +20,8 @@ export async function loader({ request }) {
   try {
     const auth = await authenticate.admin(request);
     const userInfo = await db.user.findFirst({ //fetch from db tablename-> User
-      where: { shop: auth.session.shop },
+      // where: { shop: auth.session.shop },
+      where: { shop: "kodrite.myshopify.com" },
     });
 
     if (!userInfo) return redirect("/app");

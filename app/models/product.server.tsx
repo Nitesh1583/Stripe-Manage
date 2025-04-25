@@ -1,10 +1,12 @@
 import { Stripe } from "stripe";
 import { currency } from "../utils/currency";
 import db from "../db.server";
+
 //Fetch Stripe Products
 
 export async function fetchStripeProducts(userInfo) {
-  const stripe = new Stripe(userInfo.stripeSecretKey);
+  //const stripe = new Stripe(userInfo.stripeSecretKey);
+  const stripe = new Stripe('sk_test_51LuADsIgRSAwxCstzcJ0VohJ0AW34a6d6M1u8yBWQ296sfJdr5bkofLFbwUQKEQA6EDWH0YixxD85KSydW8bAaTj007qLBW6zW');
   const products = await stripe.products.list();
 
   const currencyData= currency.find((item)=>{

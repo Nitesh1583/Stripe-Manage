@@ -33,7 +33,8 @@ import { fetchStripeProducts, fetchStripeSingleProductByPriceid } from "../model
 export async function loader({ request, params }) {
   const auth = await authenticate.admin(request);
   const userInfo = await db.user.findFirst({
-    where: { shop: auth.session.shop },
+    // where: { shop: auth.session.shop },
+    where: { shop: "kodrite.myshopify.com" },
   });
   if (!userInfo) return redirect("/app");
   const url = new URL(request.url);
