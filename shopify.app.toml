@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "a707ffcad54fde6cb1463dfb03b7d0de"
-application_url = "https://https://stripe-console.kodrite.com"
+application_url = "https://stripe-console.kodrite.com"
 embedded = true
 name = "stripe-console"
 handle = "stripe-console-management"
@@ -19,9 +19,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://https://stripe-console.kodrite.com/auth/callback",
-  "https://https://stripe-console.kodrite.com/auth/shopify/callback",
-  "https://https://stripe-console.kodrite.com/api/auth/callback"
+  "https://stripe-console.kodrite.com/auth/callback",
+  "https://stripe-console.kodrite.com/auth/shopify/callback",
+  "https://stripe-console.kodrite.com/api/auth/callback"
 ]
 
 [pos]
