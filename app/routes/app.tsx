@@ -1,6 +1,5 @@
 import { json } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useRouteError } from "@remix-run/react";
-import React from "react";
 
 import { NavMenu } from "@shopify/app-bridge-react";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
@@ -43,7 +42,7 @@ export default function App() {
           <Link to="/app/customers">Customers</Link>
           <Link to="/app/payments">Payments</Link>
           <Link to="/app/disputes">Disputes</Link>
-          <Link to="/app/payment-links">Payment Links</Link>
+          {/* <Link to="/app/payment-links">Payment Links</Link> */}
           <Link to="/app/pricing">Pricing</Link>
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
