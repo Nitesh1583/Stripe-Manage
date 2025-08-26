@@ -95,7 +95,7 @@ export async function updateUserAccountSetting(formData, shop){
         update: { email: email },
         create: {
           shop: shop, email: email,
-          stripePublishKey: existingShop.stripePublishKey, stripeSecretKey: existingShop.stripeSecretKey
+          // stripePublishKey: existingShop.stripePublishKey, stripeSecretKey: existingShop.stripeSecretKey
         }
       });
       return { message: "User info updated", isError: false };
