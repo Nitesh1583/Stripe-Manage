@@ -119,12 +119,7 @@ export default function DisputePage() {
                   title=""
                   primaryAction={{
                     content: "Upgrade Now",
-                    onAction: () => {
-                      const shopName = UserInfo?.shop.split(".")[0];
-                      const url = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
-                      console.log("Redirecting to pricing page:", url);
-                      window.open(url, "_top");
-                    },
+                    url: "/app/pricing",
                   }}
                 >
                   <Text as="p" tone="critical">
