@@ -23,10 +23,10 @@ import { authenticate } from "../shopify.server";
 export async function loader({ request }) {
   const auth = await authenticate.admin(request);
   const userInfo = await db.user.findFirst({
-    // where: { shop: auth.session.shop },
-    where: { shop: "kodrite.myshopify.com" },
+    where: { shop: auth.session.shop },
+    // where: { shop: "kd-developments.myshopify.com" },
   });
-  if (!userInfo) return redirect("/app");
+  // if (!userInfo) return redirect("/app/settings");
   return json({ userInfo });
 }
 
@@ -95,27 +95,7 @@ export default function SettingsPage() {
               <Text as="h3" variant="headingMd">
                 Update stripe apikeys
               </Text>
-
-              {/*Stripe publishable key*/}
-              {/*<TextField
-                type="text"
-                label="Stripe publishable key"
-                onChange={(value) =>
-                  setStripeApiKeys({
-                    ...stripeApiKeys,
-                    ["stripePublishKey"]: value,
-                  })
-                }
-                name="stripePublishKey"
-                id="stripePublishKey"
-                value={stripeApiKeys?.stripePublishKey}
-                error={
-                  actionData?.errors?.stripePublishKey
-                    ? actionData?.errors.stripePublishKey
-                    : null
-                }
-              />*/}
-              
+                            
               <TextField
                 type="password"
                 label="Stripe secret key"

@@ -12,8 +12,8 @@ import "../styles/style.css";
 export async function loader({ request }) {
   const auth = await authenticate.admin(request);
   const userInfo = await db.user.findFirst({
-    // where: { shop: auth.session.shop },
-    where: { shop: "kodrite.myshopify.com" },
+    where: { shop: auth.session.shop },
+    // where: { shop: "kd-developments.myshopify.com" },
   });
 
   if (!userInfo) return redirect("/app");
@@ -35,7 +35,7 @@ export default function PaymentsPage() {
   const [ searchedVal, setSearchedVal ] = useState("");
   const [ currentPage, setCurrentPage ] = useState(1);
   const [ itemsPerPage  ] = useState(5);
-   console.log(subdata);
+   console.log(UserInfo);
 
   const [filteredPayments, setFilteredPayments] = useState(payments || []);
 

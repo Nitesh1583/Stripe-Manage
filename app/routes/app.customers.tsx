@@ -24,14 +24,15 @@ import "../styles/style.css";
 export async function loader({ request }) {
   const auth = await authenticate.admin(request);
   const userInfo = await db.user.findFirst({
-    // where: { shop: auth.session.shop },
-    where: { shop: "kodrite.myshopify.com" },
+    where: { shop: auth.session.shop },
+    // where: { shop: "kd-developments.myshopify.com" },
   });
 
   
   if (!userInfo) return redirect("/app");
 
   let stripeCustomer = await fetchStripeCustomers(userInfo);
+
   let searchValue = '';
   const handleSearch = async (event) => {
     searchValue = event.target.value;
