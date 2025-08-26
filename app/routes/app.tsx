@@ -57,6 +57,7 @@ export default function App() {
           <Link to="/app/Pricing" onClick={handlePricing}>Pricing</Link>  
           {/*<Link to="/app/Pricing" >Pricing</Link>        */}
           <Link to="/app/settings">Settings</Link>
+          <Link to="/app/thankyou">Thank you</Link>
         </NavMenu>
 
       )}
