@@ -116,17 +116,21 @@ export default function DisputePage() {
           <Layout>  
             <Layout.Section>
               <CalloutCard
-                title=""
-                primaryAction={{
-                  content: "Upgrade Now",
-                  onAction: () => {
-                    const shopName = UserInfo?.shop.split(".")[0];
-                    const url = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
-                    console.log("Redirecting to pricing page:", url);
-                    window.open(url, "_top");
-                  },
-                }}
-              >
+                  title=""
+                  primaryAction={{
+                    content: "Upgrade Now",
+                    onAction: () => {
+                      const shopName = UserInfo?.shop.split(".")[0];
+                      const url = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
+                      console.log("Redirecting to pricing page:", url);
+                      window.open(url, "_top");
+                    },
+                  }}
+                >
+                  <Text as="p" tone="critical">
+                    Time is running out! Your free trial of Stripe Console ends on {newTrialEndDate} and we’d hate for you to lose access to all the premium features you’ve been enjoying.
+                  </Text>
+                </CalloutCard>
             </Layout.Section>
           </Layout>
         </>
@@ -214,11 +218,11 @@ export default function DisputePage() {
             primaryAction={{
               content: "Buy Subscription",
               onAction: () => {
-                const shopName = UserInfo?.shop.split(".")[0];
-                const url = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
-                console.log("Redirecting to pricing page:", url);
-                window.open(url, "_top");
-              },
+                    const shopName = UserInfo?.shop.split(".")[0];
+                    const url = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
+                    console.log("Redirecting to pricing page:", url);
+                    window.open(url, "_top");
+                  },
             }}
           >
             <Text as="p">
