@@ -29,11 +29,9 @@ export const loader = async ({ request }) => {
 
 export default function App() {
   const { apiKey, userInfo, polarisTranslations } = useLoaderData();
-  console.log(userInfo);
 
   const handlePricing = (event) => {
     event.preventDefault();
-    alert();
     console.log(window.location.href=`https://admin.shopify.com/store/${userInfo?.shop.split(".")[0]}/charges/stripe-manage/pricing_plans`);
     window.open(`https://admin.shopify.com/store/${userInfo?.shop.split(".")[0]}/charges/stripe-manage/pricing_plans`, '_top')
   }
@@ -57,7 +55,6 @@ export default function App() {
           <Link to="/app/Pricing" onClick={handlePricing}>Pricing</Link>  
           {/*<Link to="/app/Pricing" >Pricing</Link>        */}
           <Link to="/app/settings">Settings</Link>
-          <Link to="/app/thankyou">Thank you</Link>
         </NavMenu>
 
       )}

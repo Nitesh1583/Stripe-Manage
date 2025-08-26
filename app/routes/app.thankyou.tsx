@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useSearchParams } from "@remix-run/react";
 import {
@@ -31,7 +30,7 @@ export default function ThankYouPage() {
           <Card>
             <BlockStack gap="400">
               <Text variant="headingXl" as="h2">
-                🎉 Thank You for Subscribing!
+                 Thank You for Subscribing!
               </Text>
               <Text variant="bodyLg" as="p">
                 Your subscription has been successfully activated.
@@ -39,7 +38,7 @@ export default function ThankYouPage() {
 
               {chargeId && (
                 <Text variant="bodyMd" as="p" tone="success">
-                  ✅ Your Charge ID: <strong>{chargeId}</strong>
+                   Your Charge ID: <strong>{chargeId}</strong>
                 </Text>
               )}
 

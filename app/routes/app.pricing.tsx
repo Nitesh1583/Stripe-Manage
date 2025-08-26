@@ -24,7 +24,7 @@ export async function loader({ request }) {
       // where: { shop: "kd-developments.myshopify.com" },
     });
 
-    if (!userInfo) return redirect("/app");
+    // if (!userInfo) return redirect("/app");
     let subUserData = await fetchStripeSubscriptionData(userInfo); //fetch SubscriptionUser data from db
     return json({ subUserData });
 
@@ -111,7 +111,7 @@ export default function PricingPage() {
                 <CalloutCard
                   title="Stripe Console Pricing"
                   primaryAction={{
-                    content: "Buy $9.99",
+                    content: "Buy Now",
                     onAction: () => {
                         let shop = subUserData.shop;
                         let shopname = subUserData.shop;
@@ -126,7 +126,6 @@ export default function PricingPage() {
                         formData.append("shopurl", shop);
                         formData.append("stripeSecretKey", StripeSecretKey);
 
-                          
                         fetcher.submit({ actionType: "plan", shopName: shopname, shopurl: shop, stripeSecretKey: StripeSecretKey }, { method: "POST" });
                     },
                   }}
