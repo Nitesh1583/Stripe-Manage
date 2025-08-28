@@ -36,9 +36,11 @@ model User {
   shop             String            @unique
   premiumUser      Int?              @default(0) @db.TinyInt
   subCount         Int?              @default(0) @db.TinyInt
+  shopifyChargeId  String?
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @default(now()) @updatedAt
   premiumPurchases PremiumPurchase[]
+
 }
 
 model Admin {

@@ -19,10 +19,22 @@ import { fetchStripeSubscriptionData} from "../models/pricing.server";
 export async function loader({ request }) {
   try {
     const auth = await authenticate.admin(request);
+    const { billing } = await shopify.authenticate.admin(request);
+    const hasActivePlan = await billing.check({ plans: [MONTHLY_PLAN, USAGE_PLAN] });
     const userInfo = await db.user.findFirst({ //fetch from db tablename-> User
       where: { shop: auth.session.shop },
       // where: { shop: "kd-developments.myshopify.com" },
     });
+
+    if (!hasActivePlan) {
+
+      throw await billing.request({ plan: MONTHLY_PLAN }); // Redirect to billing page if no active plan
+    }
+
+    if (hasActivePlan) {
+      
+      console.log(hasActivePlan);
+    }
 
     // if (!userInfo) return redirect("/app");
     let subUserData = await fetchStripeSubscriptionData(userInfo); //fetch SubscriptionUser data from db

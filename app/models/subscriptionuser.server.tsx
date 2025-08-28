@@ -8,3 +8,13 @@ export async function get_subscription_user(shop_url){
     return { message: "Unable to fetch details", error };
   }
 }
+
+// export async function saveShopifyChargeId(shop_url) {
+//   try{
+//     const activeShop = await db.user.findFirst({
+//       where: { shop_url : shop_url}
+//     })
+//   }catch{
+
+//   }
+// }
