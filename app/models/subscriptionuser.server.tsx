@@ -9,12 +9,17 @@ export async function get_subscription_user(shop_url){
   }
 }
 
-// export async function saveShopifyChargeId(shop_url) {
-//   try{
-//     const activeShop = await db.user.findFirst({
-//       where: { shop_url : shop_url}
-//     })
-//   }catch{
 
-//   }
-// }
+export async function saveShopifyChargeId(shop_url: string, chargeId: string) {
+  try {
+    const updatedUser = await db.user.update({
+      where: { shop: shop_url },
+      data: { chargeId: chargeId },
+    });
+
+    return { message: "Charge ID saved successfully", user: updatedUser, isError: false };
+  } catch (error) {
+    return { message: `Unable to save charge ID: ${error.message}`, isError: true };
+  }
+}
+

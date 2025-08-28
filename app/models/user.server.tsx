@@ -147,4 +147,3 @@ export async function updateUserStripeSetting(formData, shop){
   }
 }
 
-
