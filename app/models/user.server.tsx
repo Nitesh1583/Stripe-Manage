@@ -147,3 +147,15 @@ export async function updateUserStripeSetting(formData, shop){
   }
 }
 
+export async function saveShopifyChargeId(shop_url: string, chargeId: string) {
+  try {
+    const updatedUser = await db.user.update({
+      where: { shop: shop_url },
+      data: { chargeId: chargeId },
+    });
+
+    return { message: "Charge ID saved successfully", user: updatedUser, isError: false };
+  } catch (error) {
+    return { message: `Unable to save charge ID: ${error.message}`, isError: true };
+  }
+}
