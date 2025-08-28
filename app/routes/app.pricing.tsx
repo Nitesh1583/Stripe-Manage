@@ -47,7 +47,7 @@ export default function PricingPage() {
 
   if (!hasActivePlan) {
 
-      throw await billing.request({ plan: MONTHLY_PLAN }); // Redirect to billing page if no active plan
+    console.log("Not active plan") // Redirect to billing page if no active plan
     }
 
   if (hasActivePlan) {
