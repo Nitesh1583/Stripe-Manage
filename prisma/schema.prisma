@@ -62,9 +62,9 @@ model SubscriptionUser {
   id              Int     @id @default(autoincrement())
   shop_url        String? 
   customer_id     String?
-  subscription_id String?
-  subscription_status String?
+  subscription_id    String   @unique
+  subscription_status String
   sub_cancel_date String?
   sub_update_date String?
-  created_date    String?
+  created_date       DateTime @default(now())
 }
