@@ -23,7 +23,7 @@ useEffect(() => {
     const shopUrl = window?.SHOPIFY_SHOP_URL;
 
     // Save chargeId to DB
-    fetch("/api/save-charge-id", {
+    fetch("/save-chargeid", {
       method: "POST",
       body: new URLSearchParams({
         shop: shopUrl,
