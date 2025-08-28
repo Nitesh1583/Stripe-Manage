@@ -19,17 +19,26 @@ useEffect(() => {
   if (id) {
     setChargeId(id);
 
-    // Example: replace with actual shop URL from session/store
-    const shopUrl = window?.SHOPIFY_SHOP_URL;
+    // TODO: replace this with shop from session or db
+    const shopUrl = await db.user.findFirst({
+      where: { shop: auth.session.shop }
+    });
 
-    // Save chargeId to DB
-    fetch("/save-chargeid", {
+    fetch("/app/save-chargeid", {
       method: "POST",
-      body: new URLSearchParams({
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         shop: shopUrl,
         chargeId: id,
       }),
-    });
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log("Charge ID saved:", data);
+    })
+    .catch(err => console.error("Error saving chargeId:", err));
   }
 }, [searchParams]);
 

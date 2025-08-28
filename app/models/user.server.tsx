@@ -147,10 +147,10 @@ export async function updateUserStripeSetting(formData, shop){
   }
 }
 
-export async function saveShopifyChargeId(shop_url: string, chargeId: string) {
+export async function saveShopifyChargeId(shop: string, chargeId: string) {
   try {
     const updatedUser = await db.user.update({
-      where: { shop: shop_url },
+      where: { shop: shop },
       data: { chargeId: chargeId },
     });
 
