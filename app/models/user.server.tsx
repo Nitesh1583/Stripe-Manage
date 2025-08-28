@@ -151,8 +151,11 @@ export async function saveShopifyChargeId(shop: string, chargeId: string) {
   try {
     const updatedUser = await db.user.upsert({
       where: { shop },
-      update: { chargeId },
-      create: { shop, email: "", chargeId }, // you may need default values for required fields
+      update: { shopifyChargeId: chargeId },
+      create: {
+        shop,
+        shopifyChargeId: chargeId
+      },
     });
 
     return { message: "Charge ID saved successfully", user: updatedUser, isError: false };
