@@ -149,28 +149,21 @@ export async function updateUserStripeSetting(formData, shop){
 
 export async function saveShopifyChargeId(shop: string, chargeId: string) {
   try {
-
-    // create SubscriptionUser Table
-    const subscriptionUserData = await db.SubscriptionUser.upsert({
-      data: {
-          shop_url: shop,
-          subscription_id: chargeId,
-          created_date: new Date(),
-          subscription_status: "active"
-        }
-    })
-
-    const updatedUser = await db.user.upsert({
-      where: { shop },
-      update: { shopifyChargeId: chargeId, premiumUser: 1 },
+    const subscriptionUserData = await db.subscriptionUser.upsert({
+      where: { subscription_id: chargeId },  
+      update: {
+        subscription_status: "active",
+        created_date: new Date(),
+      },
       create: {
-        shop,
-        shopifyChargeId: chargeId,
-        premiumUser : 1
+        shop_url: shop,
+        subscription_id: chargeId,
+        created_date: new Date(),
+        subscription_status: "active",
       },
     });
 
-    return { message: "Charge ID saved successfully", user: updatedUser, SubData: subscriptionUserData,  isError: false };
+    return { message: "Charge ID saved successfully", user: updatedUser, isError: false };
   } catch (error: any) {
     return { message: `Unable to save charge ID: ${error.message}`, isError: true };
   }
