@@ -11,41 +11,38 @@ import db from "../db.server";
 import { Button } from "@shopify/polaris";
 
 import { authenticate } from "../shopify.server";
+import { saveShopifyChargeId } from "../models/subscriptionuser.server";
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }) => {
   const auth = await authenticate.admin(request);
-  const { billing } = await shopify.authenticate.admin(request);
-  const hasActivePlan = await billing.check({ plans: [MONTHLY_PLAN, USAGE_PLAN] });
+  
+  const formData = await request.formData();
+  const shop = formData.get("shop");
+  const chargeId = formData.get("chargeId");
+
 
   const userInfo = await db.user.findFirst({
     where: { shop: auth.session.shop }
 
   });
 
+  if (!shop || !chargeId) {
+    return json({ message: "Missing shop or chargeId", isError: true }, { status: 400 });
+  }
+
+  const result = await saveShopifyChargeId(shop.toString(), chargeId.toString());
+
   return json({
     apiKey: process.env.SHOPIFY_API_KEY || "",
     userInfo,
     polarisTranslations: enlan,
-    hasActivePlan
+    result
   });
 };
 
 export default function App() {
-  const { apiKey, userInfo, hasActivePlan, polarisTranslations } = useLoaderData();
-  console.log(userInfo);
-  console.log(hasActivePlan);
-
-  if (!hasActivePlan) {
-
-    console.log("Not active plan");
-    }
-
-  if (hasActivePlan) {
-
-      console.log(hasActivePlan);
-  }
-
+  const { apiKey, userInfo, result, polarisTranslations } = useLoaderData();
 
   const handlePricing = (event) => {
     event.preventDefault();

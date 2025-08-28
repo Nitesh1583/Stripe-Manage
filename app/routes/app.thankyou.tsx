@@ -14,12 +14,25 @@ export default function ThankYouPage() {
   const [searchParams] = useSearchParams();
   const [chargeId, setChargeId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const id = searchParams.get("charge_id");
-    if (id) {
-      setChargeId(id);
-    }
-  }, [searchParams]);
+useEffect(() => {
+  const id = searchParams.get("charge_id");
+  if (id) {
+    setChargeId(id);
+
+    // Example: replace with actual shop URL from session/store
+    const shopUrl = window?.SHOPIFY_SHOP_URL;
+
+    // Save chargeId to DB
+    fetch("/api/save-charge-id", {
+      method: "POST",
+      body: new URLSearchParams({
+        shop: shopUrl,
+        chargeId: id,
+      }),
+    });
+  }
+}, [searchParams]);
+
 
   return (
     <Page>
