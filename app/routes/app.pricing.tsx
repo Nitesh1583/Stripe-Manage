@@ -26,19 +26,10 @@ export async function loader({ request }) {
       // where: { shop: "kd-developments.myshopify.com" },
     });
 
-    if (!hasActivePlan) {
-
-      throw await billing.request({ plan: MONTHLY_PLAN }); // Redirect to billing page if no active plan
-    }
-
-    if (hasActivePlan) {
-      
-      console.log(hasActivePlan);
-    }
-
+    
     // if (!userInfo) return redirect("/app");
     let subUserData = await fetchStripeSubscriptionData(userInfo); //fetch SubscriptionUser data from db
-    return json({ subUserData });
+    return json({ subUserData, hasActivePlan });
 
   } catch (error) {
     return json({ subUserData: null, error: "Failed to load subscription information." });
@@ -47,10 +38,23 @@ export async function loader({ request }) {
 
 // Pricing page view function
 export default function PricingPage() {
-  const {subUserData, error, subInfo } = useLoaderData();
+  const {subUserData, hasActivePlan error, subInfo } = useLoaderData();
   const actionData = useActionData();
   const fetcher = useFetcher();
   const [loading, setLoading] = useState(false);
+
+  console.log(hasActivePlan);
+
+  if (!hasActivePlan) {
+
+      throw await billing.request({ plan: MONTHLY_PLAN }); // Redirect to billing page if no active plan
+    }
+
+  if (hasActivePlan) {
+
+      console.log(hasActivePlan);
+  }
+
   
   const premiumUserData = subUserData.userinfo.premiumUser;
 
