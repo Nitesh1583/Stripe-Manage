@@ -9,6 +9,7 @@ import {
   BlockStack,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
+import db from "../db.server";
 
 export default function ThankYouPage() {
   const [searchParams] = useSearchParams();
