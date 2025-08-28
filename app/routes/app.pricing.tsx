@@ -38,7 +38,7 @@ export async function loader({ request }) {
 
 // Pricing page view function
 export default function PricingPage() {
-  const {subUserData, hasActivePlan error, subInfo } = useLoaderData();
+  const {subUserData, hasActivePlan, error, subInfo } = useLoaderData();
   const actionData = useActionData();
   const fetcher = useFetcher();
   const [loading, setLoading] = useState(false);
