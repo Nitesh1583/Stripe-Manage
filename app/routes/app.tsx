@@ -11,7 +11,7 @@ import db from "../db.server";
 import { Button } from "@shopify/polaris";
 
 import { authenticate } from "../shopify.server";
-import { saveShopifyChargeId } from "../models/subscriptionuser.server";
+import { saveShopifyChargeId } from "../models/user.server";
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }) => {
