@@ -19,8 +19,6 @@ import { fetchStripeSubscriptionData} from "../models/pricing.server";
 export async function loader({ request }) {
   try {
     const auth = await authenticate.admin(request);
-    const { billing } = await shopify.authenticate.admin(request);
-    const hasActivePlan = await billing.check({ plans: [MONTHLY_PLAN, USAGE_PLAN] });
     const userInfo = await db.user.findFirst({ //fetch from db tablename-> User
       where: { shop: auth.session.shop },
       // where: { shop: "kd-developments.myshopify.com" },
@@ -29,7 +27,7 @@ export async function loader({ request }) {
     
     // if (!userInfo) return redirect("/app");
     let subUserData = await fetchStripeSubscriptionData(userInfo); //fetch SubscriptionUser data from db
-    return json({ subUserData, hasActivePlan });
+    return json({ subUserData });
 
   } catch (error) {
     return json({ subUserData: null, error: "Failed to load subscription information." });
@@ -38,22 +36,10 @@ export async function loader({ request }) {
 
 // Pricing page view function
 export default function PricingPage() {
-  const {subUserData, hasActivePlan, error, subInfo } = useLoaderData();
+  const {subUserData, error, subInfo } = useLoaderData();
   const actionData = useActionData();
   const fetcher = useFetcher();
   const [loading, setLoading] = useState(false);
-
-  console.log(hasActivePlan);
-
-  if (!hasActivePlan) {
-
-    console.log("Not active plan") // Redirect to billing page if no active plan
-    }
-
-  if (hasActivePlan) {
-
-      console.log(hasActivePlan);
-  }
 
   
   const premiumUserData = subUserData.userinfo.premiumUser;

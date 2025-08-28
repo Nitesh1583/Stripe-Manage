@@ -15,6 +15,9 @@ export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }) => {
   const auth = await authenticate.admin(request);
+  const { billing } = await shopify.authenticate.admin(request);
+  const hasActivePlan = await billing.check({ plans: [MONTHLY_PLAN, USAGE_PLAN] });
+
   const userInfo = await db.user.findFirst({
     where: { shop: auth.session.shop }
 
@@ -24,12 +27,24 @@ export const loader = async ({ request }) => {
     apiKey: process.env.SHOPIFY_API_KEY || "",
     userInfo,
     polarisTranslations: enlan,
+    hasActivePlan
   });
 };
 
 export default function App() {
-  const { apiKey, userInfo, polarisTranslations } = useLoaderData();
+  const { apiKey, userInfo, hasActivePlan, polarisTranslations } = useLoaderData();
   console.log(userInfo);
+  console.log(hasActivePlan);
+
+  if (!hasActivePlan) {
+
+    console.log("Not active plan");
+    }
+
+  if (hasActivePlan) {
+
+      console.log(hasActivePlan);
+  }
 
 
   const handlePricing = (event) => {
