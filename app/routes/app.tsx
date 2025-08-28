@@ -16,8 +16,8 @@ export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 export const loader = async ({ request }) => {
   const auth = await authenticate.admin(request);
   const userInfo = await db.user.findFirst({
-    where: { shop: auth.session.shop },
-     // where: { shop: "kd-developments.myshopify.com" },
+    where: { shop: auth.session.shop }
+
   });
 
   return json({
@@ -29,6 +29,8 @@ export const loader = async ({ request }) => {
 
 export default function App() {
   const { apiKey, userInfo, polarisTranslations } = useLoaderData();
+  console.log(userInfo);
+
 
   const handlePricing = (event) => {
     event.preventDefault();
@@ -53,7 +55,6 @@ export default function App() {
           <Link to="/app/payments">Payments</Link>
           <Link to="/app/disputes">Disputes</Link>
           <Link to="/app/Pricing" onClick={handlePricing}>Pricing</Link>  
-          {/*<Link to="/app/Pricing" >Pricing</Link>        */}
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
 

@@ -19,8 +19,7 @@ import { authenticate } from "../shopify.server";
 export async function loader({ request }) {
    const auth = await authenticate.admin(request);
   const userInfo = await db.user.findFirst({
-   // where: { shop: auth.session.shop },
-    where: { shop: "kd-developments.myshopify.com" },
+   where: { shop: auth.session.shop }
   });
   if (!userInfo) return redirect("/app");
   const productResponse = await fetchStripeProducts(userInfo);

@@ -23,8 +23,8 @@ import { authenticate } from "../shopify.server";
 export async function loader({ request }) {
   const auth = await authenticate.admin(request);
   const userInfo = await db.user.findFirst({
-    where: { shop: auth.session.shop },
-    // where: { shop: "kd-developments.myshopify.com" },
+    where: { shop: auth.session.shop }
+     // where: { shop: "kd-developments.myshopify.com" }
   });
   // if (!userInfo) return redirect("/app/settings");
   return json({ userInfo });
@@ -55,7 +55,7 @@ export default function SettingsPage() {
   const [email, setEmail] = useState(userInfo?userInfo?.email:"");
   const [stripeApiKeys, setStripeApiKeys] = useState(userInfo);
   const shopify = useAppBridge();
-  console.log(userInfo);
+
 
   useEffect(() => {
     shopify.toast.show(actionData?.message, { isError: actionData?.isError });
