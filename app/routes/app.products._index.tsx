@@ -67,7 +67,6 @@ export default function DisputePage() {
       const timeDifference = date2 - date1;
       daysDifference = timeDifference / (1000 * 60 * 60 * 24);
 
-
       const trialEndDate = new Date(date1);
       trialEndDate.setDate(trialEndDate.getDate() + 6);
       const options = {
