@@ -13,7 +13,6 @@ import {
   Link,
   InlineStack,
 } from "@shopify/polaris";
-
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 
@@ -123,7 +122,7 @@ export default function Index() {
                 <InlineStack align="space-between" blockAlign="center">
                   <BlockStack gap="100">
                     <Text variant="headingMd" as="h2">
-                      Gross volume
+                      Today volume
                     </Text>
                     <Text variant="heading2xl" as="p">
                       $0.00
@@ -177,24 +176,7 @@ export default function Index() {
           </Layout.Section>
         </Layout>
 
-          {/* Right Side Recommendation Card */}
-          <Layout.Section secondary>
-            <Card padding="400">
-              <BlockStack gap="200">
-                <Text variant="headingMd" as="h2">
-                  Recommendation
-                </Text>
-                <Text>
-                  Create sandboxes that mirror your organization. Set up test
-                  environments with your account structure to test payment
-                  integrations and try out new features.
-                </Text>
-                <Button variant="primary">Get started</Button>
-              </BlockStack>
-            </Card>
-          </Layout.Section>
-        </Layout>
-        
+
         <Layout>
           <Layout.Section>
             <Card>
