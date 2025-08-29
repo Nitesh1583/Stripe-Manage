@@ -31,6 +31,10 @@ export const loader = async ({ request }) => {
 export default function App() {
   const { apiKey, userInfo, result, polarisTranslations } = useLoaderData();
 
+  console.log(userInfo);
+  console.log(userInfo.shop);
+  console.log(userInfo.stripeSecretKey);
+
   const handlePricing = (event) => {
     event.preventDefault();
     console.log(window.location.href=`https://admin.shopify.com/store/${userInfo?.shop.split(".")[0]}/charges/stripe-manage/pricing_plans`);
@@ -39,7 +43,7 @@ export default function App() {
 
   return (
     <AppProvider i18n={polarisTranslations} isEmbeddedApp apiKey={apiKey}>
-      {(!userInfo && !userInfo.stripeSecretKey) ? (
+      {(!userInfo && userInfo.stripeSecretKey == '' && userInfo.stripeSecretKey == null) ? (
         <NavMenu>
           <Link to="/app" rel="home">Dashboard</Link>
           <Link to="/app/settings">Settings</Link>
