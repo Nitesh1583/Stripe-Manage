@@ -43,7 +43,7 @@ export default function App() {
 
   return (
     <AppProvider i18n={polarisTranslations} isEmbeddedApp apiKey={apiKey}>
-      {(!userInfo && userInfo.stripeSecretKey == '' && userInfo.stripeSecretKey == null) ? (
+      {(!userInfo || userInfo.stripeSecretKey == '' || userInfo.stripeSecretKey == null) ? (
         <NavMenu>
           <Link to="/app" rel="home">Dashboard</Link>
           <Link to="/app/settings">Settings</Link>
