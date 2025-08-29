@@ -20,7 +20,7 @@ export async function loader({ request }) {
   
   const auth = await authenticate.admin(request);
   const userInfo = await db.user.findFirst({
-   where: { shop: auth.session.shop }
+    where: { shop: auth.session.shop }
   });
 
   if (!userInfo) return redirect("/app");
@@ -51,6 +51,8 @@ export default function DisputePage() {
     plural: "products",
   };
 
+  console.log(isError);
+  
   // Date calculations
   const subscriptionCreatedDate = UserInfo.createdAt; //DateTime format : 2025-03-07T11:27:57.468Z
 
