@@ -128,14 +128,13 @@ export default function DisputePage() {
         </Banner>
       )}
 
-       {/* Show products only if key exists */}
+      {/* Show products only if key exists */}
       {!isError && (
-
-        {(premiumUser == 0 && userTakesub == 0 && daysDifference <= 7) ?
         <>
-          <Layout>  
-            <Layout.Section>
-              <CalloutCard
+          {(premiumUser == 0 && userTakesub == 0 && daysDifference <= 7) ? (
+            <Layout>
+              <Layout.Section>
+                <CalloutCard
                   title=""
                   primaryAction={{
                     content: "Upgrade Now",
@@ -148,111 +147,81 @@ export default function DisputePage() {
                   }}
                 >
                   <Text as="p" tone="critical">
-                    Time is running out! Your free trial of Stripe Console ends on {newTrialEndDate} and we’d hate for you to lose access to all the premium features you’ve been enjoying.
+                    Time is running out! Your free trial of Stripe Console ends on {newTrialEndDate}.
                   </Text>
                 </CalloutCard>
-            </Layout.Section>
-          </Layout>
-        </>
-      :''}
+              </Layout.Section>
+            </Layout>
+          ) : null}
 
-      {(userTakesub == 1 || (userTakesub == 0 && daysDifference <= 7)) ? (
-        <>
-        <Layout>
-         <Layout.Section>
-           {/*Add for spacing*/}
-         </Layout.Section>  
-         
-         <Layout.Section>
-          <Card>
-          <IndexTable
-            resourceName={resourceName}
-            // itemCount={products.length}
-            itemCount={products.length > 0 ? products.length : 1}
-            // selectedItemsCount={
-            //   allResourcesSelected ? "All" : selectedResources.length
-            // }
-            // onSelectionChange={handleSelectionChange}
-            headings={[
-              { title: "Image" },
-              { title: "Name" },
-              { title: "Price" },
-              { title: "Created" },
-              { title: "Updated" },
-              // { title: "Action" },
-            ]}
-            selectable={false}
-          >
-            {products &&
-              products.map((product, index, isActive) => {
-                const { id, price, currency, images, name, created, updated } = product;
-                const createddate = new Date(created * 1000).toLocaleString("en-US", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                  hour: "numeric",
-                  minute: "numeric",
-                  hour12: true,
-                });
-                const updateddate = new Date(updated * 1000).toLocaleString("en-US", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                  hour: "numeric",
-                  minute: "numeric",
-                  hour12: true,
-                });
-                return (
-                  <IndexTable.Row
-                    id={id}
-                    key={id}
-                    // selected={selectedResources.includes(id)}
-                    position={id}
-                    // onNavigation={`product/${id}`}
-                    // onClick={() => navigate(`${id}`)}
+          {(userTakesub == 1 || (userTakesub == 0 && daysDifference <= 7)) ? (
+            <Layout>
+              <Layout.Section>
+                {/*Add for spacing*/}
+              </Layout.Section>  
+
+              <Layout.Section>
+                <Card>
+                  <IndexTable
+                    resourceName={resourceName}
+                    itemCount={products.length > 0 ? products.length : 1}
+                    selectable={false}
+                    headings={[
+                      { title: "Image" },
+                      { title: "Name" },
+                      { title: "Price" },
+                      { title: "Created" },
+                      { title: "Updated" },
+                    ]}
                   >
-                    <IndexTable.Cell>
-                      {images && images.length > 0 ? (
-                        <Thumbnail source={images[0]} alt={name} size="small" />
-                      ) : (
-                        <SkeletonThumbnail size="small" />
-                      )}
-                    </IndexTable.Cell>
-                    <IndexTable.Cell><span className="shopify-upr">{name}</span></IndexTable.Cell>
-                    <IndexTable.Cell>{price} {currency}</IndexTable.Cell>
-                    <IndexTable.Cell>{createddate}</IndexTable.Cell>
-                    <IndexTable.Cell>{updateddate}</IndexTable.Cell>
-                  </IndexTable.Row>
-                );
-              })}
-          </IndexTable>
-        </Card>
-        </Layout.Section> 
-        </Layout>
-        </>
-        ):(
-          // Show only if trial has ended and no subscription
-        (userTakesub == 0 && daysDifference > 7) && (
-          <CalloutCard
-            title="No Trial/Subscription Found!"
-            primaryAction={{
-              content: "Buy Subscription",
-              onAction: () => {
+                    {products.map((product) => {
+                      const { id, price, currency, images, name, created, updated } = product;
+                      const createddate = new Date(created * 1000).toLocaleString("en-US");
+                      const updateddate = new Date(updated * 1000).toLocaleString("en-US");
+
+                      return (
+                        <IndexTable.Row id={id} key={id} position={id}>
+                          <IndexTable.Cell>
+                            {images?.length > 0 ? (
+                              <Thumbnail source={images[0]} alt={name} size="small" />
+                            ) : (
+                              <SkeletonThumbnail size="small" />
+                            )}
+                          </IndexTable.Cell>
+                          <IndexTable.Cell>{name}</IndexTable.Cell>
+                          <IndexTable.Cell>{price} {currency}</IndexTable.Cell>
+                          <IndexTable.Cell>{createddate}</IndexTable.Cell>
+                          <IndexTable.Cell>{updateddate}</IndexTable.Cell>
+                        </IndexTable.Row>
+                      );
+                    })}
+                  </IndexTable>
+                </Card>
+              </Layout.Section> 
+            </Layout>
+          ) : (
+            (userTakesub == 0 && daysDifference > 7) && (
+              <CalloutCard
+                title="No Trial/Subscription Found!"
+                primaryAction={{
+                  content: "Buy Subscription",
+                  onAction: () => {
                     const shopName = UserInfo?.shop.split(".")[0];
                     const url = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
                     console.log("Redirecting to pricing page:", url);
                     window.open(url, "_top");
                   },
-            }}
-          >
-            <Text as="p">
-              Your trial period has ended. If you want to continue, click on the below button to buy the subscription.
-            </Text>
-          </CalloutCard>
-        )
+                }}
+              >
+                <Text as="p">
+                  Your trial period has ended. Please buy the subscription to continue.
+                </Text>
+              </CalloutCard>
+            )
+          )}
+        </>
       )}
-
-      )}  
+  
       </Page>
     </>
   );
