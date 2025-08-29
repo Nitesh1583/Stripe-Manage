@@ -18,7 +18,7 @@ export const loader = async ({ request }) => {
   const auth = await authenticate.admin(request);
 
   const userInfo = await db.user.findFirst({
-    where: { shop: auth.session.shop }
+    where: { shop: auth.session.shop },
   });
 
   return json({
@@ -39,7 +39,7 @@ export default function App() {
 
   return (
     <AppProvider i18n={polarisTranslations} isEmbeddedApp apiKey={apiKey}>
-      {!userInfo ? (
+      {(!userInfo && !userInfo.stripeSecretKey) ? (
         <NavMenu>
           <Link to="/app" rel="home">Dashboard</Link>
           <Link to="/app/settings">Settings</Link>
