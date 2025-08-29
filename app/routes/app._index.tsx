@@ -13,6 +13,7 @@ import {
   Link,
   InlineStack,
 } from "@shopify/polaris";
+
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 
@@ -112,12 +113,88 @@ export default function Index() {
 
   return (
     <Page>
-      {/*<TitleBar title="Remix app template">
-        <button variant="primary" onClick={generateProduct}>
-          Generate a product
-        </button>
-      </TitleBar>*/}
       <BlockStack gap="500">
+        {/* 📊 Top Overview Section */}
+        <Layout>
+          <Layout.Section>
+            <Card padding="400">
+              <BlockStack gap="400">
+                {/* Top Row: Gross Volume + Yesterday */}
+                <InlineStack align="space-between" blockAlign="center">
+                  <BlockStack gap="100">
+                    <Text variant="headingMd" as="h2">
+                      Gross volume
+                    </Text>
+                    <Text variant="heading2xl" as="p">
+                      $0.00
+                    </Text>
+                    <Text tone="subdued">as of 1:43 PM</Text>
+                  </BlockStack>
+
+                  <BlockStack gap="100" align="end">
+                    <Text variant="headingMd" as="h2">
+                      Yesterday
+                    </Text>
+                    <Text variant="headingLg" as="p">
+                      $0.00
+                    </Text>
+                  </BlockStack>
+                </InlineStack>
+
+                {/* Bottom Row: USD Balance + Payouts */}
+                <InlineStack align="space-between">
+                  <BlockStack gap="100">
+                    <Text variant="headingSm">USD balance</Text>
+                    <Text tone="subdued">$0.00 estimated future payouts</Text>
+                    <Button plain>View</Button>
+                  </BlockStack>
+
+                  <BlockStack gap="100" align="end">
+                    <Text variant="headingSm">Payouts</Text>
+                    <Text tone="subdued">Expected Sep 2</Text>
+                    <Button plain>View</Button>
+                  </BlockStack>
+                </InlineStack>
+              </BlockStack>
+            </Card>
+          </Layout.Section>
+
+          {/* Right Side Recommendation Card */}
+          <Layout.Section secondary>
+            <Card padding="400">
+              <BlockStack gap="200">
+                <Text variant="headingMd" as="h2">
+                  Recommendation
+                </Text>
+                <Text tone="subdued">
+                  Create sandboxes that mirror your organization. Set up test
+                  environments with your account structure to test payment
+                  integrations and try out new features.
+                </Text>
+                <Button variant="primary">Get started</Button>
+              </BlockStack>
+            </Card>
+          </Layout.Section>
+        </Layout>
+
+          {/* Right Side Recommendation Card */}
+          <Layout.Section secondary>
+            <Card padding="400">
+              <BlockStack gap="200">
+                <Text variant="headingMd" as="h2">
+                  Recommendation
+                </Text>
+                <Text>
+                  Create sandboxes that mirror your organization. Set up test
+                  environments with your account structure to test payment
+                  integrations and try out new features.
+                </Text>
+                <Button variant="primary">Get started</Button>
+              </BlockStack>
+            </Card>
+          </Layout.Section>
+        </Layout>
+        
         <Layout>
           <Layout.Section>
             <Card>
