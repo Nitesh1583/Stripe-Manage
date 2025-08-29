@@ -11,7 +11,10 @@ export async function fetchStripeProducts(userInfo) {
   const currencyData= currency.find((item)=>{
     return item.code === products.currency;
   })
-  const existingShop = await db.SubscriptionUser.findFirst({ where: { shop_url: userInfo.shop, sub_cancel_date: null }}); 
+
+  const existingShop = await db.SubscriptionUser.findFirst({ 
+    where: { shop_url: userInfo.shop, sub_cancel_date: null }
+  }); 
 
   const productsWithData = await Promise.all(
     products.data.map(async (product) => {
@@ -44,7 +47,13 @@ export async function fetchStripeProducts(userInfo) {
     }),
   );
 
-  return { products: productsWithData, UserInfo:userInfo, premiumUser: userInfo.premiumUser, subdata: existingShop, isError:false};
+  return { 
+    products: productsWithData, 
+    UserInfo:userInfo, 
+    premiumUser: userInfo.premiumUser, 
+    subdata: existingShop, 
+    isError:false
+  };
 }
 
 // fetch single stripe product

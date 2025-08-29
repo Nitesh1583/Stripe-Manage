@@ -17,11 +17,26 @@ import { authenticate } from "../shopify.server";
 
 
 export async function loader({ request }) {
-   const auth = await authenticate.admin(request);
+  
+  const auth = await authenticate.admin(request);
   const userInfo = await db.user.findFirst({
    where: { shop: auth.session.shop }
   });
+
   if (!userInfo) return redirect("/app");
+
+  // check stripeSecretKey
+  if (!userInfo.stripeSecretKey || userInfo.stripeSecretKey.trim() === "") {
+    return {
+      products: [],
+      UserInfo: userInfo,
+      premiumUser: userInfo.premiumUser,
+      subdata: null,
+      isError: true,
+      errorMessage: "Please add your Stripe Secret Key in settings."
+    };
+  }
+
   const productResponse = await fetchStripeProducts(userInfo);
   return productResponse;
 }
@@ -29,14 +44,12 @@ export async function loader({ request }) {
 export default function DisputePage() {
   const shopify = useAppBridge();
   const navigate = useNavigate();
-  const { products, premiumUser, UserInfo, subdata } = useLoaderData();
+  const { products, premiumUser, UserInfo, subdata, isError, errorMessage } = useLoaderData();
   const [model, setModel] = useState(false); 
   const resourceName = {
     singular: "products",
     plural: "products",
   };
-  // const { selectedResources, allResourcesSelected, handleSelectionChange } =
-  // useIndexResourceState(products);
 
   // Date calculations
   const subscriptionCreatedDate = UserInfo.createdAt; //DateTime format : 2025-03-07T11:27:57.468Z
@@ -99,17 +112,26 @@ export default function DisputePage() {
       <Page
         title="Products"
         backAction={{ content: "Home", url: "/app" }}
-        // primaryAction={{
-        //   content: "Add product",
-        //   onAction: () => (premiumUser ? setModel(!model) : redirect("/app")),
-        //   icon: premiumUser ? PlusIcon : LockIcon,
-        // }}
-        // secondaryActions={[
-        //   { content: "Export", onAction: () => alert("Duplicate action") },
-        // ]}
       >
 
-      {(premiumUser == 0 && userTakesub == 0 && daysDifference <= 7) ?
+      {/* Show error if stripe key is missing */}
+      {isError && (
+        <Banner
+          title="Stripe Configuration Required"
+          status="critical"
+          action={{
+            content: "Go to Settings",
+            onAction: () => window.open("/app/settings", "_self"),
+          }}
+        >
+          <p>{errorMessage}</p>
+        </Banner>
+      )}
+
+       {/* Show products only if key exists */}
+      {!isError && (
+
+        {(premiumUser == 0 && userTakesub == 0 && daysDifference <= 7) ?
         <>
           <Layout>  
             <Layout.Section>
@@ -229,7 +251,8 @@ export default function DisputePage() {
           </CalloutCard>
         )
       )}
-        
+
+      )}  
       </Page>
     </>
   );
