@@ -9,6 +9,23 @@ import {
   BlockStack,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
+import { LoaderArgs, redirect } from "@remix-run/node";
+import { authenticate, MONTHLY_PLAN } from "../shopify.server";
+
+
+export const loader = async ({ request }: LoaderArgs) => {
+  const { billing } = await authenticate.admin(request);
+  const billingCheck = await billing.require({
+    plans: [MONTHLY_PLAN],
+    isTest: true, // Set to false for production
+    onFailure: () => redirect("/select-plan"),
+  });
+
+  const subscription = billingCheck.appSubscriptions[0];
+  console.log(`Shop is on ${subscription.name} (id ${subscription.id})`);
+  // Access other subscription details like currentPeriodEnd, status, etc.
+  return null;
+};
 
 export default function ThankYouPage() {
   const [searchParams] = useSearchParams();

@@ -12,6 +12,7 @@ import { Button } from "@shopify/polaris";
 
 import { authenticate } from "../shopify.server";
 import { saveShopifyChargeId } from "../models/user.server";
+
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }) => {
@@ -54,7 +55,8 @@ export default function App() {
           <Link to="/app/products">Products</Link>
           <Link to="/app/customers">Customers</Link>
           <Link to="/app/payments">Payments</Link>
-          <Link to="/app/disputes">Disputes</Link>
+          <Link to="/app/payouts">Payouts</Link>
+          <Link to="/app/invoice">Invoice</Link>
           <Link to="/app/Pricing" onClick={handlePricing}>Pricing</Link>  
           <Link to="/app/settings">Settings</Link>
         </NavMenu>

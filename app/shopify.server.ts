@@ -16,6 +16,16 @@ const shopify = shopifyApp({
   authPathPrefix: "/auth",
   sessionStorage: new PrismaSessionStorage(prisma),
   distribution: AppDistribution.AppStore,
+  // webhooks: {
+  //   APP_UNINSTALLED: {
+  //     deliveryMethod: DeliveryMethod.Http,
+  //     callbackUrl: "/webhooks"
+  //   },
+  //   APP_PURCHASES_ONE_TIME_UPDATE: {
+  //     deliveryMethod: DeliveryMethod.Http,
+  //     callbackUrl: "/webhooks"
+  //   }
+  // },
   future: {
     unstable_newEmbeddedAuthStrategy: true,
     removeRest: true,
