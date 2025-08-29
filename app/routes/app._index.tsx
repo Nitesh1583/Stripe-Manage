@@ -166,11 +166,11 @@ export default function Index() {
                   Recommendation
                 </Text>
                 <Text tone="subdued">
-                  Create sandboxes that mirror your organization. Set up test
-                  environments with your account structure to test payment
-                  integrations and try out new features.
+                  Upgrade to a premium membership plan to access all the powerful
+                  features of the Shopify Stripe app. Enhance your online store's
+                  payment processing capabilities today.
                 </Text>
-                <Button variant="primary">Get started</Button>
+                {/*<Button variant="primary">Get started</Button>*/}
               </BlockStack>
             </Card>
           </Layout.Section>
