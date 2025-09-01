@@ -21,7 +21,7 @@ export async function loader({ request }) {
   if (!userInfo) return redirect("/app");
 
   // fetch Invoices Data
-  const { invoices } = = await fetchStripeInvoices(userInfo);
+  const { invoices } = await fetchStripeInvoices(userInfo);
 
   return json({ invoices });
 
