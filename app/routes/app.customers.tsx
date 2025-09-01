@@ -26,7 +26,6 @@ export async function loader({ request }) {
   const userInfo = await db.user.findFirst({
     where: { shop: auth.session.shop }
   });
-
   
   if (!userInfo) return redirect("/app");
 

@@ -56,7 +56,7 @@ export default function App() {
           <Link to="/app/customers">Customers</Link>
           <Link to="/app/payments">Payments</Link>
           <Link to="/app/payouts">Payouts</Link>
-          <Link to="/app/invoice">Invoice</Link>
+          <Link to="/app/invoices">Invoices</Link>
           <Link to="/app/Pricing" onClick={handlePricing}>Pricing</Link>  
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
