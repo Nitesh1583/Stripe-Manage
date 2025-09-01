@@ -113,7 +113,7 @@ export default function Index() {
   return (
     <Page>
       <BlockStack gap="500">
-        {/* 📊 Top Overview Section */}
+        {/*  Top Overview Section */}
         <Layout>
           <Layout.Section>
             <Card padding="400">
@@ -167,10 +167,8 @@ export default function Index() {
                 </Text>
                 <Text tone="subdued">
                   Upgrade to a premium membership plan to access all the powerful
-                  features of the Shopify Stripe app. Enhance your online store's
-                  payment processing capabilities today.
+                  features of the Stripe Console.
                 </Text>
-                {/*<Button variant="primary">Get started</Button>*/}
               </BlockStack>
             </Card>
           </Layout.Section>
