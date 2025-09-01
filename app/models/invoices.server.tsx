@@ -52,3 +52,21 @@ export async function fetchStripeInvoices(userInfo) {
     	};
 	}
 }
+
+export async function fetchSearchStripeInvoices(searchValue, userInfo) {
+  try {
+    const stripe = new Stripe(userInfo.stripeSecretKey);
+    const { data } = await stripe.invoices.list();
+
+    // const filteredData = data.filter((item) => {
+    // 	const customerName = item.data?.name || "";
+    //   	const customerEmail = item.data?.email || "";
+
+    //   return customerName.includes(searchedVal) || customerEmail.toLowerCase().includes(searchedVal.toLowerCase());
+    // });
+
+    return { stripeInvoices: data,  isError: false };
+  }catch(error) {
+    return { message: "Something went wrong. Try again later.", error,isError: true };
+  }
+}
