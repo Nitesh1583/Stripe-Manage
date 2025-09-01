@@ -23,12 +23,26 @@ export async function loader({ request }) {
   // fetch Invoices Data
   const { invoices } = await fetchStripeInvoices(userInfo);
 
+  let searchValue = '';
+  const handleSearch = async (event) => {
+    searchValue = event.target.value;
+
+    if(searchValue != '') {
+      invoices = await fetchSearchStripeInvoices(searchValue);
+    }
+  }
+
   return json({ invoices });
 
 }
 
 export default function Invoices() {
-	const { invoices } = useLoaderData();
+	const { invoices, stripeInvoices } = useLoaderData();
+
+	console.log(invoices);
+	console.log("reached");
+
+	console.log(stripeInvoices);
 
 	return(
 		<Page title="Invoices">
@@ -39,7 +53,28 @@ export default function Invoices() {
           			</label>
 
           			<Card>
-          				
+          				<IndexTable
+          					resourceName={{ singular: `stripeInvoices`, plural: "stripeInvoices" }}
+              			itemCount={filteredPayments.length}
+              			headings={[
+			                { title: "Id" },
+			                { title: "Amount" },
+			                { title: "Status" },
+			                { title: "Customer" },
+			                { title: "Date" },
+			                { title: "Action" },
+			              ]}
+              			selectable={false}
+            			>
+              		{paginatedPayments.map((stripeInvoices) => (
+                		<PaymentRow
+                  		key={stripeInvoices.id}
+                  		payment={stripeInvoices}
+                  		setActiveIndex={setActiveIndex}
+                  		isActive={activeIndex === stripeInvoices.id}
+                		/>
+              		))}
+          				</IndexTable>
           			</Card>
 				</Layout.Section>
 			</Layout>
