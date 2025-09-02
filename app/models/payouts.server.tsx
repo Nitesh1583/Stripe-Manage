@@ -26,3 +26,22 @@ export async function fetchStripePayouts(userInfo) {
     };
   }
 }
+
+export async function fetchSearchStripePayouts(searchValue, userInfo) {
+  try {
+    const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
+
+    // Get all Payouts and filter by searchValue
+    const { data } = await stripe.payouts.list({ limit: 99 });
+
+    const filteredData = data.filter((payouts) =>
+      payouts.id.toLowerCase().includes(searchValue.toLowerCase())
+    );
+
+    return { stripePayouts: filteredData, isError: false };
+
+  } catch (error) {
+    console.error("Error searching payouts:", error);
+    return { stripePayouts: [], message: "Search failed", error, isError: true };
+  }
+}
