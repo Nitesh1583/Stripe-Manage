@@ -167,7 +167,11 @@ export default function CustomerPage() {
          
          <Layout.Section>
           <label htmlFor="search">
-            <input id="search" type="text" placeholder="Search name or email" value={searchedVal} onChange={handleSearch} />
+            <input id="search" 
+              type="text" 
+              placeholder="Search name or email" 
+              value={searchedVal} 
+              onChange={handleSearch} />
           </label>
 
           {/*<CreateStripeCustomerModel model={model} setModel={setModel} />*/}
