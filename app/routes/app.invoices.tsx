@@ -13,6 +13,8 @@ import db from "../db.server";
 import { authenticate } from "../shopify.server";
 import { fetchStripeInvoices } from "../models/invoices.server";
 
+import "../styles/style.css";
+
 export async function loader({ request }) {
   const auth = await authenticate.admin(request);
 
@@ -66,13 +68,12 @@ export default function Invoices() {
             <input
               id="search"
               type="text"
-              placeholder="Search by Invoice ID or Status"
+              placeholder="Search by Customer Name or Status"
               value={searchedVal}
               onChange={(e) => {
                 setSearchedVal(e.target.value);
                 setCurrentPage(1);
               }}
-              className="border rounded-md px-3 py-2 w-full mb-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             />
           </label>
 
