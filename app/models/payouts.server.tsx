@@ -1,0 +1,28 @@
+import { Stripe } from "stripe";
+
+export async function fetchStripePayouts(userInfo) {
+  try {
+    const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
+
+    // Fetch all payouts (no customer filter)
+    const payouts = await stripe.payouts.list({ limit: 99 });
+
+    const payoutsData = payouts.data.map((payouts) => ({
+      id: payouts.id,
+      amount: (payouts.amount / 100).toFixed(2),
+      currency: payouts.currency?.toUpperCase() || "USD",
+      status: payouts.status,
+      created: new Date(payouts.created * 1000).toLocaleDateString(),
+    }));
+
+    return { payouts: payoutsData, isError: false };
+  } catch (error) {
+    console.error("Error fetching payouts:", error);
+    return {
+      payouts: [],
+      message: "Unable to fetch payouts",
+      error,
+      isError: true,
+    };
+  }
+}
