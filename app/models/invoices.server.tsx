@@ -5,7 +5,7 @@ export async function fetchStripeInvoices(userInfo) {
     const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
 
     // Fetch all invoices (no customer filter)
-    const invoices = await stripe.invoices.list({ limit: 20 });
+    const invoices = await stripe.invoices.list({ limit: 99 });
 
     const invoiceData = invoices.data.map((inv) => ({
       id: inv.id,
@@ -32,7 +32,7 @@ export async function fetchSearchStripeInvoices(searchValue, userInfo) {
     const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
 
     // Get all invoices and filter by searchValue
-    const { data } = await stripe.invoices.list({ limit: 100 });
+    const { data } = await stripe.invoices.list({ limit: 99 });
 
     const filteredData = data.filter((inv) =>
       inv.id.toLowerCase().includes(searchValue.toLowerCase())

@@ -4,7 +4,9 @@ import {
   Card,
   IndexTable,
   Page,
-  Layout
+  Layout,
+  Button,
+  InlineStack,
 } from "@shopify/polaris";
 import { useState, useMemo } from "react";
 
@@ -12,32 +14,28 @@ import db from "../db.server";
 import { authenticate } from "../shopify.server";
 import { fetchStripeInvoices } from "../models/invoices.server";
 
-// ---------------- LOADER FUNCTION ----------------
 export async function loader({ request }) {
   const auth = await authenticate.admin(request);
 
-  // Fetch User Info from DB (to get Stripe Secret Key)
   const userInfo = await db.user.findFirst({
     where: { shop: auth.session.shop },
   });
 
   if (!userInfo) return redirect("/app");
 
-  // Fetch all invoices from Stripe
   const { invoices } = await fetchStripeInvoices(userInfo);
 
   return json({ invoices });
 }
 
-// ---------------- REACT COMPONENT ----------------
 export default function Invoices() {
   const { invoices } = useLoaderData<typeof loader>();
 
   const [searchedVal, setSearchedVal] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
 
-  // Filter invoices (by ID or Status)
+  // Filter invoices
   const filteredInvoices = useMemo(() => {
     if (!searchedVal) return invoices;
     return invoices.filter(
@@ -47,12 +45,16 @@ export default function Invoices() {
     );
   }, [searchedVal, invoices]);
 
-  // Pagination
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedInvoices = filteredInvoices.slice(
     startIndex,
     startIndex + itemsPerPage
   );
+
+  const handlePrev = () => setCurrentPage((p) => Math.max(p - 1, 1));
+  const handleNext = () => setCurrentPage((p) => Math.min(p + 1, totalPages));
 
   return (
     <Page title="All Stripe Invoices">
@@ -64,7 +66,10 @@ export default function Invoices() {
               id="search"
               type="text"
               value={searchedVal}
-              onChange={(e) => setSearchedVal(e.target.value)}
+              onChange={(e) => {
+                setSearchedVal(e.target.value);
+                setCurrentPage(1); // reset to page 1 on search
+              }}
               placeholder="Search by Invoice ID or Status"
               className="border rounded-xl p-2 w-full mb-4 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             />
@@ -94,6 +99,21 @@ export default function Invoices() {
               ))}
             </IndexTable>
           </Card>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <InlineStack align="center" className="mt-4">
+              <Button disabled={currentPage === 1} onClick={handlePrev}>
+                Previous
+              </Button>
+              <span className="px-3">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button disabled={currentPage === totalPages} onClick={handleNext}>
+                Next
+              </Button>
+            </InlineStack>
+          )}
         </Layout.Section>
       </Layout>
     </Page>
