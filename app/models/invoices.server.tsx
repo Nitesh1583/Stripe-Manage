@@ -9,6 +9,7 @@ export async function fetchStripeInvoices(userInfo) {
 
     const invoiceData = invoices.data.map((inv) => ({
       id: inv.id,
+      customerName: inv.customer_name,
       amount: (inv.amount_due / 100).toFixed(2),
       currency: inv.currency?.toUpperCase() || "USD",
       status: inv.status,

@@ -34,6 +34,8 @@ export default function Invoices() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
+  console.log(invoices);
+
   // Filter invoices
   const filteredInvoices = useMemo(() => {
     if (!searchedVal) return invoices;
@@ -80,6 +82,7 @@ export default function Invoices() {
               itemCount={filteredInvoices.length}
               headings={[
                 { title: "Invoice ID" },
+                { title: "Customer Name" },
                 { title: "Amount" },
                 { title: "Currency" },
                 { title: "Status" },
@@ -90,6 +93,7 @@ export default function Invoices() {
               {paginatedInvoices.map((inv) => (
                 <IndexTable.Row id={inv.id} key={inv.id} position={inv.id}>
                   <IndexTable.Cell>{inv.id}</IndexTable.Cell>
+                  <IndexTable.Cell>{inv.customer_name}</IndexTable.Cell>
                   <IndexTable.Cell>{inv.amount}</IndexTable.Cell>
                   <IndexTable.Cell>{inv.currency}</IndexTable.Cell>
                   <IndexTable.Cell>{inv.status}</IndexTable.Cell>
