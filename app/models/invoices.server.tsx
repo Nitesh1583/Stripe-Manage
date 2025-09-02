@@ -36,7 +36,7 @@ export async function fetchSearchStripeInvoices(searchValue, userInfo) {
     const { data } = await stripe.invoices.list({ limit: 99 });
 
     const filteredData = data.filter((inv) =>
-      inv.customer_name.toLowerCase().includes(searchValue.toLowerCase())
+      inv.customerName.toLowerCase().includes(searchValue.toLowerCase())
     );
 
     return { stripeInvoices: filteredData, isError: false };

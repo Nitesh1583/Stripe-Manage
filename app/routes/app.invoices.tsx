@@ -41,7 +41,7 @@ export default function Invoices() {
     if (!searchedVal) return invoices;
     return invoices.filter(
       (inv) =>
-        inv.id.toLowerCase().includes(searchedVal.toLowerCase()) ||
+        inv.customerName.toLowerCase().includes(searchedVal.toLowerCase()) ||
         inv.status.toLowerCase().includes(searchedVal.toLowerCase())
     );
   }, [searchedVal, invoices]);
