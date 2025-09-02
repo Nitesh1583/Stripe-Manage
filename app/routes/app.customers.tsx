@@ -49,7 +49,7 @@ export default function CustomerPage() {
   const [activeIndex, setActiveIndex] = useState(null);
   const [searchedVal, setSearchedVal] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(8);
 
   const subscriptionCreatedDate = UserInfo.createdAt; //DateTime format : 2025-03-07T11:27:57.468Z
 
