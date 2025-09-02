@@ -39,43 +39,8 @@ export default function Invoices() {
   console.log(payouts);
 
   return (
-    <Page title="All Stripe Invoices">
+    <Page title="All Stripe Payouts">
       <Layout>
-        <Layout.Section>
-          {/* Search Bar */}
-          <label htmlFor="search">
-            <input
-              id="search"
-              type="text"
-              placeholder="Search by Customer Name or Status"
-              
-            />
-          </label>
-
-          <Card>
-            <IndexTable
-              resourceName={{ singular: "payout", plural: "payouts" }}
-              headings={[
-                { title: "Invoice ID" },
-                { title: "Customer Name" },
-                { title: "Amount" },
-                { title: "Currency" },
-                { title: "Status" },
-                { title: "Date" },
-              ]}
-              selectable={false}
-            >
-                <IndexTable.Row id={} key={} position={}>
-                  <IndexTable.Cell>{}</IndexTable.Cell>
-                  <IndexTable.Cell>{}</IndexTable.Cell>
-                  <IndexTable.Cell>{}</IndexTable.Cell>
-                  <IndexTable.Cell>{}</IndexTable.Cell>
-                  <IndexTable.Cell>{}</IndexTable.Cell>
-                  <IndexTable.Cell>{}</IndexTable.Cell>
-                </IndexTable.Row>
-            </IndexTable>
-          </Card>
-        </Layout.Section>
       </Layout>
     </Page>
   );
