@@ -42,21 +42,19 @@ export default function Invoices() {
     <Page title="All Stripe Invoices">
       <Layout>
         <Layout.Section>
-          {/* Search Bar - styled like customer.tsx */}
+          {/* Search Bar */}
           <label htmlFor="search">
             <input
               id="search"
               type="text"
               placeholder="Search by Customer Name or Status"
-              value={}
-              onChange={}
+              
             />
           </label>
 
           <Card>
             <IndexTable
-              resourceName={{ singular: "invoice", plural: "invoices" }}
-              itemCount={}
+              resourceName={{ singular: "payout", plural: "payouts" }}
               headings={[
                 { title: "Invoice ID" },
                 { title: "Customer Name" },
