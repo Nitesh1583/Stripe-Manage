@@ -93,7 +93,7 @@ export default function Invoices() {
               {paginatedInvoices.map((inv) => (
                 <IndexTable.Row id={inv.id} key={inv.id} position={inv.id}>
                   <IndexTable.Cell>{inv.id}</IndexTable.Cell>
-                  <IndexTable.Cell>{inv.customer_name}</IndexTable.Cell>
+                  <IndexTable.Cell>{inv.customerName}</IndexTable.Cell>
                   <IndexTable.Cell>{inv.amount}</IndexTable.Cell>
                   <IndexTable.Cell>{inv.currency}</IndexTable.Cell>
                   <IndexTable.Cell>{inv.status}</IndexTable.Cell>
