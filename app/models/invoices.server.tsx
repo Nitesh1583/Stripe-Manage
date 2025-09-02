@@ -1,33 +1,12 @@
 import { Stripe } from "stripe";
-import db from "../db.server";
 
 export async function fetchStripeInvoices(userInfo) {
   try {
     const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
 
-    // Find shop’s subscription user
-    const existingShop = await db.SubscriptionUser.findFirst({
-      where: {
-        shop_url: userInfo.shop,
-        sub_cancel_date: null,
-      },
-    });
+    // Fetch all invoices (no customer filter)
+    const invoices = await stripe.invoices.list({ limit: 20 });
 
-    if (!existingShop || !existingShop.stripe_customer_id) {
-      return {
-        invoices: [],
-        message: "No active Stripe customer found!",
-        isError: false,
-      };
-    }
-
-    // Fetch invoices for this customer
-    const invoices = await stripe.invoices.list({
-      customer: existingShop.stripe_customer_id,
-      limit: 10,
-    });
-
-    // Map data
     const invoiceData = invoices.data.map((inv) => ({
       id: inv.id,
       amount: (inv.amount_due / 100).toFixed(2),
@@ -51,7 +30,9 @@ export async function fetchStripeInvoices(userInfo) {
 export async function fetchSearchStripeInvoices(searchValue, userInfo) {
   try {
     const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
-    const { data } = await stripe.invoices.list();
+
+    // Get all invoices and filter by searchValue
+    const { data } = await stripe.invoices.list({ limit: 100 });
 
     const filteredData = data.filter((inv) =>
       inv.id.toLowerCase().includes(searchValue.toLowerCase())

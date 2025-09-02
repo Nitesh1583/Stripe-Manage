@@ -16,15 +16,14 @@ import { fetchStripeInvoices } from "../models/invoices.server";
 export async function loader({ request }) {
   const auth = await authenticate.admin(request);
 
-  // Fetch User Info from DB
+  // Fetch User Info from DB (to get Stripe Secret Key)
   const userInfo = await db.user.findFirst({
     where: { shop: auth.session.shop },
   });
 
-  // Redirect if no user found
   if (!userInfo) return redirect("/app");
 
-  // Fetch invoices from Stripe
+  // Fetch all invoices from Stripe
   const { invoices } = await fetchStripeInvoices(userInfo);
 
   return json({ invoices });
@@ -38,9 +37,7 @@ export default function Invoices() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  console.log(invoices);
-
-  // Filtered Invoices
+  // Filter invoices (by ID or Status)
   const filteredInvoices = useMemo(() => {
     if (!searchedVal) return invoices;
     return invoices.filter(
@@ -58,10 +55,10 @@ export default function Invoices() {
   );
 
   return (
-    <Page title="Invoices">
+    <Page title="All Stripe Invoices">
       <Layout>
         <Layout.Section>
-          {/* Search Box */}
+          {/* Search Bar */}
           <label htmlFor="search">
             <input
               id="search"
@@ -69,7 +66,7 @@ export default function Invoices() {
               value={searchedVal}
               onChange={(e) => setSearchedVal(e.target.value)}
               placeholder="Search by Invoice ID or Status"
-              className="border rounded p-2 w-full mb-4"
+              className="border rounded-xl p-2 w-full mb-4 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             />
           </label>
 
