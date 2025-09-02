@@ -5,8 +5,7 @@ import {
   IndexTable,
   Page,
   Layout,
-  Button,
-  InlineStack,
+  Pagination,
 } from "@shopify/polaris";
 import { useState, useMemo } from "react";
 
@@ -33,7 +32,7 @@ export default function Invoices() {
 
   const [searchedVal, setSearchedVal] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 8;
 
   // Filter invoices
   const filteredInvoices = useMemo(() => {
@@ -45,33 +44,33 @@ export default function Invoices() {
     );
   }, [searchedVal, invoices]);
 
-  // Pagination calculations
+  // Pagination logic
   const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedInvoices = filteredInvoices.slice(
-    startIndex,
-    startIndex + itemsPerPage
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
-  const handlePrev = () => setCurrentPage((p) => Math.max(p - 1, 1));
-  const handleNext = () => setCurrentPage((p) => Math.min(p + 1, totalPages));
+  const handlePagination = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
 
   return (
     <Page title="All Stripe Invoices">
       <Layout>
         <Layout.Section>
-          {/* Search Bar */}
+          {/* Search Bar - styled like customer.tsx */}
           <label htmlFor="search">
             <input
               id="search"
               type="text"
+              placeholder="Search by Invoice ID or Status"
               value={searchedVal}
               onChange={(e) => {
                 setSearchedVal(e.target.value);
-                setCurrentPage(1); // reset to page 1 on search
+                setCurrentPage(1);
               }}
-              placeholder="Search by Invoice ID or Status"
-              className="border rounded-xl p-2 w-full mb-4 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="border rounded-md px-3 py-2 w-full mb-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             />
           </label>
 
@@ -98,22 +97,15 @@ export default function Invoices() {
                 </IndexTable.Row>
               ))}
             </IndexTable>
-          </Card>
 
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <InlineStack align="center" className="mt-4">
-              <Button disabled={currentPage === 1} onClick={handlePrev}>
-                Previous
-              </Button>
-              <span className="px-3">
-                Page {currentPage} of {totalPages}
-              </span>
-              <Button disabled={currentPage === totalPages} onClick={handleNext}>
-                Next
-              </Button>
-            </InlineStack>
-          )}
+            {/* Shopify Polaris Pagination (same as customer.tsx) */}
+            <Pagination
+              hasPrevious={currentPage > 1}
+              hasNext={currentPage < totalPages}
+              onPrevious={() => handlePagination(currentPage - 1)}
+              onNext={() => handlePagination(currentPage + 1)}
+            />
+          </Card>
         </Layout.Section>
       </Layout>
     </Page>
