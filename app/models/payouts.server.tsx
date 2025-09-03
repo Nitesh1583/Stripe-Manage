@@ -60,22 +60,15 @@ export async function fetchStripeBalanceTransactions(userInfo,{ startingAfter = 
       apiVersion: "2023-10-16" 
     });
 
-    // Create UNIX timestamps for today
-    const now = new Date();
-    const startOfDay = new Date(now.setHours(0, 0, 0, 0)).getTime() / 1000; // seconds
-    const endOfDay = new Date(now.setHours(23, 59, 59, 999)).getTime() / 1000; // seconds
+    const todayDate = new Date();
 
     const response = await stripe.balanceTransactions.list({
       limit,
-      created: {
-        gte: startOfDay,
-        lte: endOfDay,
-      },
+      created : todayDate,
       ...(startingAfter ? { starting_after: startingAfter } : {}),
     });
 
     console.log(response);
-    console.log("Stripe Balance Transactions:", response.data);
 
     return {
       transactions: response.data,
