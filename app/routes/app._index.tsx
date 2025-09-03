@@ -21,19 +21,22 @@ import db from "../db.server";
 import { fetchStripeBalanceTransactions } from "../models/payouts.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-
+  try {
     const auth = await authenticate.admin(request);
 
     const userInfo = await db.user.findFirst({
       where: { shop: auth.session.shop },
     });
 
-    if (!userInfo) return redirect("/app");
+    if (!userInfo) return redirect("/app/products");
 
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
-    const { available } = await fetchStripeBalanceTransactions(userInfo);
 
-    return json({ transactions, available });
+    return json({ transactions });
+  } catch (error) {
+    console.error("Loader failed:", error);
+    return json({ transactions: [] }, { status: 500 }); // Prevent 500 crash
+  }
 };
 
 
@@ -108,10 +111,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions, available } = useLoaderData<typeof loader>();
+  const { transactions, } = useLoaderData<typeof loader>();
 
   console.log(transactions);
-  console.log(available);
 
   const shopify = useAppBridge();
   const isLoading =
@@ -145,12 +147,9 @@ export default function Index() {
                       Today volume
                     </Text>
                     <Text variant="heading2xl" as="p">
-                      {/*{balance?.available?.length
-                        ? `$${(balance.available[0].amount / 100).toFixed(2)} ${balance.available[0].currency.toUpperCase()}`
-                        : "$0.00"}*/}
                       $0.00
                     </Text>
-                    <Text tone="subdued">Real-time from Stripe</Text>
+                    <Text tone="subdued">as of 1:43 PM</Text>
                   </BlockStack>
 
                   <BlockStack gap="100" align="end">
@@ -198,7 +197,7 @@ export default function Index() {
         </Layout>
 
         {/* Stripe Transactions Section */}
-        {/*<Layout>
+        <Layout>
           <Layout.Section>
             <Card>
               <Text variant="headingMd" as="h2">
@@ -210,7 +209,7 @@ export default function Index() {
             </Card>
           </Layout.Section>
         </Layout>
-*/}
+
         {/* Keep your marketing content */}
         <Layout>
           <Layout.Section>
