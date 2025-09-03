@@ -60,13 +60,22 @@ export async function fetchStripeBalanceTransactions(userInfo,{ startingAfter = 
       apiVersion: "2023-10-16" 
     });
 
+    // Get today's date range (start & end of the day)
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0)).getTime() / 1000; // UNIX timestamp
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999)).getTime() / 1000; // UNIX timestamp
+
     const response = await stripe.balanceTransactions.list({
       limit,
+      created: {
+        gte: startOfDay, // Greater than or equal to start of today
+        lte: endOfDay,   // Less than or equal to end of today
+      },
       ...(startingAfter ? { starting_after: startingAfter } : {}),
     });
 
     console.log(response);
-    
+
     return {
       transactions: response.data,
       hasMore: response.has_more,
@@ -77,3 +86,27 @@ export async function fetchStripeBalanceTransactions(userInfo,{ startingAfter = 
   }
 }
 
+
+// Fetch Current Stripe Balance
+export async function fetchStripeBalance(userInfo) {
+  try {
+    if (!userInfo?.stripeSecretKey) {
+      console.error("No Stripe key provided");
+      return { available: [], pending: [] };
+    }
+
+    const stripe = new Stripe(userInfo.stripeSecretKey, {
+      apiVersion: "2023-10-16",
+    });
+
+    const response = await stripe.balance.retrieve();
+
+    return {
+      available: response.available, // Array of available balances
+      pending: response.pending, // Array of pending balances
+    };
+  } catch (error) {
+    console.error("Stripe balance not found!", error);
+    return { available: [], pending: [] };
+  }
+}

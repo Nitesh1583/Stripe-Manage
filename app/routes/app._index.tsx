@@ -28,14 +28,28 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       where: { shop: auth.session.shop },
     });
 
-    if (!userInfo) return redirect("/app/products");
+    if (!userInfo) return redirect("/app");
 
-    const { transactions } = await fetchStripeBalanceTransactions(userInfo);
+    if (!userInfo.stripeSecretKey) {
+      console.error("Missing Stripe secret key for shop:", userInfo.shop);
+      return json({ transactions: [], balance: { available: [], pending: [] } });
+    }
 
-    return json({ transactions });
+    const [transactionsData, balanceData] = await Promise.all([
+      fetchStripeBalanceTransactions(userInfo),
+      fetchStripeBalance(userInfo),
+    ]);
+
+    return json({
+      transactions: transactionsData.transactions,
+      balance: balanceData,
+    });
   } catch (error) {
     console.error("Loader failed:", error);
-    return json({ transactions: [] }, { status: 500 }); // Prevent 500 crash
+    return json(
+      { transactions: [], balance: { available: [], pending: [] } },
+      { status: 500 }
+    );
   }
 };
 
@@ -111,9 +125,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions, } = useLoaderData<typeof loader>();
+  const { transactions, balance } = useLoaderData<typeof loader>();
 
   console.log(transactions);
+
+  console.log(balance);
 
   const shopify = useAppBridge();
   const isLoading =
@@ -147,9 +163,11 @@ export default function Index() {
                       Today volume
                     </Text>
                     <Text variant="heading2xl" as="p">
-                      $0.00
+                      {balance?.available?.length
+                        ? `$${(balance.available[0].amount / 100).toFixed(2)} ${balance.available[0].currency.toUpperCase()}`
+                        : "$0.00"}
                     </Text>
-                    <Text tone="subdued">as of 1:43 PM</Text>
+                    <Text tone="subdued">Real-time from Stripe</Text>
                   </BlockStack>
 
                   <BlockStack gap="100" align="end">
@@ -197,7 +215,7 @@ export default function Index() {
         </Layout>
 
         {/* Stripe Transactions Section */}
-        {/*<Layout>
+        <Layout>
           <Layout.Section>
             <Card>
               <Text variant="headingMd" as="h2">
@@ -208,7 +226,7 @@ export default function Index() {
               </pre>
             </Card>
           </Layout.Section>
-        </Layout>*/}
+        </Layout>
 
         {/* Keep your marketing content */}
         <Layout>
