@@ -11,7 +11,8 @@ import { useState, useMemo } from "react";
 
 import db from "../db.server";
 import { authenticate } from "../shopify.server";
-import { fetchStripePayouts } from "../models/payouts.server";
+// import { fetchStripePayouts } from "../models/payouts.server";
+import { fetchStripeBalanceTransactions } from "../models/payouts.server";
 
 import "../styles/style.css";
 
