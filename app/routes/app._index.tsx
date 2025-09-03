@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher, useLoaderData  } from "@remix-run/react";
 import {
   Page,
   Layout,
@@ -16,10 +16,21 @@ import {
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+import db from "../db.server";
+import { fetchStripeBalanceTransactions } from "../models/payouts.server";
 
-  return null;
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const auth = await authenticate.admin(request);
+
+  const userInfo = await db.user.findFirst({
+    where: { shop: auth.session.shop },
+  });
+
+  if (!userInfo) return redirect("/app");
+
+  const { transactions } = await fetchStripeBalanceTransactions(userInfo);
+
+  return json({ transactions });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -93,6 +104,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
+  const { transactions } = useLoaderData<typeof loader>();
+
+  console.log(transactions);
 
   const shopify = useAppBridge();
   const isLoading =
@@ -175,7 +189,21 @@ export default function Index() {
           </Layout.Section>
         </Layout>
 
+        {/* Stripe Transactions Section */}
+        <Layout>
+          <Layout.Section>
+            <Card>
+              <Text variant="headingMd" as="h2">
+                Stripe Balance Transactions
+              </Text>
+              <pre style={{ maxHeight: "300px", overflowY: "auto" }}>
+                {JSON.stringify(transactions, null, 2)}
+              </pre>
+            </Card>
+          </Layout.Section>
+        </Layout>
 
+        {/* Keep your marketing content */}
         <Layout>
           <Layout.Section>
             <Card>

@@ -49,8 +49,8 @@ export async function fetchSearchStripePayouts(searchValue, userInfo) {
 // Fetch Stripe Balance transactions
 export async function fetchStripeBalanceTransactions(userInfo, { startingAfter = null, limit = 10 }) {
   try {
-    const stripe = new Stripe(userInfo.stripeSecretKey);
-
+     const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
+     
     // Fetch Stripe balance transactions
     const response = await stripe.balanceTransactions.list({
       limit,
