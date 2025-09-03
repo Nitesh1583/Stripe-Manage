@@ -30,12 +30,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     if (!userInfo) return redirect("/app/products");
 
-    const { transactions } = await fetchStripeBalanceTransactions(userInfo);
+    const { transactions, todayTotal } = await fetchStripeBalanceTransactions(userInfo);
 
-    return json({ transactions });
+    return json({ transactions, todayTotal });
   } catch (error) {
     console.error("Loader failed:", error);
-    return json({ transactions: [] }, { status: 500 }); // Prevent 500 crash
+    return json({ transactions: [], todayTotal: 0 }, { status: 500 });
   }
 };
 
@@ -111,9 +111,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions, } = useLoaderData<typeof loader>();
+  const { transactions, todayTotal } = useLoaderData<typeof loader>();
 
-  console.log(transactions);
+  console.log(transactions, todayTotal);
 
   const shopify = useAppBridge();
   const isLoading =
@@ -146,10 +146,10 @@ export default function Index() {
                     <Text variant="headingMd" as="h2">
                       Today volume
                     </Text>
-                    <Text variant="heading2xl" as="p">
-                      $0.00
+                     <Text variant="heading2xl" as="p">
+                      ${todayTotal.toFixed(2)}
                     </Text>
-                    <Text tone="subdued">as of 1:43 PM</Text>
+                    <Text tone="subdued">as of {new Date().toLocaleTimeString()}</Text>
                   </BlockStack>
 
                   <BlockStack gap="100" align="end">

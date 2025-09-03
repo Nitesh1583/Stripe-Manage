@@ -48,37 +48,44 @@ export async function fetchSearchStripePayouts(searchValue, userInfo) {
 }
 
 // Fetch Stripe Balance transactions
-export async function fetchStripeBalanceTransactions(userInfo,{ startingAfter = null, limit = 10 } = {}) 
+export async function fetchStripeBalanceTransactions(userInfo, { startingAfter = null, limit = 100 } = {})
 {
   try {
     if (!userInfo?.stripeSecretKey) {
       console.error("No Stripe key provided");
-      return { transactions: [], hasMore: false };
+      return { transactions: [], todayTotal: 0, hasMore: false };
     }
 
     const stripe = new Stripe(userInfo.stripeSecretKey, {
-      apiVersion: "2023-10-16" 
+      apiVersion: "2023-10-16",
     });
 
-    const todayDate = new Date();
+    // Create timestamps for start/end of today
+    const now = new Date();
+    const startOfDay = new Date(now.setHours(0, 0, 0, 0)).getTime() / 1000;
+    const endOfDay = new Date(now.setHours(23, 59, 59, 999)).getTime() / 1000;
 
     const response = await stripe.balanceTransactions.list({
       limit,
-      // created: {
-      //   gt: todayDate
-      // },
+      created: { gte: startOfDay, lte: endOfDay },
       ...(startingAfter ? { starting_after: startingAfter } : {}),
     });
 
-    console.log(response);
+    // Calculate total amount for today (convert from cents to dollars)
+    const todayTotal =
+      response.data.reduce((acc, tx) => acc + tx.amount, 0) / 100;
+
+    console.log("Today Transactions:", response.data);
+    console.log("Today Total:", todayTotal);
 
     return {
       transactions: response.data,
+      todayTotal,
       hasMore: response.has_more,
     };
   } catch (error) {
     console.error("Balance transactions not found!", error);
-    return { transactions: [], hasMore: false };
+    return { transactions: [], todayTotal: 0, hasMore: false };
   }
 }
 
