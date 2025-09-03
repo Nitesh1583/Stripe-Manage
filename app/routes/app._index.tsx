@@ -27,16 +27,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       where: { shop: auth.session.shop },
     });
 
-    if (!userInfo) return redirect("/app");
-
-    if (!userInfo.stripeSecretKey) {
-      console.error("Missing Stripe secret key for shop:", userInfo.shop);
-      return json({ transactions: [] }); // Return empty data, no crash
-    }
+    if (!userInfo) return redirect("/app/products");
 
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
 
-    return json({ transactions });
+    return json({ transactions, userInfo });
   } catch (error) {
     console.error("Loader failed:", error);
     return json({ transactions: [] }, { status: 500 }); // Prevent 500 crash
@@ -115,7 +110,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions } = useLoaderData<typeof loader>();
+  const { transactions, } = useLoaderData<typeof loader>();
 
   console.log(transactions);
 
