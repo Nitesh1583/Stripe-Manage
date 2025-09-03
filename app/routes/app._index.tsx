@@ -30,12 +30,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     if (!userInfo) return redirect("/app/products");
 
-    const { transactions, todayTotal } = await fetchStripeBalanceTransactions(userInfo);
+    const { transactions } = await fetchStripeBalanceTransactions(userInfo);
 
-    return json({ transactions, todayTotal });
+    return json({ transactions });
   } catch (error) {
     console.error("Loader failed:", error);
-    return json({ transactions: [], todayTotal: 0 }, { status: 500 });
+    return json({ transactions: [],  
+    }, { status: 500 });
   }
 };
 
@@ -111,10 +112,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions, todayTotal } = useLoaderData<typeof loader>();
+  const { transactions } = useLoaderData<typeof loader>();
 
   console.log(transactions );
-  console.log(todayTotal);
+  // console.log(todayTotal);
 
   const shopify = useAppBridge();
   const isLoading =
@@ -148,7 +149,7 @@ export default function Index() {
                       Today volume
                     </Text>
                      <Text variant="heading2xl" as="p">
-                      ${todayTotal.toFixed(2)}
+                      {/*${todayTotal.toFixed(2)}*/}
                     </Text>
                     <Text tone="subdued">as of {new Date().toLocaleTimeString()}</Text>
                   </BlockStack>
@@ -204,12 +205,59 @@ export default function Index() {
               <Text variant="headingMd" as="h2">
                 Stripe Balance Transactions
               </Text>
-              <pre style={{ maxHeight: "300px", overflowY: "auto" }}>
-                {JSON.stringify(transactions, null, 2)}
-              </pre>
+
+              {/* 🔥 UPDATED: Replaced JSON.stringify with a proper table for transactions */}
+              {transactions.length === 0 ? (
+                <Text tone="subdued">No transactions found for today.</Text>
+              ) : (
+                <table
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    marginTop: "1rem",
+                  }}
+                >
+                  <thead>
+                    <tr style={{ textAlign: "left" }}>
+                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>ID</th>
+                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Type</th>
+                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Amount</th>
+                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Fee</th>
+                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Net</th>
+                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {transactions.map((tx) => (
+                      <tr key={tx.id}>
+                        <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
+                          {tx.id}
+                        </td>
+                        <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
+                          {tx.type}
+                        </td>
+                        <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
+                          ${(tx.amount / 100).toFixed(2)}
+                        </td>
+                        <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
+                          ${(tx.fee / 100).toFixed(2)}
+                        </td>
+                        <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
+                          ${(tx.net / 100).toFixed(2)}
+                        </td>
+                        <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
+                          {new Date(tx.created * 1000).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              {/* 🔥 END UPDATED */}
             </Card>
           </Layout.Section>
         </Layout>
+
 
         {/* Keep your marketing content */}
         <Layout>
