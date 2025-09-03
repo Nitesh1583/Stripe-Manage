@@ -20,22 +20,16 @@ import db from "../db.server";
 import { fetchStripeBalanceTransactions } from "../models/payouts.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  try {
+
     const auth = await authenticate.admin(request);
 
-    const userInfo = await db.user.findFirst({
-      where: { shop: auth.session.shop },
-    });
+    const userInfo = await db.user.findFirst({ where: { shop: auth.session.shop } });
 
     if (!userInfo) return redirect("/app/products");
 
-    const { transactions } = await fetchStripeBalanceTransactions(userInfo);
+    const transactions  = await fetchStripeBalanceTransactions(userInfo);
 
-    return json({ transactions, userInfo });
-  } catch (error) {
-    console.error("Loader failed:", error);
-    return json({ transactions: [] }, { status: 500 }); // Prevent 500 crash
-  }
+    return transactions ;
 };
 
 
@@ -110,7 +104,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions, } = useLoaderData<typeof loader>();
+  const { transactions } = useLoaderData<typeof loader>();
 
   console.log(transactions);
 

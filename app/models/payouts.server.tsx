@@ -54,11 +54,12 @@ export async function fetchStripeBalanceTransactions(userInfo)
 
     const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
 
-    const response = await stripe.balanceTransactions.list({ limit: 10 });
+    const response = await stripe.balanceTransactions.list({ limit: 3 });
+    console.log(response);
 
     return {
       transactions: response.data, isError: false };
-      
+
   } catch (error) {
     console.error("Balance transactions not found!", error);
    return { transactions: [], message: "Search failed", error, isError: true };
