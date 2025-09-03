@@ -20,18 +20,29 @@ import db from "../db.server";
 import { fetchStripeBalanceTransactions } from "../models/payouts.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const auth = await authenticate.admin(request);
+  try {
+    const auth = await authenticate.admin(request);
 
-  const userInfo = await db.user.findFirst({
-    where: { shop: auth.session.shop },
-  });
+    const userInfo = await db.user.findFirst({
+      where: { shop: auth.session.shop },
+    });
 
-  if (!userInfo) return redirect("/app");
+    if (!userInfo) return redirect("/app");
 
-  const { transactions } = await fetchStripeBalanceTransactions(userInfo);
+    if (!userInfo.stripeSecretKey) {
+      console.error("Missing Stripe secret key for shop:", userInfo.shop);
+      return json({ transactions: [] }); // Return empty data, no crash
+    }
 
-  return json({ transactions });
+    const { transactions } = await fetchStripeBalanceTransactions(userInfo);
+
+    return json({ transactions });
+  } catch (error) {
+    console.error("Loader failed:", error);
+    return json({ transactions: [] }, { status: 500 }); // Prevent 500 crash
+  }
 };
+
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { admin } = await authenticate.admin(request);
@@ -190,7 +201,7 @@ export default function Index() {
         </Layout>
 
         {/* Stripe Transactions Section */}
-        <Layout>
+        {/*<Layout>
           <Layout.Section>
             <Card>
               <Text variant="headingMd" as="h2">
@@ -201,7 +212,7 @@ export default function Index() {
               </pre>
             </Card>
           </Layout.Section>
-        </Layout>
+        </Layout>*/}
 
         {/* Keep your marketing content */}
         <Layout>
