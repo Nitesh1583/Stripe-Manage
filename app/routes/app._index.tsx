@@ -21,7 +21,7 @@ import db from "../db.server";
 import { fetchStripeBalanceTransactions } from "../models/payouts.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  try {
+
     const auth = await authenticate.admin(request);
 
     const userInfo = await db.user.findFirst({
@@ -30,27 +30,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     if (!userInfo) return redirect("/app");
 
-    if (!userInfo.stripeSecretKey) {
-      console.error("Missing Stripe secret key for shop:", userInfo.shop);
-      return json({ transactions: [], balance: { available: [], pending: [] } });
-    }
+    const { transactions } = await fetchStripeBalanceTransactions(userInfo);
+    const { available } = await fetchStripeBalanceTransactions(userInfo);
 
-    const [transactionsData, balanceData] = await Promise.all([
-      fetchStripeBalanceTransactions(userInfo),
-      fetchStripeBalance(userInfo),
-    ]);
-
-    return json({
-      transactions: transactionsData.transactions,
-      balance: balanceData,
-    });
-  } catch (error) {
-    console.error("Loader failed:", error);
-    return json(
-      { transactions: [], balance: { available: [], pending: [] } },
-      { status: 500 }
-    );
-  }
+    return json({ transactions, available });
 };
 
 
@@ -125,11 +108,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions, balance } = useLoaderData<typeof loader>();
+  const { transactions, available } = useLoaderData<typeof loader>();
 
   console.log(transactions);
-
-  console.log(balance);
+  console.log(available);
 
   const shopify = useAppBridge();
   const isLoading =
@@ -163,9 +145,10 @@ export default function Index() {
                       Today volume
                     </Text>
                     <Text variant="heading2xl" as="p">
-                      {balance?.available?.length
+                      {/*{balance?.available?.length
                         ? `$${(balance.available[0].amount / 100).toFixed(2)} ${balance.available[0].currency.toUpperCase()}`
-                        : "$0.00"}
+                        : "$0.00"}*/}
+                      $0.00
                     </Text>
                     <Text tone="subdued">Real-time from Stripe</Text>
                   </BlockStack>
@@ -215,7 +198,7 @@ export default function Index() {
         </Layout>
 
         {/* Stripe Transactions Section */}
-        <Layout>
+        {/*<Layout>
           <Layout.Section>
             <Card>
               <Text variant="headingMd" as="h2">
@@ -227,7 +210,7 @@ export default function Index() {
             </Card>
           </Layout.Section>
         </Layout>
-
+*/}
         {/* Keep your marketing content */}
         <Layout>
           <Layout.Section>
