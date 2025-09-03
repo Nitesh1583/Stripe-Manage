@@ -115,24 +115,35 @@ export default function Index() {
   const { transactions } = useLoaderData<typeof loader>();
 
   console.log(transactions);
-  // ✅ Get today's date range
+
+  // Get today's date range
   const today = new Date();
   today.setHours(0, 0, 0, 0); // start of today
-  const startOfDay = today.getTime() / 1000; // convert to seconds
-  const endOfDay = startOfDay + 86400; // +24 hours in seconds
+  const startOfDay = today.getTime() / 1000;
+  const endOfDay = startOfDay + 86400;
 
-  // ✅ Filter only today's transactions
+  // Calculate yesterday's date range
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const startOfYesterday = yesterday.getTime() / 1000;
+  const endOfYesterday = startOfYesterday + 86400;
+
+  // Filter today's transactions
   const todayTransactions = transactions.filter(
     (tx) => tx.created >= startOfDay && tx.created < endOfDay
   );
 
-  // ✅ Calculate today's total amount (convert cents to dollars)
-  const todayTotal = todayTransactions.reduce(
-    (sum, tx) => sum + tx.amount,
-    0
-  ) / 100;
+  // Filter yesterday's transactions
+  const yesterdayTransactions = transactions.filter(
+    (tx) => tx.created >= startOfYesterday && tx.created < endOfYesterday
+  );
+
+  // Calculate totals
+  const todayTotal = todayTransactions.reduce((sum, tx) => sum + tx.amount, 0) / 100;
+  const yesterdayTotal = yesterdayTransactions.reduce((sum, tx) => sum + tx.amount, 0) / 100;
 
   const shopify = useAppBridge();
+  
   const isLoading =
     ["loading", "submitting"].includes(fetcher.state) &&
     fetcher.formMethod === "POST";
@@ -174,7 +185,7 @@ export default function Index() {
                       Yesterday
                     </Text>
                     <Text variant="headingLg" as="p">
-                      $0.00
+                      ${yesterdayTotal.toFixed(2)}
                     </Text>
                   </BlockStack>
                 </InlineStack>
@@ -212,67 +223,6 @@ export default function Index() {
             </Card>
           </Layout.Section>
         </Layout>
-
-        {/* Stripe Transactions Section */}
-        <Layout>
-          <Layout.Section>
-            <Card>
-              <Text variant="headingMd" as="h2">
-                Stripe Balance Transactions
-              </Text>
-
-              {/* 🔥 UPDATED: Replaced JSON.stringify with a proper table for transactions */}
-              {transactions.length === 0 ? (
-                <Text tone="subdued">No transactions found for today.</Text>
-              ) : (
-                <table
-                  style={{
-                    width: "100%",
-                    borderCollapse: "collapse",
-                    marginTop: "1rem",
-                  }}
-                >
-                  <thead>
-                    <tr style={{ textAlign: "left" }}>
-                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>ID</th>
-                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Type</th>
-                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Amount</th>
-                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Fee</th>
-                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Net</th>
-                      <th style={{ borderBottom: "1px solid #ccc", padding: "8px" }}>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {transactions.map((tx) => (
-                      <tr key={tx.id}>
-                        <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
-                          {tx.id}
-                        </td>
-                        <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
-                          {tx.type}
-                        </td>
-                        <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
-                          ${(tx.amount / 100).toFixed(2)}
-                        </td>
-                        <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
-                          ${(tx.fee / 100).toFixed(2)}
-                        </td>
-                        <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
-                          ${(tx.net / 100).toFixed(2)}
-                        </td>
-                        <td style={{ borderBottom: "1px solid #eee", padding: "8px" }}>
-                          {new Date(tx.created * 1000).toLocaleString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-              {/* 🔥 END UPDATED */}
-            </Card>
-          </Layout.Section>
-        </Layout>
-
 
         {/* Keep your marketing content */}
         <Layout>
