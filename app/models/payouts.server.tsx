@@ -68,28 +68,26 @@ export async function fetchStripeBalanceTransactions(userInfo, { startingAfter =
 
     const response = await stripe.balanceTransactions.list({
       limit,
-      created: { gte: startOfDay, lte: endOfDay },
+      // created: { gte: startOfDay, lte: endOfDay },
       ...(startingAfter ? { starting_after: startingAfter } : {}),
     });
-    alert(response);
-    alert(response.data)
-    console.log(response.data);
 
     // Calculate total amount for today
-    const todayTotal =
-      response.data.reduce((acc, tx) => acc + tx.amount, 0) / 100;
+    // const todayTotal = response.data.reduce((acc, tx) => acc + tx.amount, 0) / 100;
 
     console.log("Today Transactions:", response.data);
-    console.log("Today Total:", todayTotal);
+    // console.log("Today Total:", todayTotal);
 
     return {
       transactions: response.data,
-      todayTotal,
+      // todayTotal,
       hasMore: response.has_more,
     };
   } catch (error) {
     console.error("Balance transactions not found!", error);
-    return { transactions: [], todayTotal: 0, hasMore: false };
+    return { transactions: [], 
+      // todayTotal: 0, 
+      hasMore: false };
   }
 }
 
