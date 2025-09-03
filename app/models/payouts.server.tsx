@@ -48,20 +48,30 @@ export async function fetchSearchStripePayouts(searchValue, userInfo) {
 }
 
 // Fetch Stripe Balance transactions
-export async function fetchStripeBalanceTransactions(userInfo) 
+export async function fetchStripeBalanceTransactions(userInfo,{ startingAfter = null, limit = 10 } = {}) 
 {
   try {
+    if (!userInfo?.stripeSecretKey) {
+      console.error("No Stripe key provided");
+      return { transactions: [], hasMore: false };
+    }
 
-    const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
+    const stripe = new Stripe(userInfo.stripeSecretKey, {
+      apiVersion: "2023-10-16" 
+    });
 
-    const response = await stripe.balanceTransactions.list({ limit: 10 });
+    const response = await stripe.balanceTransactions.list({
+      limit,
+      ...(startingAfter ? { starting_after: startingAfter } : {}),
+    });
 
     return {
-      transactions: response.data, isError: false };
-      
+      transactions: response.data,
+      hasMore: response.has_more,
+    };
   } catch (error) {
     console.error("Balance transactions not found!", error);
-   return { transactions: [], message: "Search failed", error, isError: true };
+    return { transactions: [], hasMore: false };
   }
 }
 

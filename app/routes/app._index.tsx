@@ -15,6 +15,7 @@ import {
 } from "@shopify/polaris";
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
+import { json, redirect } from "@remix-run/node";
 
 import db from "../db.server";
 import { fetchStripeBalanceTransactions } from "../models/payouts.server";
@@ -31,7 +32,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
 
-    return json({ transactions, userInfo });
+    return json({ transactions });
   } catch (error) {
     console.error("Loader failed:", error);
     return json({ transactions: [] }, { status: 500 }); // Prevent 500 crash
