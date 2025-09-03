@@ -65,6 +65,8 @@ export async function fetchStripeBalanceTransactions(userInfo,{ startingAfter = 
       ...(startingAfter ? { starting_after: startingAfter } : {}),
     });
 
+    console.log(response);
+    
     return {
       transactions: response.data,
       hasMore: response.has_more,
