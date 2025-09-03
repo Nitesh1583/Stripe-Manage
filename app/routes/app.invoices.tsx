@@ -60,7 +60,7 @@ export default function Invoices() {
   };
 
   return (
-    <Page title="All Stripe Invoices">
+    <Page title="Invoices">
       <Layout>
         <Layout.Section>
           {/* Search Bar - styled like customer.tsx */}
