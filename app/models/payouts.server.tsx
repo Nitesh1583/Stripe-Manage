@@ -1,4 +1,5 @@
 import { Stripe } from "stripe";
+import Stripe from "stripe";
 
 export async function fetchStripePayouts(userInfo) {
   try {
@@ -47,11 +48,18 @@ export async function fetchSearchStripePayouts(searchValue, userInfo) {
 }
 
 // Fetch Stripe Balance transactions
-export async function fetchStripeBalanceTransactions(userInfo, { startingAfter = null, limit = 10 }) {
+export async function fetchStripeBalanceTransactions(userInfo,{ startingAfter = null, limit = 10 } = {}) 
+{
   try {
-     const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
-     
-    // Fetch Stripe balance transactions
+    if (!userInfo?.stripeSecretKey) {
+      console.error("No Stripe key provided");
+      return { transactions: [], hasMore: false };
+    }
+
+    const stripe = new Stripe(userInfo.stripeSecretKey, {
+      apiVersion: "2023-10-16", // ✅ always specify version
+    });
+
     const response = await stripe.balanceTransactions.list({
       limit,
       ...(startingAfter ? { starting_after: startingAfter } : {}),
@@ -66,3 +74,4 @@ export async function fetchStripeBalanceTransactions(userInfo, { startingAfter =
     return { transactions: [], hasMore: false };
   }
 }
+
