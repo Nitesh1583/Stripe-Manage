@@ -114,8 +114,23 @@ export default function Index() {
   const fetcher = useFetcher<typeof action>();
   const { transactions } = useLoaderData<typeof loader>();
 
-  console.log(transactions );
-  // console.log(todayTotal);
+  console.log(transactions);
+  // ✅ Get today's date range
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // start of today
+  const startOfDay = today.getTime() / 1000; // convert to seconds
+  const endOfDay = startOfDay + 86400; // +24 hours in seconds
+
+  // ✅ Filter only today's transactions
+  const todayTransactions = transactions.filter(
+    (tx) => tx.created >= startOfDay && tx.created < endOfDay
+  );
+
+  // ✅ Calculate today's total amount (convert cents to dollars)
+  const todayTotal = todayTransactions.reduce(
+    (sum, tx) => sum + tx.amount,
+    0
+  ) / 100;
 
   const shopify = useAppBridge();
   const isLoading =
@@ -149,7 +164,7 @@ export default function Index() {
                       Today volume
                     </Text>
                      <Text variant="heading2xl" as="p">
-                      {/*${todayTotal.toFixed(2)}*/}
+                      ${todayTotal.toFixed(2)}
                     </Text>
                     <Text tone="subdued">as of {new Date().toLocaleTimeString()}</Text>
                   </BlockStack>
