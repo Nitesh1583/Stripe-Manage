@@ -62,16 +62,20 @@ export async function fetchStripeBalanceTransactions(userInfo, { startingAfter =
 
     // Create timestamps for start/end of today
     const now = new Date();
-    const startOfDay = new Date(now.setHours(0, 0, 0, 0)).getTime() / 1000;
-    const endOfDay = new Date(now.setHours(23, 59, 59, 999)).getTime() / 1000;
+
+    const startOfDay = Math.floor(new Date(now.setHours(0, 0, 0, 0)).getTime() / 1000);
+    const endOfDay = Math.ceil(new Date(now.setHours(23, 59, 59, 999)).getTime() / 1000);
 
     const response = await stripe.balanceTransactions.list({
       limit,
       created: { gte: startOfDay, lte: endOfDay },
       ...(startingAfter ? { starting_after: startingAfter } : {}),
     });
+    alert(response);
+    alert(response.data)
+    console.log(response.data);
 
-    // Calculate total amount for today (convert from cents to dollars)
+    // Calculate total amount for today
     const todayTotal =
       response.data.reduce((acc, tx) => acc + tx.amount, 0) / 100;
 
