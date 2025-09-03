@@ -113,7 +113,8 @@ export default function Index() {
   const fetcher = useFetcher<typeof action>();
   const { transactions, todayTotal } = useLoaderData<typeof loader>();
 
-  console.log(transactions, todayTotal);
+  console.log(transactions );
+  console.log(todayTotal);
 
   const shopify = useAppBridge();
   const isLoading =
