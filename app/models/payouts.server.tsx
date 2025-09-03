@@ -64,7 +64,9 @@ export async function fetchStripeBalanceTransactions(userInfo,{ startingAfter = 
 
     const response = await stripe.balanceTransactions.list({
       limit,
-      created : todayDate,
+      // created: {
+      //   gt: todayDate
+      // },
       ...(startingAfter ? { starting_after: startingAfter } : {}),
     });
 
