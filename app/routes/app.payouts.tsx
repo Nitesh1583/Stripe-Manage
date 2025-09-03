@@ -26,19 +26,19 @@ export async function loader({ request }) {
 
   // const { payouts } = await fetchStripePayouts(userInfo);
 
-  const { payouts } = await fetchStripeBalanceTransactions(userInfo);
+  const { transactions } = await fetchStripeBalanceTransactions(userInfo);
 
-  return json({ payouts });
+  return json({ transactions });
 }
 
 export default function Invoices() {
-  const { payouts } = useLoaderData<typeof loader>();
+  const { transactions } = useLoaderData<typeof loader>();
 
   // const [searchedVal, setSearchedVal] = useState("");
   // const [currentPage, setCurrentPage] = useState(1);
   // const itemsPerPage = 8;
 
-  console.log(payouts);
+  console.log(transactions);
 
   // const filteredPayouts = useMemo(() => {
   //   if (!searchedVal) return payouts;
