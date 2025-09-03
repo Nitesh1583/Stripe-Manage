@@ -4,7 +4,7 @@ export async function fetchStripePayouts(userInfo) {
   try {
     const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
 
-    // Fetch all payouts (no customer filter)
+    // Fetch all payouts
     const payouts = await stripe.payouts.list({ limit: 99 });
 
     const payoutsData = payouts.data.map((payouts) => ({
@@ -43,5 +43,26 @@ export async function fetchSearchStripePayouts(searchValue, userInfo) {
   } catch (error) {
     console.error("Error searching payouts:", error);
     return { stripePayouts: [], message: "Search failed", error, isError: true };
+  }
+}
+
+// Fetch Stripe Balance transactions
+export async function fetchStripeBalanceTransactions(userInfo, { startingAfter = null, limit = 10 }) {
+  try {
+    const stripe = new Stripe(userInfo.stripeSecretKey);
+
+    // Fetch Stripe balance transactions
+    const response = await stripe.balanceTransactions.list({
+      limit,
+      ...(startingAfter ? { starting_after: startingAfter } : {}),
+    });
+
+    return {
+      transactions: response.data,
+      hasMore: response.has_more,
+    };
+  } catch (error) {
+    console.error("Balance transactions not found!", error);
+    return { transactions: [], hasMore: false };
   }
 }

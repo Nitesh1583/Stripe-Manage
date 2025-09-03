@@ -114,8 +114,7 @@ export default function PaymentsPage() {
   }
 
   return (
-    <Page title="Payments">
-      
+    <Page title="Payments">      
       {(premiumUser == 0 && userTakesub == 0 && daysDifference <= 7) ?
         <>
           <Layout>  

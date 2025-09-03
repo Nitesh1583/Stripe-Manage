@@ -4,12 +4,16 @@ import db from "../db.server";
 
 export async function fetchStripePaymentData(userInfo) {
   try {
-
     const stripe = new Stripe(userInfo.stripeSecretKey);
+
+    //Fetch All PaymentIntents
     const { data } = await stripe.paymentIntents.list();
+
     let  paymentData = [];
     let customerDetail = '';
-    const existingShop = await db.SubscriptionUser.findFirst({ where: { shop_url: userInfo.shop, sub_cancel_date: null }}); 
+    const existingShop = await db.SubscriptionUser.findFirst({ 
+      where: { shop_url: userInfo.shop, sub_cancel_date: null }
+    }); 
 
     for (let i = 0; i < data.length; i++) {
       const element = data[i];
@@ -31,7 +35,11 @@ export async function fetchStripePaymentData(userInfo) {
         });
       }
     }
-    return { payments: paymentData, UserInfo:userInfo, premiumUser: userInfo.premiumUser, subdata: existingShop,  isError: false };
+    return { 
+      payments: paymentData, 
+      UserInfo:userInfo, 
+      premiumUser: userInfo.premiumUser, 
+      subdata: existingShop,  isError: false };
   } catch (error) {
     return { message: "Something went wrong. Try again later.", isError: true };
   }
