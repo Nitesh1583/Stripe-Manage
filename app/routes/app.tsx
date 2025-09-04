@@ -12,6 +12,7 @@ import { Button } from "@shopify/polaris";
 
 import { authenticate } from "../shopify.server";
 import { saveShopifyChargeId } from "../models/user.server";
+import { getShopifyPlanStatus   } from "../models/payouts.server";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
@@ -22,9 +23,19 @@ export const loader = async ({ request }) => {
     where: { shop: auth.session.shop },
   });
 
+  // ✅ Fetch plan status from Shopify
+  let planStatus = "FREE"; // default
+  try {
+    planStatus = await getShopifyPlanStatus(auth.session.shop, auth.session.accessToken);
+  } catch (error) {
+    console.error("Error fetching Shopify Plan Status:", error);
+  }
+
+
   return json({
     apiKey: process.env.SHOPIFY_API_KEY || "",
     userInfo,
+    planStatus,
     polarisTranslations: enlan,
   });
 };
@@ -40,7 +51,7 @@ export default function App() {
 
   return (
     <AppProvider i18n={polarisTranslations} isEmbeddedApp apiKey={apiKey}>
-      {(!userInfo || userInfo.stripeSecretKey == '' || userInfo.stripeSecretKey == null) ? (
+      {(!userInfo || userInfo.stripeSecretKey === "" || userInfo.stripeSecretKey === null) ? (
         <NavMenu>
           <Link to="/app" rel="home">Dashboard</Link>
           <Link to="/app/settings">Settings</Link>
@@ -51,9 +62,16 @@ export default function App() {
           <Link to="/app/products">Products</Link>
           <Link to="/app/customers">Customers</Link>
           <Link to="/app/payments">Payments</Link>
-          <Link to="/app/payouts">Payouts</Link>
-          <Link to="/app/invoices">Invoices</Link>
-          <Link to="/app/Pricing" onClick={handlePricing}>Pricing</Link>  
+
+          {/* ✅ Show Payouts & Invoices only for PAID plan */}
+          {planStatus === "PAID" && (
+            <>
+              <Link to="/app/payouts">Payouts</Link>
+              <Link to="/app/invoices">Invoices</Link>
+            </>
+          )}
+
+          <Link to="/app/Pricing" onClick={handlePricing}>Pricing</Link>
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
       )}
