@@ -262,7 +262,7 @@ export default function Index() {
                     <Text variant="headingSm">Payouts</Text>
                     <Text tone="subdued">Expected Sep 2</Text>
                     {/*<Button plain>View</Button>*/}
-                  </BlockStack>*/}
+                  {/*</BlockStack>*/}*/}
 
                   <BlockStack gap="100" align="end">
                     <Text variant="headingSm">Plan</Text>
