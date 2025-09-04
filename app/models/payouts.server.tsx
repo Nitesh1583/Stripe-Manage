@@ -105,11 +105,12 @@ export async function fetchStripeBalance(userInfo) {
     console.log(response);
 
     return {
-      available: response.available, // Array of available balances
-      pending: response.pending, // Array of pending balances
+      available: response.available, 
+      pending: response.pending, 
     };
   } catch (error) {
     console.error("Stripe balance not found!", error);
     return { available: [], pending: [] };
   }
 }
+

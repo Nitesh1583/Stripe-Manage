@@ -18,7 +18,7 @@ import { authenticate } from "../shopify.server";
 import { json, redirect } from "@remix-run/node";
 
 import db from "../db.server";
-import { fetchStripeBalanceTransactions } from "../models/payouts.server";
+import { fetchStripeBalanceTransactions, fetchStripeBalance  } from "../models/payouts.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
@@ -31,16 +31,23 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     if (!userInfo) return redirect("/app/products");
 
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
-    const { available } =  await fetchStripeBalance(userInfo);
+     const balance = await fetchStripeBalance(userInfo);
 
-    return json({ transactions, available });
+    return json({ 
+      transactions, 
+      balanceAvailable: balance.available,
+      balancePending: balance.pending, 
+    });
+
   } catch (error) {
     console.error("Loader failed:", error);
-    return json({ transactions: [],  
+    return json({ 
+      transactions: [],  
+      balanceAvailable: [], 
+      balancePending: []  
     }, { status: 500 });
   }
 };
-
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { admin } = await authenticate.admin(request);
@@ -113,10 +120,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions, available } = useLoaderData<typeof loader>();
+  const { transactions } = useLoaderData<typeof loader>();
+  const { transactions, balanceAvailable, balancePending } = useLoaderData<typeof loader>();
 
-  console.log(transactions);
-  console.log(available);
+  console.log("Transactions:", transactions);
+  console.log("Available Balance:", balanceAvailable);
+  console.log("Pending Balance:", balancePending);
 
   // Get today's date range
   const today = new Date();
@@ -194,9 +203,25 @@ export default function Index() {
 
                 {/* Bottom Row: USD Balance + Payouts */}
                 <InlineStack align="space-between">
+                  
                   <BlockStack gap="100">
-                    <Text variant="headingSm">USD balance</Text>
-                    <Text tone="subdued">$0.00 estimated future payouts</Text>
+                    <Text variant="headingSm">USD Balance</Text>
+                    <Text tone="subdued">
+                      Available:{" "}
+                      {balanceAvailable.length > 0
+                        ? balanceAvailable
+                            .map((b) => `${(b.amount / 100).toFixed(2)} ${b.currency.toUpperCase()}`)
+                            .join(", ")
+                        : "0.00"}
+                    </Text>
+                    <Text tone="subdued">
+                      Pending:{" "}
+                      {balancePending.length > 0
+                        ? balancePending
+                            .map((b) => `${(b.amount / 100).toFixed(2)} ${b.currency.toUpperCase()}`)
+                            .join(", ")
+                        : "0.00"}
+                    </Text>
                     <Button plain>View</Button>
                   </BlockStack>
 
@@ -205,6 +230,7 @@ export default function Index() {
                     <Text tone="subdued">Expected Sep 2</Text>
                     <Button plain>View</Button>
                   </BlockStack>
+
                 </InlineStack>
               </BlockStack>
             </Card>
