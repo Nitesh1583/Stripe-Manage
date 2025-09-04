@@ -113,7 +113,6 @@ export async function fetchStripeBalance(userInfo) {
   }
 }
 
-
 export async function getShopifyPlanStatus(request: Request) {
   try {
     const { admin } = await authenticate.admin(request);
@@ -155,12 +154,16 @@ export async function getShopifyPlanStatus(request: Request) {
     let planStatus = "FREE";
 
     if (activeSubs.length > 0) {
-      const hasPaid = activeSubs.some((sub) =>
-        ["ACTIVE", "ACCEPTED", "PENDING"].includes(sub.status)
-      );
-      if (hasPaid) planStatus = "PAID";
+      // ✅ Check subscription status + price
+      const hasPaid = activeSubs.some((sub) => {
+        const price = sub?.lineItems?.[0]?.plan?.pricingDetails?.price?.amount || 0;
+        return ["ACTIVE", "ACCEPTED", "PENDING"].includes(sub.status) && price > 0;
+      });
+
+      planStatus = hasPaid ? "PAID" : "FREE";
     }
 
+    console.log(`DEBUG: Computed Plan Status => ${planStatus}`);
     return { planStatus, activeSubs };
   } catch (error) {
     console.error("Error fetching Shopify Plan Status:", error);

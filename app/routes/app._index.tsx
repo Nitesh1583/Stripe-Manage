@@ -32,11 +32,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
     const balance = await fetchStripeBalance(userInfo);
+    
     // Fetch plan status + subscriptions
     const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
 
-    console.log("DEBUG: Loader returning planStatus:", planStatus);
-    if (!activeSubs?.length) console.warn("⚠️ No active subscriptions found!");
+    console.log("SERVER DEBUG: Plan Status =>", planStatus);
+    activeSubs.forEach((sub) => {
+      console.log(
+        `SERVER DEBUG: Subscription Name: ${sub.name}, Status: ${sub.status}, Price: ${
+          sub.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0
+        }`
+      );
+    });
+
     return json({
       transactions,
       balanceAvailable: balance.available,
@@ -130,27 +138,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-    const { transactions, balanceAvailable, balancePending, planStatus, activeSubs } =
+  const { transactions, balanceAvailable, balancePending, planStatus, activeSubs } =
     useLoaderData<typeof loader>();
 
-  console.log("Transactions:", transactions);
-  console.log("Available Balance:", balanceAvailable);
-  console.log("Pending Balance:", balancePending);
-  console.log("Plan Status:", planStatus);
-  console.log("Active Subs:", activeSubs);
-
-
-  if (Array.isArray(activeSubs)) {
-    activeSubs.forEach((sub) => {
-      console.log(
-        `CLIENT DEBUG: Subscription Name: ${sub.name}, Status: ${sub.status}, Price: ${
-          sub.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0
-        }`
-      );
-    });
-  } else {
-    console.log("CLIENT DEBUG: No active subscriptions found or not an array.");
-  }
+  // Client debug logs
+  console.log("CLIENT DEBUG: Plan Status =>", planStatus);
+  console.log("CLIENT DEBUG: Active Subscriptions =>", activeSubs);
 
   // Get today's date range
   const today = new Date();
@@ -195,17 +188,24 @@ export default function Index() {
   }, [productId, shopify]);
   const generateProduct = () => fetcher.submit({}, { method: "POST" });
 
-   useEffect(() => {
+  useEffect(() => {
     if (planStatus === "PAID") {
       console.log("✅ User is on a paid plan");
     } else {
       console.log("🆓 User is on free plan");
-    }
+    }  
   }, [planStatus]);
-   
+
   return (
     <Page>
       <BlockStack gap="500">
+        {/* Plan Status Badge */}
+        <InlineStack align="center">
+          <Badge tone={planStatus === "PAID" ? "success" : "critical"}>
+            {planStatus === "PAID" ? "Paid Plan Active" : "Free Plan"}
+          </Badge>
+        </InlineStack>
+        
         {/*  Top Overview Section */}
         <Layout>
           <Layout.Section>
@@ -258,17 +258,12 @@ export default function Index() {
                     {/*<Button plain>View</Button>*/}
                   </BlockStack>
 
-                  {/*<BlockStack gap="100" align="end">
+                  <BlockStack gap="100" align="end">
                     <Text variant="headingSm">Payouts</Text>
                     <Text tone="subdued">Expected Sep 2</Text>
                     <Button plain>View</Button>
-                  </BlockStack>*/}
-                  <BlockStack gap="100" align="end">
-                    <Text variant="headingSm">Plan</Text>
-                    <Text tone={planStatus === "PAID" ? "success" : "subdued"}>
-                      {planStatus === "PAID" ? "✅ Paid Plan" : "🆓 Free Plan"}
-                    </Text>
                   </BlockStack>
+                 
                 </InlineStack>
 
               </BlockStack>
