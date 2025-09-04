@@ -31,8 +31,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     if (!userInfo) return redirect("/app/products");
 
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
+    const { available } =  await fetchStripeBalance(userInfo);
 
-    return json({ transactions });
+    return json({ transactions, available });
   } catch (error) {
     console.error("Loader failed:", error);
     return json({ transactions: [],  
@@ -112,9 +113,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions } = useLoaderData<typeof loader>();
+  const { transactions, available } = useLoaderData<typeof loader>();
 
   console.log(transactions);
+  console.log(available);
 
   // Get today's date range
   const today = new Date();
