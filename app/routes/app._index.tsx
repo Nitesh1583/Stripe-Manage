@@ -35,9 +35,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     // Fetch plan status + subscriptions
     const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
 
-    console.log("DEBUG: Loader -> planStatus =", planStatus);
-    console.log("DEBUG: Loader -> activeSubs =", JSON.stringify(activeSubs, null, 2));
-
+    console.log("DEBUG: Loader returning planStatus:", planStatus);
+    if (!activeSubs?.length) console.warn("⚠️ No active subscriptions found!");
     return json({
       transactions,
       balanceAvailable: balance.available,
@@ -131,14 +130,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions, balanceAvailable, balancePending, planStatus, activeSubs } =
+    const { transactions, balanceAvailable, balancePending, planStatus, activeSubs } =
     useLoaderData<typeof loader>();
 
-  // ✅ Client-side console logs for debugging
-  console.log("DEBUG (Client): planStatus =", planStatus);
-  console.log("DEBUG (Client): activeSubs =", activeSubs)
+  console.log("Transactions:", transactions);
+  console.log("Available Balance:", balanceAvailable);
+  console.log("Pending Balance:", balancePending);
+  console.log("Plan Status:", planStatus);
+  console.log("Active Subs:", activeSubs);
 
-  
 
   if (Array.isArray(activeSubs)) {
     activeSubs.forEach((sub) => {
@@ -195,7 +195,14 @@ export default function Index() {
   }, [productId, shopify]);
   const generateProduct = () => fetcher.submit({}, { method: "POST" });
 
-  
+   useEffect(() => {
+    if (planStatus === "PAID") {
+      console.log("✅ User is on a paid plan");
+    } else {
+      console.log("🆓 User is on free plan");
+    }
+  }, [planStatus]);
+
   return (
     <Page>
       <BlockStack gap="500">
@@ -251,10 +258,17 @@ export default function Index() {
                     {/*<Button plain>View</Button>*/}
                   </BlockStack>
 
-                  <BlockStack gap="100" align="end">
+                  {/*<BlockStack gap="100" align="end">
                     <Text variant="headingSm">Payouts</Text>
                     <Text tone="subdued">Expected Sep 2</Text>
                     {/*<Button plain>View</Button>*/}
+                  </BlockStack>*/}
+
+                  <BlockStack gap="100" align="end">
+                    <Text variant="headingSm">Plan</Text>
+                    <Text tone={planStatus === "PAID" ? "success" : "subdued"}>
+                      {planStatus === "PAID" ? "✅ Paid Plan" : "🆓 Free Plan"}
+                    </Text>
                   </BlockStack>
 
                 </InlineStack>
