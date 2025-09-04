@@ -179,14 +179,7 @@ export default function Index() {
         {/*  Top Overview Section */}
         <Layout>
           <Layout.Section>
-            <div>
-    <h1>Current Plan: {planStatus}</h1>
-    {planStatus === "FREE" ? (
-      <p>Upgrade to unlock premium features!</p>
-    ) : (
-      <p>You are on the paid plan ✅</p>
-    )}
-  </div>
+            
             <Card padding="400">
               <BlockStack gap="400">
                 {/* Top Row: Gross Volume + Yesterday */}
