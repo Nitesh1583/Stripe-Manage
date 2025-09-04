@@ -32,7 +32,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
     const balance = await fetchStripeBalance(userInfo);
-     const { planStatus } = await getShopifyPlanStatus(request);
+    // Fetch plan status
+    const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
+
+    // 🔍 Debugging logs for Shopify subscriptions
+    console.log("DEBUG: Shopify Active Subscriptions =>", activeSubs);
+    activeSubs.forEach((sub) => {
+      console.log(
+        `DEBUG: Subscription Name: ${sub.name}, Status: ${sub.status}, Price: ${
+          sub.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0
+        }`
+      );
+    });
+
 
     return json({ 
       transactions, 
@@ -122,12 +134,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions, balanceAvailable, balancePending, planStatus } = useLoaderData<typeof loader>();
+  const { transactions, balanceAvailable, balancePending,  } = useLoaderData<typeof loader>();
   console.log("Transactions:", transactions);
   console.log("Available Balance:", balanceAvailable);
   console.log("Pending Balance:", balancePending);
 
-  console.log("Plan Status :", planStatus);
+  // console.log("Plan Status :", planStatus);
 
   // Get today's date range
   const today = new Date();
