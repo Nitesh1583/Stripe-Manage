@@ -18,7 +18,7 @@ import { authenticate } from "../shopify.server";
 import { json, redirect } from "@remix-run/node";
 
 import db from "../db.server";
-import { fetchStripeBalanceTransactions, fetchStripeBalance  } from "../models/payouts.server";
+import { fetchStripeBalanceTransactions, fetchStripeBalance, getShopifyPlanStatus  } from "../models/payouts.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
@@ -31,12 +31,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     if (!userInfo) return redirect("/app/products");
 
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
-     const balance = await fetchStripeBalance(userInfo);
+    const balance = await fetchStripeBalance(userInfo);
+     const { planStatus } = await getShopifyPlanStatus(request);
 
     return json({ 
       transactions, 
       balanceAvailable: balance.available,
-      balancePending: balance.pending, 
+      balancePending: balance.pending,
+      planStatus , 
     });
 
   } catch (error) {
@@ -121,10 +123,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
   const { transactions, balanceAvailable, balancePending } = useLoaderData<typeof loader>();
-
+    const { planStatus } = useLoaderData<typeof loader>();
   console.log("Transactions:", transactions);
   console.log("Available Balance:", balanceAvailable);
   console.log("Pending Balance:", balancePending);
+
+  console.log("Plan Status :" planStatus);
 
   // Get today's date range
   const today = new Date();
@@ -176,6 +180,14 @@ export default function Index() {
         {/*  Top Overview Section */}
         <Layout>
           <Layout.Section>
+            <div>
+    <h1>Current Plan: {planStatus}</h1>
+    {planStatus === "FREE" ? (
+      <p>Upgrade to unlock premium features!</p>
+    ) : (
+      <p>You are on the paid plan ✅</p>
+    )}
+  </div>
             <Card padding="400">
               <BlockStack gap="400">
                 {/* Top Row: Gross Volume + Yesterday */}
@@ -221,22 +233,30 @@ export default function Index() {
                             .join(", ")
                         : "0.00"}
                     </Text>
-                    <Button plain>View</Button>
+                    {/*<Button plain>View</Button>*/}
                   </BlockStack>
 
                   <BlockStack gap="100" align="end">
                     <Text variant="headingSm">Payouts</Text>
                     <Text tone="subdued">Expected Sep 2</Text>
-                    <Button plain>View</Button>
+                    {/*<Button plain>View</Button>*/}
                   </BlockStack>
 
                 </InlineStack>
+
+                <Text variant="headingMd" as="h2">
+                  Recommendation
+                </Text>
+                <Text tone="subdued">
+                  Upgrade to a premium membership plan to access all the powerful
+                  features of the Stripe Console.
+                </Text>
               </BlockStack>
             </Card>
           </Layout.Section>
 
           {/* Right Side Recommendation Card */}
-          <Layout.Section secondary>
+         {/* <Layout.Section secondary>
             <Card padding="400">
               <BlockStack gap="200">
                 <Text variant="headingMd" as="h2">
@@ -249,7 +269,7 @@ export default function Index() {
               </BlockStack>
             </Card>
           </Layout.Section>
-        </Layout>
+        </Layout>*/}
 
         {/* Keep your marketing content */}
         <Layout>
