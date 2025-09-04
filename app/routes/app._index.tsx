@@ -236,19 +236,12 @@ export default function Index() {
 
                 </InlineStack>
 
-                <Text variant="headingMd" as="h2">
-                  Recommendation
-                </Text>
-                <Text tone="subdued">
-                  Upgrade to a premium membership plan to access all the powerful
-                  features of the Stripe Console.
-                </Text>
               </BlockStack>
             </Card>
           </Layout.Section>
 
           {/* Right Side Recommendation Card */}
-         {/* <Layout.Section secondary>
+          <Layout.Section secondary>
             <Card padding="400">
               <BlockStack gap="200">
                 <Text variant="headingMd" as="h2">
@@ -261,7 +254,7 @@ export default function Index() {
               </BlockStack>
             </Card>
           </Layout.Section>
-        </Layout>*/}
+        </Layout>
 
         {/* Keep your marketing content */}
         <Layout>
