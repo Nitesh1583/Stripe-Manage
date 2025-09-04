@@ -120,7 +120,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions } = useLoaderData<typeof loader>();
   const { transactions, balanceAvailable, balancePending } = useLoaderData<typeof loader>();
 
   console.log("Transactions:", transactions);
@@ -203,7 +202,7 @@ export default function Index() {
 
                 {/* Bottom Row: USD Balance + Payouts */}
                 <InlineStack align="space-between">
-                  
+
                   <BlockStack gap="100">
                     <Text variant="headingSm">USD Balance</Text>
                     <Text tone="subdued">
