@@ -236,26 +236,48 @@ export default function Index() {
 
                 {/* Bottom Row: USD Balance + Payouts */}
                 <InlineStack align="space-between">
-
                   <BlockStack gap="100">
                     <Text variant="headingSm">USD Balance</Text>
+
                     <Text tone="subdued">
                       Available:{" "}
-                      {balanceAvailable.length > 0
-                        ? balanceAvailable
-                            .map((b) => `${(b.amount / 100).toFixed(2)} ${b.currency.toUpperCase()}`)
-                            .join(", ")
-                        : "0.00"}
+                      <span
+                        style={{
+                          filter: planStatus === "PAID" ? "none" : "blur(6px)",
+                          userSelect: planStatus === "PAID" ? "auto" : "none",
+                          transition: "filter 0.3s ease-in-out",
+                        }}
+                      >
+                        {balanceAvailable.length > 0
+                          ? balanceAvailable
+                              .map(
+                                (b) =>
+                                  `${(b.amount / 100).toFixed(2)} ${b.currency.toUpperCase()}`
+                              )
+                              .join(", ")
+                          : "0.00"}
+                      </span>
                     </Text>
+
                     <Text tone="subdued">
                       Pending:{" "}
-                      {balancePending.length > 0
-                        ? balancePending
-                            .map((b) => `${(b.amount / 100).toFixed(2)} ${b.currency.toUpperCase()}`)
-                            .join(", ")
-                        : "0.00"}
+                      <span
+                        style={{
+                          filter: planStatus === "PAID" ? "none" : "blur(6px)",
+                          userSelect: planStatus === "PAID" ? "auto" : "none",
+                          transition: "filter 0.3s ease-in-out",
+                        }}
+                      >
+                        {balancePending.length > 0
+                          ? balancePending
+                              .map(
+                                (b) =>
+                                  `${(b.amount / 100).toFixed(2)} ${b.currency.toUpperCase()}`
+                              )
+                              .join(", ")
+                          : "0.00"}
+                      </span>
                     </Text>
-                    {/*<Button plain>View</Button>*/}
                   </BlockStack>
 
                   <BlockStack gap="100" align="end">
@@ -263,8 +285,8 @@ export default function Index() {
                     <Text tone="subdued">Expected Sep 2</Text>
                     <Button plain>View</Button>
                   </BlockStack>
-                 
                 </InlineStack>
+
 
               </BlockStack>
             </Card>
