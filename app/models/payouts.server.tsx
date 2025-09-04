@@ -116,17 +116,18 @@ export async function fetchStripeBalance(userInfo) {
 
 export async function getShopifyPlanStatus(request: Request) {
   try {
-    const { session } = await authenticate.admin(request);
+    const { admin } = await authenticate.admin(request);
 
-    const client = new shopifyApi.clients.Graphql({ session });
-
-    const query = `#graphql
+    // ✅ Use Shopify Admin GraphQL client
+    const response = await admin.graphql(`
       {
         appInstallation {
           activeSubscriptions {
             id
             name
             status
+            test
+            trialDays
             lineItems {
               plan {
                 pricingDetails {
@@ -141,23 +142,23 @@ export async function getShopifyPlanStatus(request: Request) {
             }
           }
         }
-      }`;
+      }
+    `);
 
-    const response = await client.query({ data: query });
+    const data = await response.json();
 
-    console.log("DEBUG: Shopify Subscription Response =>", JSON.stringify(response.body, null, 2));
+    console.log("DEBUG: Raw Shopify Subscription Response:");
+    console.dir(data, { depth: null });
 
-    const activeSubs = response.body?.data?.appInstallation?.activeSubscriptions ?? [];
+    const activeSubs = data?.data?.appInstallation?.activeSubscriptions ?? [];
 
-    // Default plan status
     let planStatus = "FREE";
 
     if (activeSubs.length > 0) {
-      // If ANY subscription is ACTIVE, treat it as PAID
-      const hasActive = activeSubs.some((sub) => sub.status === "ACTIVE");
-      if (hasActive) {
-        planStatus = "PAID";
-      }
+      const hasPaid = activeSubs.some((sub) =>
+        ["ACTIVE", "ACCEPTED", "PENDING"].includes(sub.status)
+      );
+      if (hasPaid) planStatus = "PAID";
     }
 
     return { planStatus, activeSubs };
