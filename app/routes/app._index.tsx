@@ -32,34 +32,40 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
     const balance = await fetchStripeBalance(userInfo);
-    // Fetch plan status
+    // Fetch plan status + subscriptions
     const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
 
-    // 🔍 Debugging logs for Shopify subscriptions
-    console.log("DEBUG: Shopify Active Subscriptions =>", activeSubs);
-    activeSubs.forEach((sub) => {
-      console.log(
-        `DEBUG: Subscription Name: ${sub.name}, Status: ${sub.status}, Price: ${
-          sub.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0
-        }`
-      );
-    });
+    // 🔍 Debugging logs for Shopify subscriptions (on server)
+    console.log("DEBUG: Shopify Active Subscriptions =>", activeSubs || "❌ No active subscriptions");
+    if (Array.isArray(activeSubs)) {
+      activeSubs.forEach((sub) => {
+        console.log(
+          `DEBUG: Subscription Name: ${sub.name}, Status: ${sub.status}, Price: ${
+            sub.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0
+          }`
+        );
+      });
+    }
 
-
-    return json({ 
-      transactions, 
+    return json({
+      transactions,
       balanceAvailable: balance.available,
       balancePending: balance.pending,
-      planStatus , 
+      planStatus,
+      activeSubs, // ⬅️ send to frontend separately for easier logging
     });
-
   } catch (error) {
     console.error("Loader failed:", error);
-    return json({ 
-      transactions: [],  
-      balanceAvailable: [], 
-      balancePending: []  
-    }, { status: 500 });
+    return json(
+      {
+        transactions: [],
+        balanceAvailable: [],
+        balancePending: [],
+        planStatus: null,
+        activeSubs: [],
+      },
+      { status: 500 }
+    );
   }
 };
 
@@ -134,12 +140,27 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions, balanceAvailable, balancePending,  } = useLoaderData<typeof loader>();
+  const { transactions, balanceAvailable, balancePending, planStatus, activeSubs } =
+    useLoaderData<typeof loader>();
+
+  // ✅ Client-side console logs for debugging
   console.log("Transactions:", transactions);
   console.log("Available Balance:", balanceAvailable);
   console.log("Pending Balance:", balancePending);
+  console.log("Plan Status:", planStatus);
+  console.log("Active Subs:", activeSubs);
 
-  // console.log("Plan Status :", planStatus);
+  if (Array.isArray(activeSubs)) {
+    activeSubs.forEach((sub) => {
+      console.log(
+        `CLIENT DEBUG: Subscription Name: ${sub.name}, Status: ${sub.status}, Price: ${
+          sub.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0
+        }`
+      );
+    });
+  } else {
+    console.log("CLIENT DEBUG: No active subscriptions found or not an array.");
+  }
 
   // Get today's date range
   const today = new Date();
