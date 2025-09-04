@@ -28,6 +28,8 @@ export default function DisputePage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8; // Show 8 products per page
 
+  console.log(products);
+
   // Date calculation logic (unchanged)
   const subscriptionCreatedDate = UserInfo.createdAt;
   const currentDate = new Date();

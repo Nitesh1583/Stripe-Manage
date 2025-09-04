@@ -1,6 +1,7 @@
 import { Stripe } from "stripe";
 import Stripe from "stripe";
 
+// Fetch Stripe Payouts
 export async function fetchStripePayouts(userInfo) {
   try {
     const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
@@ -28,6 +29,7 @@ export async function fetchStripePayouts(userInfo) {
   }
 }
 
+// Fetch stripe Payouts by Search Filter
 export async function fetchSearchStripePayouts(searchValue, userInfo) {
   try {
     const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
@@ -68,19 +70,14 @@ export async function fetchStripeBalanceTransactions(userInfo, { startingAfter =
 
     const response = await stripe.balanceTransactions.list({
       limit,
-      // created: { gte: startOfDay, lte: endOfDay },
       ...(startingAfter ? { starting_after: startingAfter } : {}),
     });
-
-    // Calculate total amount for today
-    // const todayTotal = response.data.reduce((acc, tx) => acc + tx.amount, 0) / 100;
 
     console.log("Today Transactions:", response.data);
     // console.log("Today Total:", todayTotal);
 
     return {
       transactions: response.data,
-      // todayTotal,
       hasMore: response.has_more,
     };
   } catch (error) {
@@ -90,7 +87,6 @@ export async function fetchStripeBalanceTransactions(userInfo, { startingAfter =
       hasMore: false };
   }
 }
-
 
 // Fetch Current Stripe Balance
 export async function fetchStripeBalance(userInfo) {
@@ -105,6 +101,8 @@ export async function fetchStripeBalance(userInfo) {
     });
 
     const response = await stripe.balance.retrieve();
+
+    console.log(response);
 
     return {
       available: response.available, // Array of available balances
