@@ -114,6 +114,8 @@ export async function getShopifyPlanStatus(request: Request) {
   try {
     const { admin } = await authenticate.admin(request);
 
+    console.log("DEBUG: Calling Shopify GraphQL for active subscriptions...");
+
     const response = await admin.graphql(`
       query {
         appInstallation {
@@ -141,27 +143,33 @@ export async function getShopifyPlanStatus(request: Request) {
 
     const data = await response.json();
 
-    console.log("Shopify subscription response:", JSON.stringify(data, null, 2));
+    console.log("DEBUG: Raw Shopify subscription response:", JSON.stringify(data, null, 2));
 
     const activeSubs = data?.data?.appInstallation?.activeSubscriptions || [];
 
+    console.log("DEBUG: Active Subscriptions Array Length:", activeSubs.length);
+
     if (activeSubs.length === 0) {
+      console.log("DEBUG: No active subscriptions found. Returning FREE plan.");
       return { planStatus: "FREE", activeSubs: [] };
     }
 
-    // Find the first subscription with a price > 0 and ACTIVE status
-    const paidSub = activeSubs.find(
-      (sub) =>
-        sub.status === "ACTIVE" &&
-        (sub.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0) > 0
-    );
+    const sub = activeSubs[0];
+    const status = sub?.status ?? "INACTIVE";
 
-    if (paidSub) {
-      return { planStatus: "PAID", activeSubs };
+    console.log("DEBUG: First subscription status:", status);
+
+    let planStatus = "FREE";
+
+    if (status === "ACTIVE") {
+      const price = sub?.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0;
+      console.log("DEBUG: Subscription price:", price);
+      planStatus = price > 0 ? "PAID" : "FREE";
     }
 
-    // If no paid subscription found but there are active subscriptions, return FREE
-    return { planStatus: "FREE", activeSubs };
+    console.log("DEBUG: Final computed planStatus:", planStatus);
+
+    return { planStatus, activeSubs };
   } catch (error) {
     console.error("Error fetching Shopify plan status:", error);
     return { planStatus: "FREE", activeSubs: [] };
