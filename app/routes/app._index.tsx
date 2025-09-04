@@ -122,13 +122,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions, balanceAvailable, balancePending } = useLoaderData<typeof loader>();
-    const { planStatus } = useLoaderData<typeof loader>();
+  const { transactions, balanceAvailable, balancePending, planStatus } = useLoaderData<typeof loader>();
   console.log("Transactions:", transactions);
   console.log("Available Balance:", balanceAvailable);
   console.log("Pending Balance:", balancePending);
 
-  console.log("Plan Status :" planStatus);
+  console.log("Plan Status :", planStatus);
 
   // Get today's date range
   const today = new Date();
