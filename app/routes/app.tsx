@@ -23,14 +23,23 @@ export const loader = async ({ request }) => {
     where: { shop: auth.session.shop },
   });
 
-  // ✅ Fetch plan status from Shopify
   let planStatus = "FREE"; // default
+
   try {
-    planStatus = await getShopifyPlanStatus(auth.session.shop, auth.session.accessToken);
+    const statusResponse = await getShopifyPlanStatus(auth.session.shop, auth.session.accessToken);
+    console.log("DEBUG: Raw Shopify Plan Response =>", statusResponse);
+
+    // ✅ Normalize response
+    if (typeof statusResponse === "string") {
+      planStatus = statusResponse.toUpperCase(); // ensures PAID/free/Free => PAID/FREE
+    } else if (statusResponse?.status) {
+      planStatus = statusResponse.status.toUpperCase();
+    }
   } catch (error) {
     console.error("Error fetching Shopify Plan Status:", error);
   }
 
+  console.log("DEBUG: Final planStatus sent to client =>", planStatus);
 
   return json({
     apiKey: process.env.SHOPIFY_API_KEY || "",
@@ -40,8 +49,10 @@ export const loader = async ({ request }) => {
   });
 };
 
+
 export default function App() {
   const { apiKey, userInfo, result, planStatus, polarisTranslations } = useLoaderData();
+console.log("CLIENT DEBUG: Plan Status =>", planStatus);
 
   const handlePricing = (event) => {
     event.preventDefault();
