@@ -149,19 +149,19 @@ export async function getShopifyPlanStatus(request: Request) {
       return { planStatus: "FREE", activeSubs: [] };
     }
 
-    const sub = activeSubs[0];
-    const status = sub?.status ?? "INACTIVE";
+    // Find the first subscription with a price > 0 and ACTIVE status
+    const paidSub = activeSubs.find(
+      (sub) =>
+        sub.status === "ACTIVE" &&
+        (sub.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0) > 0
+    );
 
-    let planStatus = "FREE";
-
-    if (status === "ACTIVE") {
-      const price =
-        sub?.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0;
-
-      planStatus = price > 0 ? "PAID" : "FREE";
+    if (paidSub) {
+      return { planStatus: "PAID", activeSubs };
     }
 
-    return { planStatus, activeSubs };
+    // If no paid subscription found but there are active subscriptions, return FREE
+    return { planStatus: "FREE", activeSubs };
   } catch (error) {
     console.error("Error fetching Shopify plan status:", error);
     return { planStatus: "FREE", activeSubs: [] };
