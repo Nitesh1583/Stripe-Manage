@@ -202,7 +202,7 @@ export default function Index() {
       console.log("🆓 User is on free plan");
     }
   }, [planStatus]);
-
+   
   return (
     <Page>
       <BlockStack gap="500">
@@ -261,16 +261,14 @@ export default function Index() {
                   {/*<BlockStack gap="100" align="end">
                     <Text variant="headingSm">Payouts</Text>
                     <Text tone="subdued">Expected Sep 2</Text>
-                    {/*<Button plain>View</Button>*/}
-                  {/*</BlockStack>*/}*/}
-
+                    <Button plain>View</Button>
+                  </BlockStack>*/}
                   <BlockStack gap="100" align="end">
                     <Text variant="headingSm">Plan</Text>
                     <Text tone={planStatus === "PAID" ? "success" : "subdued"}>
                       {planStatus === "PAID" ? "✅ Paid Plan" : "🆓 Free Plan"}
                     </Text>
                   </BlockStack>
-
                 </InlineStack>
 
               </BlockStack>
