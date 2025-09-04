@@ -18,7 +18,7 @@ import { authenticate } from "../shopify.server";
 import { json, redirect } from "@remix-run/node";
 
 import db from "../db.server";
-import { fetchStripeBalanceTransactions, fetchStripeBalance, getShopifyPlanStatus  } from "../models/payouts.server";
+import { fetchStripeBalanceTransactions, fetchStripeBalance, getShopifyPlanStatus   } from "../models/payouts.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
@@ -35,24 +35,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     // Fetch plan status + subscriptions
     const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
 
-    // 🔍 Debugging logs for Shopify subscriptions (on server)
-    console.log("DEBUG: Shopify Active Subscriptions =>", activeSubs || "❌ No active subscriptions");
-    if (Array.isArray(activeSubs)) {
-      activeSubs.forEach((sub) => {
-        console.log(
-          `DEBUG: Subscription Name: ${sub.name}, Status: ${sub.status}, Price: ${
-            sub.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0
-          }`
-        );
-      });
-    }
+    console.log("DEBUG: Loader -> planStatus =", planStatus);
+    console.log("DEBUG: Loader -> activeSubs =", JSON.stringify(activeSubs, null, 2));
 
     return json({
       transactions,
       balanceAvailable: balance.available,
       balancePending: balance.pending,
       planStatus,
-      activeSubs, // ⬅️ send to frontend separately for easier logging
+      activeSubs,
     });
   } catch (error) {
     console.error("Loader failed:", error);
@@ -144,11 +135,10 @@ export default function Index() {
     useLoaderData<typeof loader>();
 
   // ✅ Client-side console logs for debugging
-  console.log("Transactions:", transactions);
-  console.log("Available Balance:", balanceAvailable);
-  console.log("Pending Balance:", balancePending);
-  console.log("Plan Status:", planStatus);
-  console.log("Active Subs:", activeSubs);
+  console.log("DEBUG (Client): planStatus =", planStatus);
+  console.log("DEBUG (Client): activeSubs =", activeSubs)
+
+  
 
   if (Array.isArray(activeSubs)) {
     activeSubs.forEach((sub) => {

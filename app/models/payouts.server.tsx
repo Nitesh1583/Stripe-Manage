@@ -1,6 +1,10 @@
 import { Stripe } from "stripe";
 import Stripe from "stripe";
 
+import { shopifyApi } from "@shopify/shopify-api";
+import { authenticate } from "../shopify.server";
+
+
 // Fetch Stripe Payouts
 export async function fetchStripePayouts(userInfo) {
   try {
@@ -112,12 +116,12 @@ export async function fetchStripeBalance(userInfo) {
 
 export async function getShopifyPlanStatus(request: Request) {
   try {
-    const { admin } = await authenticate.admin(request);
+    const { session } = await authenticate.admin(request);
 
-    console.log("DEBUG: Calling Shopify GraphQL for active subscriptions...");
+    const client = new shopifyApi.clients.Graphql({ session });
 
-    const response = await admin.graphql(`
-      query {
+    const query = `#graphql
+      {
         appInstallation {
           activeSubscriptions {
             id
@@ -126,7 +130,6 @@ export async function getShopifyPlanStatus(request: Request) {
             lineItems {
               plan {
                 pricingDetails {
-                  __typename
                   ... on AppRecurringPricing {
                     price {
                       amount
@@ -138,40 +141,28 @@ export async function getShopifyPlanStatus(request: Request) {
             }
           }
         }
-      }
-    `);
+      }`;
 
-    const data = await response.json();
+    const response = await client.query({ data: query });
 
-    console.log("DEBUG: Raw Shopify subscription response:", JSON.stringify(data, null, 2));
+    console.log("DEBUG: Shopify Subscription Response =>", JSON.stringify(response.body, null, 2));
 
-    const activeSubs = data?.data?.appInstallation?.activeSubscriptions || [];
+    const activeSubs = response.body?.data?.appInstallation?.activeSubscriptions ?? [];
 
-    console.log("DEBUG: Active Subscriptions Array Length:", activeSubs.length);
-
-    if (activeSubs.length === 0) {
-      console.log("DEBUG: No active subscriptions found. Returning FREE plan.");
-      return { planStatus: "FREE", activeSubs: [] };
-    }
-
-    const sub = activeSubs[0];
-    const status = sub?.status ?? "INACTIVE";
-
-    console.log("DEBUG: First subscription status:", status);
-
+    // Default plan status
     let planStatus = "FREE";
 
-    if (status === "ACTIVE") {
-      const price = sub?.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0;
-      console.log("DEBUG: Subscription price:", price);
-      planStatus = price > 0 ? "PAID" : "FREE";
+    if (activeSubs.length > 0) {
+      // If ANY subscription is ACTIVE, treat it as PAID
+      const hasActive = activeSubs.some((sub) => sub.status === "ACTIVE");
+      if (hasActive) {
+        planStatus = "PAID";
+      }
     }
-
-    console.log("DEBUG: Final computed planStatus:", planStatus);
 
     return { planStatus, activeSubs };
   } catch (error) {
-    console.error("Error fetching Shopify plan status:", error);
+    console.error("Error fetching Shopify Plan Status:", error);
     return { planStatus: "FREE", activeSubs: [] };
   }
 }
