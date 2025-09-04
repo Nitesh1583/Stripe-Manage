@@ -41,7 +41,7 @@ export const loader = async ({ request }) => {
 };
 
 export default function App() {
-  const { apiKey, userInfo, result, polarisTranslations } = useLoaderData();
+  const { apiKey, userInfo, result, planStatus, polarisTranslations } = useLoaderData();
 
   const handlePricing = (event) => {
     event.preventDefault();
