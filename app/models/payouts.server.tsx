@@ -73,9 +73,6 @@ export async function fetchStripeBalanceTransactions(userInfo, { startingAfter =
       ...(startingAfter ? { starting_after: startingAfter } : {}),
     });
 
-    console.log("Today Transactions:", response.data);
-    // console.log("Today Total:", todayTotal);
-
     return {
       transactions: response.data,
       hasMore: response.has_more,
@@ -102,8 +99,6 @@ export async function fetchStripeBalance(userInfo) {
 
     const response = await stripe.balance.retrieve();
 
-    console.log(response);
-
     return {
       available: response.available, 
       pending: response.pending, 
@@ -114,3 +109,46 @@ export async function fetchStripeBalance(userInfo) {
   }
 }
 
+export async function getShopifyPlanStatus(request: Request) {
+  const { admin } = await authenticate.admin(request);
+
+  const response = await admin.graphql(`
+    query {
+      appInstallation {
+        activeSubscriptions {
+          id
+          name
+          status
+          lineItems {
+            plan {
+              pricingDetails {
+                __typename
+                ... on AppRecurringPricing {
+                  price {
+                    amount
+                    currencyCode
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `);
+
+  const data = await response.json();
+  const activeSubs = data.data.appInstallation.activeSubscriptions;
+
+  let planStatus = "FREE";
+
+  if (activeSubs.length > 0) {
+    const sub = activeSubs[0];
+    if (sub.status === "ACTIVE") {
+      const price = sub.lineItems[0].plan.pricingDetails.price.amount;
+      planStatus = price > 0 ? "PAID" : "FREE";
+    }
+  }
+
+  return { activeSubs, planStatus };
+}
