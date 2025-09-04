@@ -109,24 +109,27 @@ export async function fetchStripeBalance(userInfo) {
   }
 }
 
-export async function getShopifyPlanStatus(request: Request) {
-  const { admin } = await authenticate.admin(request);
 
-  const response = await admin.graphql(`
-    query {
-      appInstallation {
-        activeSubscriptions {
-          id
-          name
-          status
-          lineItems {
-            plan {
-              pricingDetails {
-                __typename
-                ... on AppRecurringPricing {
-                  price {
-                    amount
-                    currencyCode
+export async function getShopifyPlanStatus(request: Request) {
+  try {
+    const { admin } = await authenticate.admin(request);
+
+    const response = await admin.graphql(`
+      query {
+        appInstallation {
+          activeSubscriptions {
+            id
+            name
+            status
+            lineItems {
+              plan {
+                pricingDetails {
+                  __typename
+                  ... on AppRecurringPricing {
+                    price {
+                      amount
+                      currencyCode
+                    }
                   }
                 }
               }
@@ -134,21 +137,33 @@ export async function getShopifyPlanStatus(request: Request) {
           }
         }
       }
+    `);
+
+    const data = await response.json();
+
+    console.log("Shopify subscription response:", JSON.stringify(data, null, 2));
+
+    const activeSubs = data?.data?.appInstallation?.activeSubscriptions || [];
+
+    if (activeSubs.length === 0) {
+      return { planStatus: "FREE", activeSubs: [] };
     }
-  `);
 
-  const data = await response.json();
-  const activeSubs = data.data.appInstallation.activeSubscriptions;
-
-  let planStatus = "FREE";
-
-  if (activeSubs.length > 0) {
     const sub = activeSubs[0];
-    if (sub.status === "ACTIVE") {
-      const price = sub.lineItems[0].plan.pricingDetails.price.amount;
+    const status = sub?.status ?? "INACTIVE";
+
+    let planStatus = "FREE";
+
+    if (status === "ACTIVE") {
+      const price =
+        sub?.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0;
+
       planStatus = price > 0 ? "PAID" : "FREE";
     }
-  }
 
-  return { activeSubs, planStatus };
+    return { planStatus, activeSubs };
+  } catch (error) {
+    console.error("Error fetching Shopify plan status:", error);
+    return { planStatus: "FREE", activeSubs: [] };
+  }
 }
