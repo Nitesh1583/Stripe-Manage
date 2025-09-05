@@ -12,6 +12,8 @@ import { useState, useMemo } from "react";
 import db from "../db.server";
 import { authenticate } from "../shopify.server";
 import { fetchStripeInvoices } from "../models/invoices.server";
+import { getShopifyPlanStatus } from "../models/payouts.server";
+
 
 import "../styles/style.css";
 
@@ -26,17 +28,37 @@ export async function loader({ request }) {
 
   const { invoices } = await fetchStripeInvoices(userInfo);
 
-  return json({ invoices });
+  // Fetch plan status + subscriptions
+  const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
+
+  console.log("SERVER DEBUG: Plan Status =>", planStatus);
+  activeSubs.forEach((sub) => {
+    console.log(
+      `SERVER DEBUG: Subscription Name: ${sub.name}, Status: ${sub.status}, Price: ${
+        sub.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0
+      }`
+    );
+  });
+
+  return json({ 
+    invoices,
+    planStatus,
+    activeSubs
+  });
 }
 
 export default function Invoices() {
-  const { invoices } = useLoaderData<typeof loader>();
+  const { invoices, planStatus, activeSubs } = useLoaderData<typeof loader>();
 
   const [searchedVal, setSearchedVal] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
   console.log(invoices);
+  // Client debug logs
+  console.log("CLIENT DEBUG: Plan Status =>", planStatus);
+  console.log("CLIENT DEBUG: Active Subscriptions =>", activeSubs);
+
 
   // Filter invoices
   const filteredInvoices = useMemo(() => {
