@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import {
@@ -12,26 +12,24 @@ import {
 } from "@shopify/polaris";
 import polarisTranslations from "@shopify/polaris/locales/en.json";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
-import { Redirect } from "@shopify/app-bridge-react";
+
+import { useAppBridge } from "@shopify/app-bridge-react";
+import { Redirect } from "@shopify/app-bridge/actions";
 
 import { login } from "../../shopify.server";
-
 import { loginErrorMessage } from "./error.server";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const errors = loginErrorMessage(await login(request));
-
   return { errors, polarisTranslations };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const errors = loginErrorMessage(await login(request));
-
-  return {
-    errors,
-  };
+  // This should be modified to return a URL instead of performing a redirect
+  const redirectUrl = await login(request);
+  return { redirectUrl };
 };
 
 export default function Auth() {
@@ -39,13 +37,16 @@ export default function Auth() {
   const actionData = useActionData<typeof action>();
   const [shop, setShop] = useState("");
   const { errors } = actionData || loaderData;
-  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
 
-  if (actionData?.redirectUrl) {
-    // Break out of iframe and redirect top-level window
-    return <Redirect url={actionData.redirectUrl} />;
-  }
-  
+  const app = useAppBridge();
+
+  useEffect(() => {
+    if (actionData?.redirectUrl && app) {
+      const redirect = Redirect.create(app);
+      redirect.dispatch(Redirect.Action.APP, actionData.redirectUrl);
+    }
+  }, [actionData, app]);
+
   return (
     <PolarisAppProvider i18n={loaderData.polarisTranslations}>
       <Page>
@@ -63,7 +64,7 @@ export default function Auth() {
                 value={shop}
                 onChange={setShop}
                 autoComplete="on"
-                error={errors.shop}
+                error={errors?.shop}
               />
               <Button submit>Log in</Button>
             </FormLayout>
