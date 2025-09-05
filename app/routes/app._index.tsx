@@ -28,7 +28,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       where: { shop: auth.session.shop },
     });
 
-    if (!userInfo) return redirect("/app/products");
+    if (!userInfo) return redirect("/app");
 
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
     const balance = await fetchStripeBalance(userInfo);
