@@ -79,12 +79,12 @@ export default function App() {
   return (
     <AppProvider i18n={polarisTranslations} isEmbeddedApp apiKey={apiKey}>
       {
-        (!userInfo || userInfo.stripeSecretKey == '' || userInfo.stripeSecretKey == null) ? (
-          <NavMenu>
-            <Link to="/app" rel="home">Dashboard</Link>
-            <Link to="/app/settings">Settings</Link>
-          </NavMenu>
-        ) : (planStatus === "PAID") ? (
+      (!userInfo || userInfo.stripeSecretKey === '' || userInfo.stripeSecretKey === null) ? (
+        <NavMenu>
+          <Link to="/app" rel="home">Dashboard</Link>
+          <Link to="/app/settings">Settings</Link>
+        </NavMenu>
+      ) : (planStatus === "PAID") ? (
         <NavMenu>
           <Link to="/app" rel="home">Dashboard</Link>
           <Link to="/app/products">Products</Link>
@@ -95,18 +95,18 @@ export default function App() {
           <Link to="/app/Pricing" onClick={handlePricing}>Pricing</Link>  
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
-        ): (planStatus === "FREE") ? (
-          <NavMenu>
-            <Link to="/app" rel="home">Dashboard</Link>
-            <Link to="/app/products">Products</Link>
-            <Link to="/app/customers">Customers</Link>
-            <Link to="/app/payments">Payments</Link>
-            <Link to="/app/Pricing" onClick={handlePricing}>Pricing</Link>  
-            <Link to="/app/settings">Settings</Link>
-          </NavMenu>
-        )
-      }
-      <Outlet />
+      ) : (
+        <NavMenu>
+          <Link to="/app" rel="home">Dashboard</Link>
+          <Link to="/app/products">Products</Link>
+          <Link to="/app/customers">Customers</Link>
+          <Link to="/app/payments">Payments</Link>
+          <Link to="/app/Pricing" onClick={handlePricing}>Pricing</Link>  
+          <Link to="/app/settings">Settings</Link>
+        </NavMenu>
+      ) 
+    }
+    <Outlet />
     </AppProvider>
   );
 }
