@@ -114,7 +114,9 @@ export default function PaymentsPage() {
   }
 
   return (
-    <Page title="Payments">      
+    <Page title="Products"
+        backAction={{ content: "Home", url: "/app" }}
+      >      
       {(premiumUser == 0 && userTakesub == 0 && daysDifference <= 7) ?
         <>
           <Layout>  
