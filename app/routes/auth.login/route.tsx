@@ -41,6 +41,11 @@ export default function Auth() {
   const { errors } = actionData || loaderData;
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
 
+  if (actionData?.redirectUrl) {
+    // Break out of iframe and redirect top-level window
+    return <Redirect url={actionData.redirectUrl} />;
+  }
+  
   return (
     <PolarisAppProvider i18n={loaderData.polarisTranslations}>
       <Page>
