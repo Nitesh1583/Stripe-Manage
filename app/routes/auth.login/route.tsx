@@ -13,9 +13,6 @@ import {
 import polarisTranslations from "@shopify/polaris/locales/en.json";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 
-import { useAppBridge } from "@shopify/app-bridge-react";
-import { Redirect } from "@shopify/app-bridge/actions";
-
 import { login } from "../../shopify.server";
 import { loginErrorMessage } from "./error.server";
 
@@ -27,7 +24,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  // This should be modified to return a URL instead of performing a redirect
+  // Return the redirect URL instead of trying App Bridge redirect
   const redirectUrl = await login(request);
   return { redirectUrl };
 };
@@ -38,14 +35,12 @@ export default function Auth() {
   const [shop, setShop] = useState("");
   const { errors } = actionData || loaderData;
 
-  const app = useAppBridge();
-
+  // ✅ Client-side redirect without App Bridge
   useEffect(() => {
-    if (actionData?.redirectUrl && app) {
-      const redirect = Redirect.create(app);
-      redirect.dispatch(Redirect.Action.APP, actionData.redirectUrl);
+    if (actionData?.redirectUrl) {
+      window.location.assign(actionData.redirectUrl);
     }
-  }, [actionData, app]);
+  }, [actionData]);
 
   return (
     <PolarisAppProvider i18n={loaderData.polarisTranslations}>
