@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "a707ffcad54fde6cb1463dfb03b7d0de"
-application_url = "https://motion-shaved-doc-fairy.trycloudflare.com"
+application_url = "https://mw-anyone-jackson-polish.trycloudflare.com"
 embedded = true
 name = "stripe-console"
 handle = "stripe-console-management"
@@ -22,7 +22,7 @@ api_version = "2025-01"
 scopes = "write_products"
 
 [auth]
-redirect_urls = ["https://motion-shaved-doc-fairy.trycloudflare.com/auth/callback", "https://motion-shaved-doc-fairy.trycloudflare.com/auth/shopify/callback", "https://motion-shaved-doc-fairy.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://mw-anyone-jackson-polish.trycloudflare.com/auth/callback", "https://mw-anyone-jackson-polish.trycloudflare.com/auth/shopify/callback", "https://mw-anyone-jackson-polish.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false
