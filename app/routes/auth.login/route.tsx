@@ -12,6 +12,7 @@ import {
 } from "@shopify/polaris";
 import polarisTranslations from "@shopify/polaris/locales/en.json";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
+import { Redirect } from "@shopify/app-bridge-react";
 
 import { login } from "../../shopify.server";
 
@@ -38,6 +39,12 @@ export default function Auth() {
   const actionData = useActionData<typeof action>();
   const [shop, setShop] = useState("");
   const { errors } = actionData || loaderData;
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
+
+  if (actionData?.redirectUrl) {
+    // Break out of iframe and redirect top-level window
+    return <Redirect url={actionData.redirectUrl} />;
+  }
 
   return (
     <PolarisAppProvider i18n={loaderData.polarisTranslations}>
@@ -56,7 +63,6 @@ export default function Auth() {
                 value={shop}
                 onChange={setShop}
                 autoComplete="on"
-                error={errors.shop}
               />
               <Button submit>Log in</Button>
             </FormLayout>
