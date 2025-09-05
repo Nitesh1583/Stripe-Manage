@@ -17,42 +17,50 @@ import { getShopifyPlanStatus   } from "../models/payouts.server";
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }) => {
-  const auth = await authenticate.admin(request);
-
-  const userInfo = await db.user.findFirst({
-    where: { shop: auth.session.shop },
-  });
-
-  let planStatus = "FREE"; // default
-
   try {
-    const statusResponse = await getShopifyPlanStatus(auth.session.shop, auth.session.accessToken);
-    console.log("DEBUG: Raw Shopify Plan Response =>", statusResponse);
+    const auth = await authenticate.admin(request);
 
-    // ✅ Normalize response
-    if (typeof statusResponse === "string") {
-      planStatus = statusResponse.toUpperCase(); // ensures PAID/free/Free => PAID/FREE
-    } else if (statusResponse?.status) {
-      planStatus = statusResponse.status.toUpperCase();
-    }
+    const userInfo = await db.user.findFirst({
+      where: { shop: auth.session.shop },
+    });
+
+    // Fetch plan status + subscriptions
+    const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
+
+    console.log("SERVER DEBUG: Plan Status =>", planStatus);
+    activeSubs.forEach((sub) => {
+      console.log(
+        `SERVER DEBUG: Subscription Name: ${sub.name}, Status: ${sub.status}, Price: ${
+          sub.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0
+        }`
+      );
+    });
+
+    return json({
+      apiKey: process.env.SHOPIFY_API_KEY || "",
+      userInfo,
+      planStatus,
+      activeSubs,
+      polarisTranslations: enlan,
+    });
   } catch (error) {
-    console.error("Error fetching Shopify Plan Status:", error);
+    console.error("Loader failed:", error);
+    return json(
+      {
+        planStatus: null,
+        activeSubs: [],
+      },
+      { status: 500 }
+    );
   }
-
-  console.log("DEBUG: Final planStatus sent to client =>", planStatus);
-
-  return json({
-    apiKey: process.env.SHOPIFY_API_KEY || "",
-    userInfo,
-    planStatus,
-    polarisTranslations: enlan,
-  });
 };
 
-
 export default function App() {
-  const { apiKey, userInfo, result, planStatus, polarisTranslations } = useLoaderData();
-console.log("CLIENT DEBUG: Plan Status =>", planStatus);
+  const { apiKey, userInfo, result, polarisTranslations, planStatus, activeSubs } = useLoaderData();
+
+  // Client debug logs
+  console.log("CLIENT DEBUG: Plan Status =>", planStatus);
+  console.log("CLIENT DEBUG: Active Subscriptions =>", activeSubs);
 
   const handlePricing = (event) => {
     event.preventDefault();
@@ -60,32 +68,44 @@ console.log("CLIENT DEBUG: Plan Status =>", planStatus);
     window.open(`https://admin.shopify.com/store/${userInfo?.shop.split(".")[0]}/charges/stripe-manage/pricing_plans`, '_top')
   }
 
+  useEffect(() => {
+    if (planStatus === "PAID") {
+      console.log("✅ User is on a paid plan");
+    } else {
+      console.log("🆓 User is on free plan");
+    }  
+  }, [planStatus]);
+
   return (
     <AppProvider i18n={polarisTranslations} isEmbeddedApp apiKey={apiKey}>
-      {(!userInfo || userInfo.stripeSecretKey === "" || userInfo.stripeSecretKey === null) ? (
-        <NavMenu>
-          <Link to="/app" rel="home">Dashboard</Link>
-          <Link to="/app/settings">Settings</Link>
-        </NavMenu>
-      ) : (
+      {
+        (!userInfo || userInfo.stripeSecretKey == '' || userInfo.stripeSecretKey == null) ? (
+          <NavMenu>
+            <Link to="/app" rel="home">Dashboard</Link>
+            <Link to="/app/settings">Settings</Link>
+          </NavMenu>
+        ) : (planStatus === "PAID") ? (
         <NavMenu>
           <Link to="/app" rel="home">Dashboard</Link>
           <Link to="/app/products">Products</Link>
           <Link to="/app/customers">Customers</Link>
           <Link to="/app/payments">Payments</Link>
-
-          {/* ✅ Show Payouts & Invoices only for PAID plan */}
-          {planStatus === "PAID" && (
-            <>
-              <Link to="/app/payouts">Payouts</Link>
-              <Link to="/app/invoices">Invoices</Link>
-            </>
-          )}
-
-          <Link to="/app/Pricing" onClick={handlePricing}>Pricing</Link>
+          <Link to="/app/payouts">Payouts</Link>
+          <Link to="/app/invoices">Invoices</Link>
+          <Link to="/app/Pricing" onClick={handlePricing}>Pricing</Link>  
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
-      )}
+        ): (planStatus === "FREE") ? (
+          <NavMenu>
+            <Link to="/app" rel="home">Dashboard</Link>
+            <Link to="/app/products">Products</Link>
+            <Link to="/app/customers">Customers</Link>
+            <Link to="/app/payments">Payments</Link>
+            <Link to="/app/Pricing" onClick={handlePricing}>Pricing</Link>  
+            <Link to="/app/settings">Settings</Link>
+          </NavMenu>
+        )
+      }
       <Outlet />
     </AppProvider>
   );

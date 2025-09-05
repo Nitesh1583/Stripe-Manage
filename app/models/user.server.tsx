@@ -171,12 +171,14 @@ export async function saveShopifyChargeId(shop: string, chargeId: string) {
       update: { 
         shopifyChargeId: chargeId,
         premiumUser: 1, // mark user as premium
+        subCount:1
         updatedAt: new Date(),
       },
       create: {
         shop,
         shopifyChargeId: chargeId,
-        premiumUser: 1,
+        premiumUser: 0,
+        subCount: 0
       },
     });
 
