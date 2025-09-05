@@ -60,7 +60,10 @@ export default function Invoices() {
   };
 
   return (
-    <Page title="Invoices">
+    <Page 
+      title="Invoices"
+     backAction={{ content: "Home", url: "/app" }}
+    >
       <Layout>
         <Layout.Section>
           {/* Search Bar - styled like customer.tsx */}

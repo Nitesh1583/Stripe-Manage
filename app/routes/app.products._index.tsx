@@ -102,8 +102,8 @@ export default function DisputePage() {
                 }}
               >
                 <Text as="p" tone="critical">
-                  Time is running out! Your free trial of Stripe Console ends on {newTrialEndDate}.
-                </Text>
+                    Time is running out! Your free trial of Stripe Console ends on {newTrialEndDate} and we’d hate for you to lose access to all the premium features you’ve been enjoying.
+                  </Text>
               </CalloutCard>
             </Layout.Section>
           </Layout>
@@ -111,6 +111,10 @@ export default function DisputePage() {
 
         {(userTakesub == 1 || (userTakesub == 0 && daysDifference <= 7)) ? (
           <Layout>
+            <Layout.Section>
+              {/*Add for spacing*/}
+            </Layout.Section> 
+
             <Layout.Section>
               <Card>
                 <IndexTable

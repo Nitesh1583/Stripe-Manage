@@ -59,7 +59,10 @@ export default function payouts() {
   };
 
   return (
-    <Page title="All Stripe Payouts">
+    <Page 
+      title="Payouts"
+      backAction={{ content: "Home", url: "/app" }}
+    >
       <Layout>
         <Layout.Section>
           {/* Search Bar */}
