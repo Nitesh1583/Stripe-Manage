@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "a707ffcad54fde6cb1463dfb03b7d0de"
-application_url = "https://courtesy-solely-benjamin-revenues.trycloudflare.com"
+application_url = "https://communist-quotations-nhs-acm.trycloudflare.com"
 embedded = true
 name = "stripe-console"
 handle = "stripe-console-management"
@@ -22,7 +22,7 @@ api_version = "2025-01"
 scopes = "write_products"
 
 [auth]
-redirect_urls = ["https://courtesy-solely-benjamin-revenues.trycloudflare.com/auth/callback", "https://courtesy-solely-benjamin-revenues.trycloudflare.com/auth/shopify/callback", "https://courtesy-solely-benjamin-revenues.trycloudflare.com/api/auth/callback"]
+redirect_urls = ["https://communist-quotations-nhs-acm.trycloudflare.com/auth/callback", "https://communist-quotations-nhs-acm.trycloudflare.com/auth/shopify/callback", "https://communist-quotations-nhs-acm.trycloudflare.com/api/auth/callback"]
 
 [pos]
 embedded = false
