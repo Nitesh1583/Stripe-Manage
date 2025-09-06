@@ -81,26 +81,51 @@ export async function fetchSearchStripeCustomer(searchValue, userInfo) {
 
 // Fetch recent stripe Customer's with limit -> 2 or 3
 export async function fetchStripeRecentCustomers(userInfo) {
-  try{
+  try {
     const stripe = new Stripe(userInfo.stripeSecretKey);
-    const recentCustomers = await stripe.customers.list({ limit: 2 });
+    const recentStripeCustomers = await stripe.customers.list({ limit: 2 });
+    const data = customers.data;
+    let  recentStripeCustomersData = [];
+    let paymentMethod = '';
+    let cardlast4 = '';
+    let cardbrand = '';
+    const existingShop = await db.SubscriptionUser.findFirst({ 
+      where: { 
+        shop_url: userInfo.shop, 
+        sub_cancel_date: null 
+      }
+    }); 
 
-    const recentCustomersData = recentCustomers.data.map((cust) => ({
-      id: cust.id,
-      customerName: cust.customer_name,
-      customerEmail: cust.email,
-      created: new Date(cust.created * 1000).toLocaleDateString(),
-    }));
+    for (let i = 0; i < data.length; i++) {
+      const element = data[i];
 
-    return { recentCustomers: recentCustomersData, isError: false };
+      if(element.invoice_settings.default_payment_method != null) {
+        paymentMethod = await stripe.paymentMethods.retrieve(element.invoice_settings.default_payment_method);
+      }
 
-  }catch (error) {
-    console.error("Something went wrong. Try again later.", error);
-    return {
-      recentCustomers: [],
-      message: "Unable to fetch Recent Customers",
-      error,
-      isError: true,
-    };
+      if (paymentMethod) {
+
+        if(paymentMethod.card) {
+          cardlast4= paymentMethod.card.last4;
+          cardbrand= paymentMethod.card.brand;
+        }
+
+        if(paymentMethod.us_bank_account) {
+          cardlast4= paymentMethod.us_bank_account.last4;
+          cardbrand= "Bank Account";
+        }
+      }
+      
+      if (element.name && element.email) {
+        recentStripeCustomersData.push({
+          ...element,
+          last4: cardlast4,
+          brand: cardbrand,
+        });
+      }
+    }
+    return { recentStripeCustomers: recentStripeCustomersData, UserInfo:userInfo, premiumUser: userInfo.premiumUser, subdata: existingShop, isError:false };
+  } catch (error) {
+    return { message: "Something went wrong. Try again later.", error,isError: true };
   }
 }
