@@ -35,7 +35,7 @@ export default function Auth() {
   const [shop, setShop] = useState("");
   const { errors } = actionData || loaderData;
 
-  // ✅ Client-side redirect without App Bridge
+  // Client-side redirect without App Bridge
   useEffect(() => {
     if (actionData?.redirectUrl) {
       window.location.assign(actionData.redirectUrl);
