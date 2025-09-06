@@ -323,44 +323,47 @@ export default function Index() {
           </Layout.Section>
         </Layout>
 
-        {/* ✅ Recent Customers with Created Date at END */}
+        {/* ✅ Redesigned Recent Customers Section */}
         <Layout.Section>
-          <Card title="Recent Customers" sectioned>
+          <Card title="Recent Customers">
             {recentStripeCustomers && recentStripeCustomers.length > 0 ? (
-              <BlockStack gap="200">
+              <BlockStack gap="300" padding="400">
                 {recentStripeCustomers.map((customer) => (
-                  <InlineStack
+                  <Box
                     key={customer.id}
-                    align="space-between"
-                    blockAlign="center"
-                    style={{
-                      borderBottom: "1px solid #e1e3e5",
-                      paddingBottom: "8px",
-                      marginBottom: "8px",
-                    }}
+                    padding="300"
+                    background="bg-surface"
+                    borderColor="border-subdued"
+                    borderStyle="solid"
+                    borderWidth="025"
+                    borderRadius="300"
                   >
-                    {/* Left Side: Name + Email */}
-                    <BlockStack gap="25">
-                      <Text variant="headingSm" as="h3">{customer.name}</Text>
-                      <Text tone="subdued">{customer.email}</Text>
-                    </BlockStack>
+                    <InlineStack align="space-between" blockAlign="center">
+                      {/* Left Side: Name + Email */}
+                      <BlockStack gap="050">
+                        <Text variant="headingSm" as="h3">{customer.name}</Text>
+                        <Text tone="subdued">{customer.email}</Text>
+                      </BlockStack>
 
-                    {/* Right Side: Brand + Last4 + Created */}
-                    <BlockStack gap="25" align="end">
-                      <Text variant="bodyMd">
-                        {customer.brand
-                          ? `${customer.brand.toUpperCase()} • ${customer.last4}`
-                          : "No Card Info"}
-                      </Text>
-                      <Text tone="subdued" fontWeight="medium">
-                        Created: {formatDate(customer.created)}
-                      </Text>
-                    </BlockStack>
-                  </InlineStack>
+                      {/* Right Side: Card + Created */}
+                      <BlockStack gap="050" align="end">
+                        <Text variant="bodyMd">
+                          {customer.brand
+                            ? `${customer.brand.toUpperCase()} • ${customer.last4}`
+                            : "No Card Info"}
+                        </Text>
+                        <Text tone="subdued">
+                          Created: {formatDate(customer.created)}
+                        </Text>
+                      </BlockStack>
+                    </InlineStack>
+                  </Box>
                 ))}
               </BlockStack>
             ) : (
-              <Text tone="subdued">No recent customers found.</Text>
+              <Box padding="400">
+                <Text tone="subdued">No recent customers found.</Text>
+              </Box>
             )}
           </Card>
         </Layout.Section>
