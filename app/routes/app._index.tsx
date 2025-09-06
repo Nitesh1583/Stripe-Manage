@@ -150,6 +150,15 @@ export default function Index() {
 
   console.log("Recent Customers => ", recentStripeCustomers);
 
+  // Helper function to format Stripe's created timestamp
+  const formatDate = (timestamp: number) => {
+    const date = new Date(timestamp * 1000); // Stripe gives seconds, JS needs ms
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   // Get today's date range
   const today = new Date();
@@ -313,6 +322,48 @@ export default function Index() {
             </Card>
           </Layout.Section>
         </Layout>
+
+        {/* ✅ Recent Customers with Created Date at END */}
+        <Layout.Section>
+          <Card title="Recent Customers" sectioned>
+            {recentStripeCustomers && recentStripeCustomers.length > 0 ? (
+              <BlockStack gap="200">
+                {recentStripeCustomers.map((customer) => (
+                  <InlineStack
+                    key={customer.id}
+                    align="space-between"
+                    blockAlign="center"
+                    style={{
+                      borderBottom: "1px solid #e1e3e5",
+                      paddingBottom: "8px",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    {/* Left Side: Name + Email */}
+                    <BlockStack gap="25">
+                      <Text variant="headingSm" as="h3">{customer.name}</Text>
+                      <Text tone="subdued">{customer.email}</Text>
+                    </BlockStack>
+
+                    {/* Right Side: Brand + Last4 + Created */}
+                    <BlockStack gap="25" align="end">
+                      <Text variant="bodyMd">
+                        {customer.brand
+                          ? `${customer.brand.toUpperCase()} • ${customer.last4}`
+                          : "No Card Info"}
+                      </Text>
+                      <Text tone="subdued" fontWeight="medium">
+                        Created: {formatDate(customer.created)}
+                      </Text>
+                    </BlockStack>
+                  </InlineStack>
+                ))}
+              </BlockStack>
+            ) : (
+              <Text tone="subdued">No recent customers found.</Text>
+            )}
+          </Card>
+        </Layout.Section>
 
         {/* Keep your marketing content */}
         <Layout>
