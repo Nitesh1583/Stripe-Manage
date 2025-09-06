@@ -18,6 +18,7 @@ import { authenticate } from "../shopify.server";
 import { json, redirect } from "@remix-run/node";
 
 import db from "../db.server";
+import { fetchStripeRecentCustomers } from "../models/customer.server";
 import { fetchStripeBalanceTransactions, fetchStripeBalance, getShopifyPlanStatus   } from "../models/payouts.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
