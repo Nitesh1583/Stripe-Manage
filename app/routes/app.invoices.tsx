@@ -55,9 +55,8 @@ export default function Invoices() {
   const itemsPerPage = 8;
 
   console.log(invoices);
-  // Client debug logs
-  console.log("CLIENT DEBUG: Plan Status =>", planStatus);
-  console.log("CLIENT DEBUG: Active Subscriptions =>", activeSubs);
+  console.log(planStatus);
+  console.log(activeSubs);
 
 
   // Filter invoices

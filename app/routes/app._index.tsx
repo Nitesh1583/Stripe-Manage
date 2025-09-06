@@ -32,6 +32,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
     const balance = await fetchStripeBalance(userInfo);
+    const { recentStripeCustomers } = await fetchStripeRecentCustomers(userInfo);
     
     // Fetch plan status + subscriptions
     const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
@@ -51,6 +52,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       balancePending: balance.pending,
       planStatus,
       activeSubs,
+      recentStripeCustomers
     });
   } catch (error) {
     console.error("Loader failed:", error);
@@ -138,12 +140,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions, balanceAvailable, balancePending, planStatus, activeSubs } =
+  const { transactions, balanceAvailable, balancePending, planStatus, activeSubs, recentStripeCustomers } =
     useLoaderData<typeof loader>();
 
   // Client debug logs
   console.log("CLIENT DEBUG: Plan Status =>", planStatus);
   console.log("CLIENT DEBUG: Active Subscriptions =>", activeSubs);
+
+  console.log("Recent Customers => ", recentStripeCustomers);
+
 
   // Get today's date range
   const today = new Date();
