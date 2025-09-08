@@ -11,7 +11,7 @@ import {
   Box,
   List,
   Link,
-   IndexTable, useIndexResourceState,Badge 
+  IndexTable, InlineStack, useIndexResourceState,Badge 
 } from "@shopify/polaris";
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
