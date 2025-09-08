@@ -335,131 +335,116 @@ export default function Index() {
           </Layout.Section>
         </Layout>
 
-        {/* Recent combined data*/}
-        {/* Recent Combined Data Section */}
+        {/* Recent combined data - 3 vertical columns in a single layout */}
 <Layout>
-  {/* Recent Customers */}
+  {/* Recent Customers Column */}
   <Layout.Section oneThird>
     <Card>
-      <IndexTable
-        resourceName={{ singular: "customer", plural: "customers" }}
-        itemCount={recentStripeCustomers?.length || 0}
-        headings={[
-          { title: "Name" },
-          { title: "Email" },
-          { title: "Card" },
-          { title: "Date" },
-        ]}
-        selectable={false}
-      >
-        {recentStripeCustomers?.length > 0 ? (
+      <Text variant="headingMd" as="h2" alignment="center">
+        Recent Customers
+      </Text>
+      <div style={{ borderTop: "1px solid #E4E5E7", marginTop: "8px" }}>
+        {recentStripeCustomers && recentStripeCustomers.length > 0 ? (
           recentStripeCustomers.map((customer, index) => (
-            <IndexTable.Row id={customer.id} key={customer.id} position={index}>
-              <IndexTable.Cell>{customer.name || "N/A"}</IndexTable.Cell>
-              <IndexTable.Cell>{customer.email || "No email"}</IndexTable.Cell>
-              <IndexTable.Cell>
-                {customer.brand
-                  ? `${customer.brand.toUpperCase()} • ${customer.last4}`
-                  : "No Card"}
-              </IndexTable.Cell>
-              <IndexTable.Cell>{formatDate(customer.created)}</IndexTable.Cell>
-            </IndexTable.Row>
+            <div
+              key={customer.id}
+              style={{
+                padding: "10px",
+                borderBottom:
+                  index !== recentStripeCustomers.length - 1
+                    ? "1px solid #F0F0F0"
+                    : "none",
+              }}
+            >
+              <p><strong>Name:</strong> {customer.name || "N/A"}</p>
+              <p><strong>Email:</strong> {customer.email || "No email"}</p>
+              <p><strong>Card:</strong> {customer.brand ? `${customer.brand.toUpperCase()} • ${customer.last4}` : "No Card Info"}</p>
+              <p><strong>Date:</strong> {formatDate(customer.created)}</p>
+            </div>
           ))
         ) : (
-          <IndexTable.Row id="empty" key="empty" position={0}>
-            <IndexTable.Cell colSpan={4}>
-              <Text alignment="center" tone="subdued">
-                No recent customers
-              </Text>
-            </IndexTable.Cell>
-          </IndexTable.Row>
+          <p style={{ padding: "10px", textAlign: "center", color: "#888" }}>
+            No recent customers
+          </p>
         )}
-      </IndexTable>
+      </div>
     </Card>
   </Layout.Section>
 
-  {/* Recent Payments */}
+  {/* Recent Payments Column */}
   <Layout.Section oneThird>
     <Card>
-      <IndexTable
-        resourceName={{ singular: "payment", plural: "payments" }}
-        itemCount={recentPaymentsData?.recentPaymentsData?.length || 0}
-        headings={[
-          { title: "Order ID" },
-          { title: "Amount" },
-          { title: "Status" },
-          { title: "Date" },
-        ]}
-        selectable={false}
-      >
-        {recentPaymentsData?.recentPaymentsData?.length > 0 ? (
+      <Text variant="headingMd" as="h2" alignment="center">
+        Recent Payments
+      </Text>
+      <div style={{ borderTop: "1px solid #E4E5E7", marginTop: "8px" }}>
+        {recentPaymentsData && recentPaymentsData.recentPaymentsData.length > 0 ? (
           recentPaymentsData.recentPaymentsData.map((payment, index) => (
-            <IndexTable.Row id={payment.id} key={payment.id} position={index}>
-              <IndexTable.Cell>{payment.orderID}</IndexTable.Cell>
-              <IndexTable.Cell>
-                {payment.symbolNative} {(payment.amount / 100).toFixed(2)}{" "}
-                {payment.currencycode}
-              </IndexTable.Cell>
-              <IndexTable.Cell>
-                <Text tone={payment.status === "succeeded" ? "success" : "critical"}>
+            <div
+              key={payment.id}
+              style={{
+                padding: "10px",
+                borderBottom:
+                  index !== recentPaymentsData.recentPaymentsData.length - 1
+                    ? "1px solid #F0F0F0"
+                    : "none",
+              }}
+            >
+              <p><strong>Order ID:</strong> {payment.orderID}</p>
+              <p><strong>Amount:</strong> {payment.symbolNative} {(payment.amount / 100).toFixed(2)} {payment.currencycode}</p>
+              <p><strong>Status:</strong> 
+                <span style={{ color: payment.status === "succeeded" ? "green" : "red" }}>
                   {payment.status}
-                </Text>
-              </IndexTable.Cell>
-              <IndexTable.Cell>{formatDate(payment.created)}</IndexTable.Cell>
-            </IndexTable.Row>
+                </span>
+              </p>
+              <p><strong>Customer:</strong> {payment.customerName}</p>
+              <p><strong>Date:</strong> {formatDate(payment.created)}</p>
+            </div>
           ))
         ) : (
-          <IndexTable.Row id="empty" key="empty" position={0}>
-            <IndexTable.Cell colSpan={4}>
-              <Text alignment="center" tone="subdued">
-                No recent payments
-              </Text>
-            </IndexTable.Cell>
-          </IndexTable.Row>
+          <p style={{ padding: "10px", textAlign: "center", color: "#888" }}>
+            No recent payments
+          </p>
         )}
-      </IndexTable>
+      </div>
     </Card>
   </Layout.Section>
 
-  {/* Recent Invoices */}
+  {/* Recent Invoices Column */}
   <Layout.Section oneThird>
     <Card>
-      <IndexTable
-        resourceName={{ singular: "invoice", plural: "invoices" }}
-        itemCount={recentInvoices?.length || 0}
-        headings={[
-          { title: "Invoice ID" },
-          { title: "Customer" },
-          { title: "Amount" },
-          { title: "Status" },
-        ]}
-        selectable={false}
-      >
-        {recentInvoices?.length > 0 ? (
+      <Text variant="headingMd" as="h2" alignment="center">
+        Recent Invoices
+      </Text>
+      <div style={{ borderTop: "1px solid #E4E5E7", marginTop: "8px" }}>
+        {recentInvoices && recentInvoices.length > 0 ? (
           recentInvoices.map((invoice, index) => (
-            <IndexTable.Row id={invoice.id} key={invoice.id} position={index}>
-              <IndexTable.Cell>{invoice.id}</IndexTable.Cell>
-              <IndexTable.Cell>{invoice.customerName}</IndexTable.Cell>
-              <IndexTable.Cell>
-                {invoice.currency} {parseFloat(invoice.amount).toFixed(2)}
-              </IndexTable.Cell>
-              <IndexTable.Cell>
-                <Text tone={invoice.status === "paid" ? "success" : "critical"}>
+            <div
+              key={invoice.id}
+              style={{
+                padding: "10px",
+                borderBottom:
+                  index !== recentInvoices.length - 1
+                    ? "1px solid #F0F0F0"
+                    : "none",
+              }}
+            >
+              <p><strong>Invoice:</strong> {invoice.id}</p>
+              <p><strong>Customer:</strong> {invoice.customerName}</p>
+              <p><strong>Amount:</strong> {invoice.currency} {parseFloat(invoice.amount).toFixed(2)}</p>
+              <p><strong>Status:</strong> 
+                <span style={{ color: invoice.status === "paid" ? "green" : "red" }}>
                   {invoice.status}
-                </Text>
-              </IndexTable.Cell>
-            </IndexTable.Row>
+                </span>
+              </p>
+            </div>
           ))
         ) : (
-          <IndexTable.Row id="empty" key="empty" position={0}>
-            <IndexTable.Cell colSpan={4}>
-              <Text alignment="center" tone="subdued">
-                No recent invoices
-              </Text>
-            </IndexTable.Cell>
-          </IndexTable.Row>
+          <p style={{ padding: "10px", textAlign: "center", color: "#888" }}>
+            No recent invoices
+          </p>
         )}
-      </IndexTable>
+      </div>
     </Card>
   </Layout.Section>
 </Layout>
