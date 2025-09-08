@@ -21,7 +21,7 @@ import db from "../db.server";
 import { fetchStripeRecentCustomers } from "../models/customer.server";
 import { fetchStripeRecentPaymentData } from "../models/payment.server";
 import { fetchStripeRecentInvoices } from "../models/invoices.server";
-import { fetchRecentStripePayouts } from "../models/payouts.server";
+import { fetchStripeRecentPayouts } from "../models/payouts.server";
 import { fetchStripeBalanceTransactions, fetchStripeBalance, getShopifyPlanStatus   } from "../models/payouts.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -51,8 +51,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     const { recentStripeCustomers } = await fetchStripeRecentCustomers(userInfo);
     const recentPaymentsData = await fetchStripeRecentPaymentData(userInfo);
-    const { recentInvoices } = await fetchStripeInvoices(userInfo);
-    const { recentPayouts } = await fetchRecentStripePayouts(userInfo);
+    const { recentInvoices } = await fetchStripeRecentInvoices(userInfo);
+    const { recentPayouts } = await fetchStripeRecentPayouts(userInfo);
 
     return json({
       transactions,
@@ -217,9 +217,9 @@ export default function Index() {
 
   useEffect(() => {
     if (planStatus === "PAID") {
-      console.log("✅ User is on a paid plan");
+      console.log("User is on a paid plan");
     } else {
-      console.log("🆓 User is on free plan");
+      console.log("User is on free plan");
     }  
   }, [planStatus]);
 
@@ -336,49 +336,51 @@ export default function Index() {
         </Layout>
 
         {/* Recent Customers Section */}
-        <Layout.Section>
-          <Card title="Recent Customers">
-            {recentStripeCustomers && recentStripeCustomers.length > 0 ? (
-              <BlockStack gap="300" padding="400">
-                {recentStripeCustomers.map((customer) => (
-                  <Box
-                    key={customer.id}
-                    padding="300"
-                    background="bg-surface"
-                    borderColor="border-subdued"
-                    borderStyle="solid"
-                    borderWidth="025"
-                    borderRadius="300"
-                  >
-                    <InlineStack align="space-between" blockAlign="center">
-                      {/* Left Side: Name + Email */}
-                      <BlockStack gap="050">
-                        <Text variant="headingSm" as="h3">{customer.name}</Text>
-                        <Text tone="subdued">{customer.email}</Text>
-                      </BlockStack>
+        <Layout>
+          <Layout.Section>
+            <Card title="Recent Customers">
+              {recentStripeCustomers && recentStripeCustomers.length > 0 ? (
+                <BlockStack gap="300" padding="400">
+                  {recentStripeCustomers.map((customer) => (
+                    <Box
+                      key={customer.id}
+                      padding="300"
+                      background="bg-surface"
+                      borderColor="border-subdued"
+                      borderStyle="solid"
+                      borderWidth="025"
+                      borderRadius="300"
+                    >
+                      <InlineStack align="space-between" blockAlign="center">
+                        {/* Left Side: Name + Email */}
+                        <BlockStack gap="050">
+                          <Text variant="headingSm" as="h3">{customer.name}</Text>
+                          <Text tone="subdued">{customer.email}</Text>
+                        </BlockStack>
 
-                      {/* Right Side: Card + Created */}
-                      <BlockStack gap="050" align="end">
-                        <Text variant="bodyMd">
-                          {customer.brand
-                            ? `${customer.brand.toUpperCase()} • ${customer.last4}`
-                            : "No Card Info"}
-                        </Text>
-                        <Text tone="subdued">
-                          Created: {formatDate(customer.created)}
-                        </Text>
-                      </BlockStack>
-                    </InlineStack>
-                  </Box>
-                ))}
-              </BlockStack>
-            ) : (
-              <Box padding="400">
-                <Text tone="subdued">No recent customers found.</Text>
-              </Box>
-            )}
-          </Card>
-        </Layout.Section>
+                        {/* Right Side: Card + Created */}
+                        <BlockStack gap="050" align="end">
+                          <Text variant="bodyMd">
+                            {customer.brand
+                              ? `${customer.brand.toUpperCase()} • ${customer.last4}`
+                              : "No Card Info"}
+                          </Text>
+                          <Text tone="subdued">
+                            Created: {formatDate(customer.created)}
+                          </Text>
+                        </BlockStack>
+                      </InlineStack>
+                    </Box>
+                  ))}
+                </BlockStack>
+              ) : (
+                <Box padding="400">
+                  <Text tone="subdued">No recent customers found.</Text>
+                </Box>
+              )}
+            </Card>
+          </Layout.Section>
+        </Layout>
 
         {/* Keep your marketing content */}
         <Layout>

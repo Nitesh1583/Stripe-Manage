@@ -172,12 +172,12 @@ export async function getShopifyPlanStatus(request: Request) {
 }
 
 // Fetch Recent Stripe Payouts for dashboard
-export async function fetchRecentStripePayouts(userInfo) {
+export async function fetchStripeRecentPayouts(userInfo) {
   try {
     const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
 
     // Fetch all payouts
-    const recentPayouts = await stripe.payouts.list({ limit: 99 });
+    const recentPayouts = await stripe.payouts.list({ limit: 5 });
 
     const payoutsData = recentPayouts.data.map((payouts) => ({
       id: payouts.id,
