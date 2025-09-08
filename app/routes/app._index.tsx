@@ -34,6 +34,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
     const balance = await fetchStripeBalance(userInfo);
     const { recentStripeCustomers } = await fetchStripeRecentCustomers(userInfo);
+    const recentPaymentsData = await fetchStripeRecentPaymentData(userInfo);
     
     // Fetch plan status + subscriptions
     const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
@@ -51,6 +52,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       transactions,
       balanceAvailable: balance.available,
       balancePending: balance.pending,
+      recentPaymentsData,
       planStatus,
       activeSubs,
       recentStripeCustomers
@@ -141,14 +143,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions, balanceAvailable, balancePending, planStatus, activeSubs, recentStripeCustomers } =
-    useLoaderData<typeof loader>();
+  const { transactions, balanceAvailable, balancePending, planStatus, activeSubs, recentStripeCustomers, 
+  recentPaymentsData } = useLoaderData<typeof loader>();
 
   // Client debug logs
   console.log("CLIENT DEBUG: Plan Status =>", planStatus);
   console.log("CLIENT DEBUG: Active Subscriptions =>", activeSubs);
 
   console.log("Recent Customers => ", recentStripeCustomers);
+
+  console.log("Recent Payment List => ", recentPaymentsData);
 
   // Helper function to format Stripe's created timestamp
   const formatDate = (timestamp: number) => {
@@ -323,7 +327,7 @@ export default function Index() {
           </Layout.Section>
         </Layout>
 
-        {/* ✅ Redesigned Recent Customers Section */}
+        {/* Recent Customers Section */}
         <Layout.Section>
           <Card title="Recent Customers">
             {recentStripeCustomers && recentStripeCustomers.length > 0 ? (
