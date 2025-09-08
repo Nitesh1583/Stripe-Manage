@@ -11,7 +11,7 @@ import {
   Box,
   List,
   Link,
-  InlineStack,Badge
+  InlineStack,Badge, DataTable 
 } from "@shopify/polaris";
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
@@ -348,7 +348,7 @@ export default function Index() {
           </Layout.Section>
         </Layout>
 
-        
+
           {/* Recent Data Section - Clean Polaris Design */}
           <Layout>
             {/* --- Recent Customers Card --- */}
