@@ -20,6 +20,8 @@ import { json, redirect } from "@remix-run/node";
 import db from "../db.server";
 import { fetchStripeRecentCustomers } from "../models/customer.server";
 import { fetchStripeRecentPaymentData } from "../models/payment.server";
+import { fetchStripeRecentInvoices } from "../models/invoices.server";
+import { fetchRecentStripePayouts } from "../models/payouts.server";
 import { fetchStripeBalanceTransactions, fetchStripeBalance, getShopifyPlanStatus   } from "../models/payouts.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -36,6 +38,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const balance = await fetchStripeBalance(userInfo);
     const { recentStripeCustomers } = await fetchStripeRecentCustomers(userInfo);
     const recentPaymentsData = await fetchStripeRecentPaymentData(userInfo);
+    const { recentInvoices } = await fetchStripeInvoices(userInfo);
+    const { recentPayouts } = await fetchRecentStripePayouts(userInfo);
     
     // Fetch plan status + subscriptions
     const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
@@ -54,6 +58,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       balanceAvailable: balance.available,
       balancePending: balance.pending,
       recentPaymentsData,
+      recentInvoices,
+      recentPayouts,
       planStatus,
       activeSubs,
       recentStripeCustomers
@@ -145,15 +151,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
   const { transactions, balanceAvailable, balancePending, planStatus, activeSubs, recentStripeCustomers, 
-  recentPaymentsData } = useLoaderData<typeof loader>();
+  recentPaymentsData, recentInvoices, recentPayouts} = useLoaderData<typeof loader>();
 
   // Client debug logs
   console.log("CLIENT DEBUG: Plan Status =>", planStatus);
   console.log("CLIENT DEBUG: Active Subscriptions =>", activeSubs);
-
   console.log("Recent Customers => ", recentStripeCustomers);
-
   console.log("Recent Payment List => ", recentPaymentsData);
+  console.log("Recent Invoices List => ", recentInvoices);
+  console.log("Recent Payouts List => ", recentPayouts);
 
   // Helper function to format Stripe's created timestamp
   const formatDate = (timestamp: number) => {

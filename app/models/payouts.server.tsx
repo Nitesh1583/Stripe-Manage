@@ -170,3 +170,31 @@ export async function getShopifyPlanStatus(request: Request) {
     return { planStatus: "FREE", activeSubs: [] };
   }
 }
+
+// Fetch Recent Stripe Payouts for dashboard
+export async function fetchRecentStripePayouts(userInfo) {
+  try {
+    const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
+
+    // Fetch all payouts
+    const recentPayouts = await stripe.payouts.list({ limit: 99 });
+
+    const payoutsData = recentPayouts.data.map((payouts) => ({
+      id: payouts.id,
+      amount: (payouts.amount / 100).toFixed(2),
+      currency: payouts.currency?.toUpperCase() || "USD",
+      status: payouts.status,
+      created: new Date(payouts.created * 1000).toLocaleDateString(),
+    }));
+
+    return { recentPayouts: payoutsData, isError: false };
+  } catch (error) {
+    console.error("Error fetching payouts:", error);
+    return {
+      payouts: [],
+      message: "Unable to fetch payouts",
+      error,
+      isError: true,
+    };
+  }
+}
