@@ -11,7 +11,7 @@ import {
   Box,
   List,
   Link,
-  InlineStack,Badge, DataTable 
+   IndexTable, useIndexResourceState,Badge 
 } from "@shopify/polaris";
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
@@ -207,19 +207,6 @@ export default function Index() {
     "gid://shopify/Product/",
     "",
   );
-  const thStyle: React.CSSProperties = {
-    textAlign: "left",
-    padding: "6px 8px",
-    borderBottom: "1px solid #e1e3e5",
-    fontSize: "13px",
-    fontWeight: 600,
-  };
-
-  const tdStyle: React.CSSProperties = {
-    padding: "6px 8px",
-    borderBottom: "1px solid #f0f0f0",
-    fontSize: "13px",
-  };
 
   useEffect(() => {
     if (productId) {
@@ -348,113 +335,135 @@ export default function Index() {
           </Layout.Section>
         </Layout>
 
+        {/* Recent combined data*/}
+        {/* Recent Combined Data Section */}
+<Layout>
+  {/* Recent Customers */}
+  <Layout.Section oneThird>
+    <Card>
+      <IndexTable
+        resourceName={{ singular: "customer", plural: "customers" }}
+        itemCount={recentStripeCustomers?.length || 0}
+        headings={[
+          { title: "Name" },
+          { title: "Email" },
+          { title: "Card" },
+          { title: "Date" },
+        ]}
+        selectable={false}
+      >
+        {recentStripeCustomers?.length > 0 ? (
+          recentStripeCustomers.map((customer, index) => (
+            <IndexTable.Row id={customer.id} key={customer.id} position={index}>
+              <IndexTable.Cell>{customer.name || "N/A"}</IndexTable.Cell>
+              <IndexTable.Cell>{customer.email || "No email"}</IndexTable.Cell>
+              <IndexTable.Cell>
+                {customer.brand
+                  ? `${customer.brand.toUpperCase()} • ${customer.last4}`
+                  : "No Card"}
+              </IndexTable.Cell>
+              <IndexTable.Cell>{formatDate(customer.created)}</IndexTable.Cell>
+            </IndexTable.Row>
+          ))
+        ) : (
+          <IndexTable.Row id="empty" key="empty" position={0}>
+            <IndexTable.Cell colSpan={4}>
+              <Text alignment="center" tone="subdued">
+                No recent customers
+              </Text>
+            </IndexTable.Cell>
+          </IndexTable.Row>
+        )}
+      </IndexTable>
+    </Card>
+  </Layout.Section>
 
-          {/* Recent Data Section - Clean Polaris Design */}
-          <Layout>
-            {/* --- Recent Customers Card --- */}
-            <Layout.Section oneThird>
-              <Card title="Recent Customers">
-                <Card.Section>
-                  {recentStripeCustomers?.length > 0 ? (
-                    <DataTable
-                      columnContentTypes={["text", "text", "text", "text"]}
-                      headings={["Name", "Email", "Card", "Date"]}
-                      rows={recentStripeCustomers.map((c) => [
-                        c.name || "N/A",
-                        c.email || "N/A",
-                        c.brand ? `${c.brand.toUpperCase()} • ${c.last4}` : "-",
-                        formatDate(c.created),
-                      ])}
-                    />
-                  ) : (
-                    <Text alignment="center" tone="subdued">
-                      No recent customers
-                    </Text>
-                  )}
-                </Card.Section>
-              </Card>
-            </Layout.Section>
+  {/* Recent Payments */}
+  <Layout.Section oneThird>
+    <Card>
+      <IndexTable
+        resourceName={{ singular: "payment", plural: "payments" }}
+        itemCount={recentPaymentsData?.recentPaymentsData?.length || 0}
+        headings={[
+          { title: "Order ID" },
+          { title: "Amount" },
+          { title: "Status" },
+          { title: "Date" },
+        ]}
+        selectable={false}
+      >
+        {recentPaymentsData?.recentPaymentsData?.length > 0 ? (
+          recentPaymentsData.recentPaymentsData.map((payment, index) => (
+            <IndexTable.Row id={payment.id} key={payment.id} position={index}>
+              <IndexTable.Cell>{payment.orderID}</IndexTable.Cell>
+              <IndexTable.Cell>
+                {payment.symbolNative} {(payment.amount / 100).toFixed(2)}{" "}
+                {payment.currencycode}
+              </IndexTable.Cell>
+              <IndexTable.Cell>
+                <Text tone={payment.status === "succeeded" ? "success" : "critical"}>
+                  {payment.status}
+                </Text>
+              </IndexTable.Cell>
+              <IndexTable.Cell>{formatDate(payment.created)}</IndexTable.Cell>
+            </IndexTable.Row>
+          ))
+        ) : (
+          <IndexTable.Row id="empty" key="empty" position={0}>
+            <IndexTable.Cell colSpan={4}>
+              <Text alignment="center" tone="subdued">
+                No recent payments
+              </Text>
+            </IndexTable.Cell>
+          </IndexTable.Row>
+        )}
+      </IndexTable>
+    </Card>
+  </Layout.Section>
 
-            {/* --- Recent Payments Card --- */}
-            <Layout.Section oneThird>
-              <Card title="Recent Payments">
-                <Card.Section>
-                  {recentPaymentsData?.recentPaymentsData?.length > 0 ? (
-                    <DataTable
-                      columnContentTypes={["text", "numeric", "text", "text"]}
-                      headings={["Order", "Amount", "Status", "Date"]}
-                      rows={recentPaymentsData.recentPaymentsData.map((p) => [
-                        p.orderID,
-                        `${p.symbolNative} ${(p.amount / 100).toFixed(2)}`,
-                        <Text tone={p.status === "succeeded" ? "success" : "critical"}>
-                          {p.status}
-                        </Text>,
-                        formatDate(p.created),
-                      ])}
-                    />
-                  ) : (
-                    <Text alignment="center" tone="subdued">
-                      No recent payments
-                    </Text>
-                  )}
-                </Card.Section>
-              </Card>
-            </Layout.Section>
+  {/* Recent Invoices */}
+  <Layout.Section oneThird>
+    <Card>
+      <IndexTable
+        resourceName={{ singular: "invoice", plural: "invoices" }}
+        itemCount={recentInvoices?.length || 0}
+        headings={[
+          { title: "Invoice ID" },
+          { title: "Customer" },
+          { title: "Amount" },
+          { title: "Status" },
+        ]}
+        selectable={false}
+      >
+        {recentInvoices?.length > 0 ? (
+          recentInvoices.map((invoice, index) => (
+            <IndexTable.Row id={invoice.id} key={invoice.id} position={index}>
+              <IndexTable.Cell>{invoice.id}</IndexTable.Cell>
+              <IndexTable.Cell>{invoice.customerName}</IndexTable.Cell>
+              <IndexTable.Cell>
+                {invoice.currency} {parseFloat(invoice.amount).toFixed(2)}
+              </IndexTable.Cell>
+              <IndexTable.Cell>
+                <Text tone={invoice.status === "paid" ? "success" : "critical"}>
+                  {invoice.status}
+                </Text>
+              </IndexTable.Cell>
+            </IndexTable.Row>
+          ))
+        ) : (
+          <IndexTable.Row id="empty" key="empty" position={0}>
+            <IndexTable.Cell colSpan={4}>
+              <Text alignment="center" tone="subdued">
+                No recent invoices
+              </Text>
+            </IndexTable.Cell>
+          </IndexTable.Row>
+        )}
+      </IndexTable>
+    </Card>
+  </Layout.Section>
+</Layout>
 
-            {/* --- Recent Invoices Card --- */}
-            <Layout.Section oneThird>
-              <Card title="Recent Invoices">
-                <Card.Section>
-                  {recentInvoices?.length > 0 ? (
-                    <DataTable
-                      columnContentTypes={["text", "text", "numeric", "text"]}
-                      headings={["Invoice", "Customer", "Amount", "Status"]}
-                      rows={recentInvoices.map((inv) => [
-                        inv.id,
-                        inv.customerName,
-                        `${inv.currency} ${parseFloat(inv.amount).toFixed(2)}`,
-                        <Text tone={inv.status === "paid" ? "success" : "critical"}>
-                          {inv.status}
-                        </Text>,
-                      ])}
-                    />
-                  ) : (
-                    <Text alignment="center" tone="subdued">
-                      No recent invoices
-                    </Text>
-                  )}
-                </Card.Section>
-              </Card>
-            </Layout.Section>
-          </Layout>
-
-          {/* --- Recent Payouts Card (NEW) --- */}
-          <Layout>
-            <Layout.Section>
-              <Card title="Recent Payouts">
-                <Card.Section>
-                  {recentPayouts?.length > 0 ? (
-                    <DataTable
-                      columnContentTypes={["text", "numeric", "text", "text"]}
-                      headings={["Payout ID", "Amount", "Status", "Arrival Date"]}
-                      rows={recentPayouts.map((payout) => [
-                        payout.id,
-                        `${payout.currency.toUpperCase()} ${(payout.amount / 100).toFixed(2)}`,
-                        <Text tone={payout.status === "paid" ? "success" : "warning"}>
-                          {payout.status}
-                        </Text>,
-                        formatDate(payout.arrival_date),
-                      ])}
-                    />
-                  ) : (
-                    <Text alignment="center" tone="subdued">
-                      No recent payouts
-                    </Text>
-                  )}
-                </Card.Section>
-              </Card>
-            </Layout.Section>
-          </Layout>
 
 
         {/* Keep your marketing content */}
