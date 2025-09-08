@@ -11,7 +11,7 @@ import {
   Box,
   List,
   Link,
-  IndexTable, InlineStack, useIndexResourceState,Badge 
+  IndexTable, InlineStack, useIndexResourceState,Badge, Grid, LegacyCard
 } from "@shopify/polaris";
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
@@ -336,6 +336,34 @@ export default function Index() {
         </Layout>
 
         {/* Recent Combined Data Section */}
+
+        <Layout>
+          <LegacyCard sectioned>
+            <Grid
+              columns={{xs: 1, sm: 4, md: 4, lg: 6, xl: 6}}
+              areas={{
+                xs: ['product', 'sales', 'orders'],
+                sm: [
+                  'product product product product',
+                  'sales sales orders orders',
+                ],
+                md: ['sales product product orders'],
+                lg: ['product product product product sales orders'],
+                xl: ['product product sales sales orders orders'],
+              }}
+            >
+              <Grid.Cell area="product">
+                <Placeholder height="60px" />
+              </Grid.Cell>
+              <Grid.Cell area="sales">
+                <Placeholder height="60px" />
+              </Grid.Cell>
+              <Grid.Cell area="orders">
+                <Placeholder height="60px" />
+              </Grid.Cell>
+            </Grid>
+          </LegacyCard>
+        </Layout>
 <Layout>
   {/* Recent Customers */}
   <Layout.Section oneThird>
