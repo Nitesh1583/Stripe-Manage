@@ -207,6 +207,19 @@ export default function Index() {
     "gid://shopify/Product/",
     "",
   );
+  const thStyle: React.CSSProperties = {
+    textAlign: "left",
+    padding: "6px 8px",
+    borderBottom: "1px solid #e1e3e5",
+    fontSize: "13px",
+    fontWeight: 600,
+  };
+
+  const tdStyle: React.CSSProperties = {
+    padding: "6px 8px",
+    borderBottom: "1px solid #f0f0f0",
+    fontSize: "13px",
+  };
 
   useEffect(() => {
     if (productId) {
@@ -335,122 +348,121 @@ export default function Index() {
           </Layout.Section>
         </Layout>
 
-        {/* Recent combined data*/}
+        {/* Recent Data Section */}
         <Layout>
-  <Layout.Section>
-    <Card>
-      {/* Table Header */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
-          borderBottom: "1px solid #E4E5E7",
-          background: "#F9FAFB",
-          fontWeight: "600",
-          textAlign: "center",
-          padding: "12px 8px",
-        }}
-      >
-        <div>Recent Customers</div>
-        <div>Recent Payments</div>
-        <div>Recent Invoices</div>
-      </div>
+          {/* --- Recent Customers Card --- */}
+          <Layout.Section oneThird>
+            <Card>
+              <Card.Header title="Recent Customers" />
+              <Card.Section>
+                <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                  {recentStripeCustomers?.length > 0 ? (
+                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                      <thead>
+                        <tr>
+                          <th style={thStyle}>Name</th>
+                          <th style={thStyle}>Email</th>
+                          <th style={thStyle}>Card</th>
+                          <th style={thStyle}>Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {recentStripeCustomers.map((c) => (
+                          <tr key={c.id}>
+                            <td style={tdStyle}>{c.name || "N/A"}</td>
+                            <td style={tdStyle}>{c.email || "N/A"}</td>
+                            <td style={tdStyle}>
+                              {c.brand ? `${c.brand.toUpperCase()} • ${c.last4}` : "-"}
+                            </td>
+                            <td style={tdStyle}>{formatDate(c.created)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p style={{ textAlign: "center", color: "#888" }}>No recent customers</p>
+                  )}
+                </div>
+              </Card.Section>
+            </Card>
+          </Layout.Section>
 
-      {/* Table Body */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr",
-          borderTop: "1px solid #E4E5E7",
-        }}
-      >
-        {/* Customers Column */}
-        <div style={{ borderRight: "1px solid #E4E5E7" }}>
-          {recentStripeCustomers && recentStripeCustomers.length > 0 ? (
-            recentStripeCustomers.map((customer, index) => (
-              <div
-                key={customer.id}
-                style={{
-                  padding: "10px",
-                  borderBottom:
-                    index !== recentStripeCustomers.length - 1
-                      ? "1px solid #F0F0F0"
-                      : "none",
-                }}
-              >
-                <p><strong>Name:</strong> {customer.name || "N/A"}</p>
-                <p><strong>Email:</strong> {customer.email || "No email"}</p>
-                <p><strong>Card:</strong> {customer.brand ? `${customer.brand.toUpperCase()} • ${customer.last4}` : "No Card Info"}</p>
-                <p><strong>Date:</strong> {formatDate(customer.created)}</p>
-              </div>
-            ))
-          ) : (
-            <p style={{ padding: "10px", textAlign: "center", color: "#888" }}>
-              No recent customers
-            </p>
-          )}
-        </div>
+          {/* --- Recent Payments Card --- */}
+          <Layout.Section oneThird>
+            <Card>
+              <Card.Header title="Recent Payments" />
+              <Card.Section>
+                <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                  {recentPaymentsData?.recentPaymentsData?.length > 0 ? (
+                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                      <thead>
+                        <tr>
+                          <th style={thStyle}>Order</th>
+                          <th style={thStyle}>Amount</th>
+                          <th style={thStyle}>Status</th>
+                          <th style={thStyle}>Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {recentPaymentsData.recentPaymentsData.map((p) => (
+                          <tr key={p.id}>
+                            <td style={tdStyle}>{p.orderID}</td>
+                            <td style={tdStyle}>
+                              {p.symbolNative} {(p.amount / 100).toFixed(2)}
+                            </td>
+                            <td style={{ ...tdStyle, color: p.status === "succeeded" ? "green" : "red" }}>
+                              {p.status}
+                            </td>
+                            <td style={tdStyle}>{formatDate(p.created)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p style={{ textAlign: "center", color: "#888" }}>No recent payments</p>
+                  )}
+                </div>
+              </Card.Section>
+            </Card>
+          </Layout.Section>
 
-        {/* Payments Column */}
-        <div style={{ borderRight: "1px solid #E4E5E7" }}>
-          {recentPaymentsData && recentPaymentsData.recentPaymentsData.length > 0 ? (
-            recentPaymentsData.recentPaymentsData.map((payment, index) => (
-              <div
-                key={payment.id}
-                style={{
-                  padding: "10px",
-                  borderBottom:
-                    index !== recentPaymentsData.recentPaymentsData.length - 1
-                      ? "1px solid #F0F0F0"
-                      : "none",
-                }}
-              >
-                <p><strong>Order ID:</strong> {payment.orderID}</p>
-                <p><strong>Amount:</strong> {payment.symbolNative} {(payment.amount / 100).toFixed(2)} {payment.currencycode}</p>
-                <p><strong>Status:</strong> <span style={{ color: payment.status === "succeeded" ? "green" : "red" }}>{payment.status}</span></p>
-                <p><strong>Customer:</strong> {payment.customerName}</p>
-                <p><strong>Date:</strong> {formatDate(payment.created)}</p>
-              </div>
-            ))
-          ) : (
-            <p style={{ padding: "10px", textAlign: "center", color: "#888" }}>
-              No recent payments
-            </p>
-          )}
-        </div>
-
-        {/* Invoices Column */}
-        <div>
-          {recentInvoices && recentInvoices.length > 0 ? (
-            recentInvoices.map((invoice, index) => (
-              <div
-                key={invoice.id}
-                style={{
-                  padding: "10px",
-                  borderBottom:
-                    index !== recentInvoices.length - 1
-                      ? "1px solid #F0F0F0"
-                      : "none",
-                }}
-              >
-                <p><strong>Invoice:</strong> {invoice.id}</p>
-                <p><strong>Customer:</strong> {invoice.customerName}</p>
-                <p><strong>Amount:</strong> {invoice.currency} {parseFloat(invoice.amount).toFixed(2)}</p>
-                <p><strong>Status:</strong> <span style={{ color: invoice.status === "paid" ? "green" : "red" }}>{invoice.status}</span></p>
-              </div>
-            ))
-          ) : (
-            <p style={{ padding: "10px", textAlign: "center", color: "#888" }}>
-              No recent invoices
-            </p>
-          )}
-        </div>
-      </div>
-    </Card>
-  </Layout.Section>
-</Layout>
-
-
+          {/* --- Recent Invoices Card --- */}
+          <Layout.Section oneThird>
+            <Card>
+              <Card.Header title="Recent Invoices" />
+              <Card.Section>
+                <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+                  {recentInvoices?.length > 0 ? (
+                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                      <thead>
+                        <tr>
+                          <th style={thStyle}>Invoice</th>
+                          <th style={thStyle}>Customer</th>
+                          <th style={thStyle}>Amount</th>
+                          <th style={thStyle}>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {recentInvoices.map((inv) => (
+                          <tr key={inv.id}>
+                            <td style={tdStyle}>{inv.id}</td>
+                            <td style={tdStyle}>{inv.customerName}</td>
+                            <td style={tdStyle}>{inv.currency} {parseFloat(inv.amount).toFixed(2)}</td>
+                            <td style={{ ...tdStyle, color: inv.status === "paid" ? "green" : "red" }}>
+                              {inv.status}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p style={{ textAlign: "center", color: "#888" }}>No recent invoices</p>
+                  )}
+                </div>
+              </Card.Section>
+            </Card>
+          </Layout.Section>
+        </Layout>
 
         {/* Keep your marketing content */}
         <Layout>
