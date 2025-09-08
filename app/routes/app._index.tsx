@@ -335,147 +335,113 @@ export default function Index() {
           </Layout.Section>
         </Layout>
 
-        {/* Recent Customers Section */}
+        {/* Combined Recent Data Section */}
         <Layout>
           <Layout.Section>
-            <Card title="Recent Customers">
-              {recentStripeCustomers && recentStripeCustomers.length > 0 ? (
-                <BlockStack gap="300" padding="400">
-                  {recentStripeCustomers.map((customer) => (
-                    <Box
-                      key={customer.id}
-                      padding="300"
-                      background="bg-surface"
-                      borderColor="border-subdued"
-                      borderStyle="solid"
-                      borderWidth="025"
-                      borderRadius="300"
-                    >
-                      <InlineStack align="space-between" blockAlign="center">
-                        {/* Left Side: Name + Email */}
+            <Card title="Recent Activity">
+              <InlineStack align="start" gap="400">
+                {/* Column 1: Recent Customers */}
+                <BlockStack gap="300" flex="1">
+                  <Text variant="headingSm" as="h3">Recent Customers</Text>
+                  {recentStripeCustomers && recentStripeCustomers.length > 0 ? (
+                    recentStripeCustomers.map((customer) => (
+                      <Box
+                        key={customer.id}
+                        padding="300"
+                        borderColor="border-subdued"
+                        borderStyle="solid"
+                        borderWidth="025"
+                        borderRadius="300"
+                      >
                         <BlockStack gap="050">
-                          <Text variant="headingSm" as="h3">{customer.name}</Text>
-                          <Text tone="subdued">{customer.email}</Text>
-                        </BlockStack>
-
-                        {/* Right Side: Card + Created */}
-                        <BlockStack gap="050" align="end">
-                          <Text variant="bodyMd">
+                          <Text variant="bodyMd">{customer.name || "N/A"}</Text>
+                          <Text tone="subdued" variant="bodySm">{customer.email || "No email"}</Text>
+                          <Text variant="bodySm">
                             {customer.brand
                               ? `${customer.brand.toUpperCase()} • ${customer.last4}`
                               : "No Card Info"}
                           </Text>
-                          <Text tone="subdued">
+                          <Text tone="subdued" variant="bodySm">
                             Created: {formatDate(customer.created)}
                           </Text>
                         </BlockStack>
-                      </InlineStack>
-                    </Box>
-                  ))}
+                      </Box>
+                    ))
+                  ) : (
+                    <Text tone="subdued">No recent customers</Text>
+                  )}
                 </BlockStack>
-              ) : (
-                <Box padding="400">
-                  <Text tone="subdued">No recent customers found.</Text>
-                </Box>
-              )}
-            </Card>
-          </Layout.Section>
-        </Layout>
 
-        {/* Recent Payments Section */}
-        <Layout>
-          <Layout.Section>
-            <Card title="Recent Payments">
-              {recentPaymentsData && recentPaymentsData.recentPaymentsData.length > 0 ? (
-                <BlockStack gap="300" padding="400">
-                  {recentPaymentsData.recentPaymentsData.map((payment) => (
-                    <Box
-                      key={payment.id}
-                      padding="300"
-                      background="bg-surface"
-                      borderColor="border-subdued"
-                      borderStyle="solid"
-                      borderWidth="025"
-                      borderRadius="300"
-                    >
-                      <InlineStack align="space-between" blockAlign="center">
-                        {/* Left Side: Order + Customer */}
+                {/* Column 2: Recent Payments */}
+                <BlockStack gap="300" flex="1">
+                  <Text variant="headingSm" as="h3">Recent Payments</Text>
+                  {recentPaymentsData && recentPaymentsData.recentPaymentsData.length > 0 ? (
+                    recentPaymentsData.recentPaymentsData.map((payment) => (
+                      <Box
+                        key={payment.id}
+                        padding="300"
+                        borderColor="border-subdued"
+                        borderStyle="solid"
+                        borderWidth="025"
+                        borderRadius="300"
+                      >
                         <BlockStack gap="050">
-                          <Text variant="headingSm" as="h3">
-                            Order: {payment.orderID}
+                          <Text variant="bodyMd">Order: {payment.orderID}</Text>
+                          <Text tone="subdued" variant="bodySm">
+                            Customer: {payment.customerName}
                           </Text>
-                          <Text tone="subdued">Customer: {payment.customerName}</Text>
-                        </BlockStack>
-
-                        {/* Right Side: Amount + Status + Date */}
-                        <BlockStack gap="050" align="end">
-                          <Text variant="bodyMd">
+                          <Text variant="bodySm">
                             {payment.symbolNative} {(payment.amount / 100).toFixed(2)} {payment.currencycode}
                           </Text>
                           <Badge tone={payment.status === "succeeded" ? "success" : "critical"}>
                             {payment.status}
                           </Badge>
-                          <Text tone="subdued">Created: {formatDate(payment.created)}</Text>
-                        </BlockStack>
-                      </InlineStack>
-                    </Box>
-                  ))}
-                </BlockStack>
-              ) : (
-                <Box padding="400">
-                  <Text tone="subdued">No recent payments found.</Text>
-                </Box>
-              )}
-            </Card>
-          </Layout.Section>
-        </Layout>
-
-        {/* Recent Invoices Section */}
-          <Layout.Section>
-            <Card title="Recent Invoices">
-              {recentInvoices && recentInvoices.length > 0 ? (
-                <BlockStack gap="300" padding="400">
-                  {recentInvoices.map((invoice) => (
-                    <Box
-                      key={invoice.id}
-                      padding="300"
-                      background="bg-surface"
-                      borderColor="border-subdued"
-                      borderStyle="solid"
-                      borderWidth="025"
-                      borderRadius="300"
-                    >
-                      <InlineStack align="space-between" blockAlign="center">
-                        {/* Left Side: Invoice ID + Customer */}
-                        <BlockStack gap="050">
-                          <Text variant="headingSm" as="h3">
-                            Invoice: {invoice.id}
+                          <Text tone="subdued" variant="bodySm">
+                            Created: {formatDate(payment.created)}
                           </Text>
-                          <Text tone="subdued">
+                        </BlockStack>
+                      </Box>
+                    ))
+                  ) : (
+                    <Text tone="subdued">No recent payments</Text>
+                  )}
+                </BlockStack>
+
+                {/* Column 3: Recent Invoices */}
+                <BlockStack gap="300" flex="1">
+                  <Text variant="headingSm" as="h3">Recent Invoices</Text>
+                  {recentInvoices && recentInvoices.length > 0 ? (
+                    recentInvoices.map((invoice) => (
+                      <Box
+                        key={invoice.id}
+                        padding="300"
+                        borderColor="border-subdued"
+                        borderStyle="solid"
+                        borderWidth="025"
+                        borderRadius="300"
+                      >
+                        <BlockStack gap="050">
+                          <Text variant="bodyMd">Invoice: {invoice.id}</Text>
+                          <Text tone="subdued" variant="bodySm">
                             Customer: {invoice.customerName || "N/A"}
                           </Text>
-                        </BlockStack>
-
-                        {/* Right Side: Amount + Status */}
-                        <BlockStack gap="050" align="end">
-                          <Text variant="bodyMd">
+                          <Text variant="bodySm">
                             {invoice.currency} {parseFloat(invoice.amount).toFixed(2)}
                           </Text>
                           <Badge tone={invoice.status === "paid" ? "success" : "critical"}>
                             {invoice.status}
                           </Badge>
                         </BlockStack>
-                      </InlineStack>
-                    </Box>
-                  ))}
+                      </Box>
+                    ))
+                  ) : (
+                    <Text tone="subdued">No recent invoices</Text>
+                  )}
                 </BlockStack>
-              ) : (
-                <Box padding="400">
-                  <Text tone="subdued">No recent invoices found.</Text>
-                </Box>
-              )}
+              </InlineStack>
             </Card>
           </Layout.Section>
+        </Layout>
 
 
         {/* Keep your marketing content */}
