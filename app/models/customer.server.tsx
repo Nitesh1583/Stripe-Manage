@@ -83,7 +83,7 @@ export async function fetchSearchStripeCustomer(searchValue, userInfo) {
 export async function fetchStripeRecentCustomers(userInfo) {
   try {
     const stripe = new Stripe(userInfo.stripeSecretKey);
-    const recentStripeCustomers = await stripe.customers.list({ limit: 5 });
+    const recentStripeCustomers = await stripe.customers.list({ limit:5 });
     const data = recentStripeCustomers.data;
     let  recentStripeCustomersData = [];
     let paymentMethod = '';
