@@ -336,116 +336,120 @@ export default function Index() {
         </Layout>
 
         {/* Recent combined data*/}
-        {/* column 1 : Recent Customers*/}
         <Layout>
-          <Layout.Section>
-            <Card title="Recent Activity">
-              <InlineStack align="start" gap="400">
-                {/* Column 1: Customers */}
-                <BlockStack flex="1" gap="200" style={{ borderRight: "1px solid #E4E5E7", paddingRight: "16px" }}>
-                  <Text variant="headingSm" as="h3">Recent Customers</Text>
-                  {recentStripeCustomers && recentStripeCustomers.length > 0 ? (
-                    recentStripeCustomers.map((customer, index) => (
-                      <BlockStack
-                        key={customer.id}
-                        gap="050"
-                        style={{
-                          padding: "8px 0",
-                          borderBottom:
-                            index !== recentStripeCustomers.length - 1
-                              ? "1px solid #F0F0F0"
-                              : "none",
-                        }}
-                      >
-                        <Text variant="bodyMd">{customer.name || "N/A"}</Text>
-                        <Text tone="subdued" variant="bodySm">{customer.email || "No email"}</Text>
-                        <Text variant="bodySm">
-                          {customer.brand
-                            ? `${customer.brand.toUpperCase()} • ${customer.last4}`
-                            : "No Card Info"}
-                        </Text>
-                        <Text tone="subdued" variant="bodySm">
-                          Created: {formatDate(customer.created)}
-                        </Text>
-                      </BlockStack>
-                    ))
-                  ) : (
-                    <Text tone="subdued">No recent customers</Text>
-                  )}
-                </BlockStack>
+  <Layout.Section>
+    <Card>
+      {/* Table Header */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          borderBottom: "1px solid #E4E5E7",
+          background: "#F9FAFB",
+          fontWeight: "600",
+          textAlign: "center",
+          padding: "12px 8px",
+        }}
+      >
+        <div>Recent Customers</div>
+        <div>Recent Payments</div>
+        <div>Recent Invoices</div>
+      </div>
 
-                {/* Column 2: Payments */}
-                <BlockStack flex="1" gap="200" style={{ borderRight: "1px solid #E4E5E7", paddingRight: "16px" }}>
-                  <Text variant="headingSm" as="h3">Recent Payments</Text>
-                  {recentPaymentsData && recentPaymentsData.recentPaymentsData.length > 0 ? (
-                    recentPaymentsData.recentPaymentsData.map((payment, index) => (
-                      <BlockStack
-                        key={payment.id}
-                        gap="050"
-                        style={{
-                          padding: "8px 0",
-                          borderBottom:
-                            index !== recentPaymentsData.recentPaymentsData.length - 1
-                              ? "1px solid #F0F0F0"
-                              : "none",
-                        }}
-                      >
-                        <Text variant="bodyMd">Order: {payment.orderID}</Text>
-                        <Text tone="subdued" variant="bodySm">
-                          Customer: {payment.customerName}
-                        </Text>
-                        <Text variant="bodySm">
-                          {payment.symbolNative} {(payment.amount / 100).toFixed(2)} {payment.currencycode}
-                        </Text>
-                        <Badge tone={payment.status === "succeeded" ? "success" : "critical"}>
-                          {payment.status}
-                        </Badge>
-                        <Text tone="subdued" variant="bodySm">
-                          Created: {formatDate(payment.created)}
-                        </Text>
-                      </BlockStack>
-                    ))
-                  ) : (
-                    <Text tone="subdued">No recent payments</Text>
-                  )}
-                </BlockStack>
+      {/* Table Body */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr",
+          borderTop: "1px solid #E4E5E7",
+        }}
+      >
+        {/* Customers Column */}
+        <div style={{ borderRight: "1px solid #E4E5E7" }}>
+          {recentStripeCustomers && recentStripeCustomers.length > 0 ? (
+            recentStripeCustomers.map((customer, index) => (
+              <div
+                key={customer.id}
+                style={{
+                  padding: "10px",
+                  borderBottom:
+                    index !== recentStripeCustomers.length - 1
+                      ? "1px solid #F0F0F0"
+                      : "none",
+                }}
+              >
+                <p><strong>Name:</strong> {customer.name || "N/A"}</p>
+                <p><strong>Email:</strong> {customer.email || "No email"}</p>
+                <p><strong>Card:</strong> {customer.brand ? `${customer.brand.toUpperCase()} • ${customer.last4}` : "No Card Info"}</p>
+                <p><strong>Date:</strong> {formatDate(customer.created)}</p>
+              </div>
+            ))
+          ) : (
+            <p style={{ padding: "10px", textAlign: "center", color: "#888" }}>
+              No recent customers
+            </p>
+          )}
+        </div>
 
-                {/* Column 3: Invoices */}
-                <BlockStack flex="1" gap="200">
-                  <Text variant="headingSm" as="h3">Recent Invoices</Text>
-                  {recentInvoices && recentInvoices.length > 0 ? (
-                    recentInvoices.map((invoice, index) => (
-                      <BlockStack
-                        key={invoice.id}
-                        gap="050"
-                        style={{
-                          padding: "8px 0",
-                          borderBottom:
-                            index !== recentInvoices.length - 1
-                              ? "1px solid #F0F0F0"
-                              : "none",
-                        }}
-                      >
-                        <Text variant="bodyMd">Invoice: {invoice.id}</Text>
-                        <Text tone="subdued" variant="bodySm">
-                          Customer: {invoice.customerName || "N/A"}
-                        </Text>
-                        <Text variant="bodySm">
-                          {invoice.currency} {parseFloat(invoice.amount).toFixed(2)}
-                        </Text>
-                        <Badge tone={invoice.status === "paid" ? "success" : "critical"}>
-                          {invoice.status}
-                        </Badge>
-                      </BlockStack>
-                    ))
-                  ) : (
-                    <Text tone="subdued">No recent invoices</Text>
-                  )}
-                </BlockStack>
-              </InlineStack>
-            </Card>
-          </Layout.Section>
-        </Layout>
+        {/* Payments Column */}
+        <div style={{ borderRight: "1px solid #E4E5E7" }}>
+          {recentPaymentsData && recentPaymentsData.recentPaymentsData.length > 0 ? (
+            recentPaymentsData.recentPaymentsData.map((payment, index) => (
+              <div
+                key={payment.id}
+                style={{
+                  padding: "10px",
+                  borderBottom:
+                    index !== recentPaymentsData.recentPaymentsData.length - 1
+                      ? "1px solid #F0F0F0"
+                      : "none",
+                }}
+              >
+                <p><strong>Order ID:</strong> {payment.orderID}</p>
+                <p><strong>Amount:</strong> {payment.symbolNative} {(payment.amount / 100).toFixed(2)} {payment.currencycode}</p>
+                <p><strong>Status:</strong> <span style={{ color: payment.status === "succeeded" ? "green" : "red" }}>{payment.status}</span></p>
+                <p><strong>Customer:</strong> {payment.customerName}</p>
+                <p><strong>Date:</strong> {formatDate(payment.created)}</p>
+              </div>
+            ))
+          ) : (
+            <p style={{ padding: "10px", textAlign: "center", color: "#888" }}>
+              No recent payments
+            </p>
+          )}
+        </div>
+
+        {/* Invoices Column */}
+        <div>
+          {recentInvoices && recentInvoices.length > 0 ? (
+            recentInvoices.map((invoice, index) => (
+              <div
+                key={invoice.id}
+                style={{
+                  padding: "10px",
+                  borderBottom:
+                    index !== recentInvoices.length - 1
+                      ? "1px solid #F0F0F0"
+                      : "none",
+                }}
+              >
+                <p><strong>Invoice:</strong> {invoice.id}</p>
+                <p><strong>Customer:</strong> {invoice.customerName}</p>
+                <p><strong>Amount:</strong> {invoice.currency} {parseFloat(invoice.amount).toFixed(2)}</p>
+                <p><strong>Status:</strong> <span style={{ color: invoice.status === "paid" ? "green" : "red" }}>{invoice.status}</span></p>
+              </div>
+            ))
+          ) : (
+            <p style={{ padding: "10px", textAlign: "center", color: "#888" }}>
+              No recent invoices
+            </p>
+          )}
+        </div>
+      </div>
+    </Card>
+  </Layout.Section>
+</Layout>
+
 
 
         {/* Keep your marketing content */}
