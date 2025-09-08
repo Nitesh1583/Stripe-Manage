@@ -382,6 +382,102 @@ export default function Index() {
           </Layout.Section>
         </Layout>
 
+        {/* Recent Payments Section */}
+        <Layout>
+          <Layout.Section>
+            <Card title="Recent Payments">
+              {recentPaymentsData && recentPaymentsData.recentPaymentsData.length > 0 ? (
+                <BlockStack gap="300" padding="400">
+                  {recentPaymentsData.recentPaymentsData.map((payment) => (
+                    <Box
+                      key={payment.id}
+                      padding="300"
+                      background="bg-surface"
+                      borderColor="border-subdued"
+                      borderStyle="solid"
+                      borderWidth="025"
+                      borderRadius="300"
+                    >
+                      <InlineStack align="space-between" blockAlign="center">
+                        {/* Left Side: Order + Customer */}
+                        <BlockStack gap="050">
+                          <Text variant="headingSm" as="h3">
+                            Order: {payment.orderID}
+                          </Text>
+                          <Text tone="subdued">Customer: {payment.customerName}</Text>
+                        </BlockStack>
+
+                        {/* Right Side: Amount + Status + Date */}
+                        <BlockStack gap="050" align="end">
+                          <Text variant="bodyMd">
+                            {payment.symbolNative} {(payment.amount / 100).toFixed(2)} {payment.currencycode}
+                          </Text>
+                          <Badge tone={payment.status === "succeeded" ? "success" : "critical"}>
+                            {payment.status}
+                          </Badge>
+                          <Text tone="subdued">Created: {formatDate(payment.created)}</Text>
+                        </BlockStack>
+                      </InlineStack>
+                    </Box>
+                  ))}
+                </BlockStack>
+              ) : (
+                <Box padding="400">
+                  <Text tone="subdued">No recent payments found.</Text>
+                </Box>
+              )}
+            </Card>
+          </Layout.Section>
+        </Layout>
+
+        {/* Recent Invoices Section */}
+          <Layout.Section>
+            <Card title="Recent Invoices">
+              {recentInvoices && recentInvoices.length > 0 ? (
+                <BlockStack gap="300" padding="400">
+                  {recentInvoices.map((invoice) => (
+                    <Box
+                      key={invoice.id}
+                      padding="300"
+                      background="bg-surface"
+                      borderColor="border-subdued"
+                      borderStyle="solid"
+                      borderWidth="025"
+                      borderRadius="300"
+                    >
+                      <InlineStack align="space-between" blockAlign="center">
+                        {/* Left Side: Invoice ID + Customer */}
+                        <BlockStack gap="050">
+                          <Text variant="headingSm" as="h3">
+                            Invoice: {invoice.id}
+                          </Text>
+                          <Text tone="subdued">
+                            Customer: {invoice.customerName || "N/A"}
+                          </Text>
+                        </BlockStack>
+
+                        {/* Right Side: Amount + Status */}
+                        <BlockStack gap="050" align="end">
+                          <Text variant="bodyMd">
+                            {invoice.currency} {parseFloat(invoice.amount).toFixed(2)}
+                          </Text>
+                          <Badge tone={invoice.status === "paid" ? "success" : "critical"}>
+                            {invoice.status}
+                          </Badge>
+                        </BlockStack>
+                      </InlineStack>
+                    </Box>
+                  ))}
+                </BlockStack>
+              ) : (
+                <Box padding="400">
+                  <Text tone="subdued">No recent invoices found.</Text>
+                </Box>
+              )}
+            </Card>
+          </Layout.Section>
+
+
         {/* Keep your marketing content */}
         <Layout>
           <Layout.Section>
