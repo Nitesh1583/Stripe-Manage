@@ -124,7 +124,12 @@ export async function fetchStripeRecentCustomers(userInfo) {
         });
       }
     }
-    return { recentStripeCustomers: recentStripeCustomersData, UserInfo:userInfo, premiumUser: userInfo.premiumUser, subdata: existingShop, isError:false };
+    return { recentStripeCustomers: recentStripeCustomersData, 
+      UserInfo:userInfo, 
+      premiumUser: userInfo.premiumUser, 
+      subdata: existingShop, 
+      isError:false 
+    };
   } catch (error) {
     return { message: "Something went wrong. Try again later.", error,isError: true };
   }
