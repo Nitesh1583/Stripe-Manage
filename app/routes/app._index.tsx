@@ -353,7 +353,7 @@ export default function Index() {
               }}
             >
               <Grid.Cell area="product">
-                <Placeholder height="60px" />
+                <Placeholder height="60px" recentStripeCustomers={{recentStripeCustomers}} />
               </Grid.Cell>
               <Grid.Cell area="sales">
                 <Placeholder height="60px" />
@@ -722,14 +722,50 @@ export default function Index() {
   );
 }
 
-const Placeholder = ({height = 'auto', width = 'auto'}) => {
+const Placeholder = ({height = 'auto', width = 'auto', recentStripeCustomers = null}) => {
   return (
     <div
       style={{
-        background: 'var(--p-color-text-info)',
+        background: '#ffffff',
         height: height,
         width: width,
-      }}
-    />
+      }}>
+      <Card>
+      <IndexTable
+        resourceName={{ singular: "customer", plural: "customers" }}
+        itemCount={recentStripeCustomers?.length || 0}
+        headings={[
+          { title: "Name" },
+          { title: "Email" },
+          { title: "Card" },
+          { title: "Date" },
+        ]}
+        selectable={false}
+      >
+        {recentStripeCustomers?.length > 0 ? (
+          recentStripeCustomers.map((customer, index) => (
+            <IndexTable.Row id={customer.id} key={customer.id} position={index}>
+              <IndexTable.Cell>{customer.name || "N/A"}</IndexTable.Cell>
+              <IndexTable.Cell>{customer.email || "No email"}</IndexTable.Cell>
+              <IndexTable.Cell>
+                {customer.brand
+                  ? `${customer.brand.toUpperCase()} / ${customer.last4}`
+                  : "No Card"}
+              </IndexTable.Cell>
+              <IndexTable.Cell>{formatDate(customer.created)}</IndexTable.Cell>
+            </IndexTable.Row>
+          ))
+        ) : (
+          <IndexTable.Row id="empty" key="empty" position={0}>
+            <IndexTable.Cell colSpan={4}>
+              <Text alignment="center" tone="subdued">
+                No recent customers
+              </Text>
+            </IndexTable.Cell>
+          </IndexTable.Row>
+        )}
+      </IndexTable>
+    </Card>
+    </div>
   );
 };
