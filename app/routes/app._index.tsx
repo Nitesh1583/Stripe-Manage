@@ -721,3 +721,15 @@ export default function Index() {
     </Page>
   );
 }
+
+const Placeholder = ({height = 'auto', width = 'auto'}) => {
+  return (
+    <div
+      style={{
+        background: 'var(--p-color-text-info)',
+        height: height,
+        width: width,
+      }}
+    />
+  );
+};
