@@ -2,6 +2,7 @@ import { Stripe } from "stripe";
 import { currency } from "../utils/currency";
 import db from "../db.server";
 
+// Fetch Stripe Payment data
 export async function fetchStripePaymentData(userInfo) {
   try {
     const stripe = new Stripe(userInfo.stripeSecretKey);
@@ -45,6 +46,7 @@ export async function fetchStripePaymentData(userInfo) {
   }
 }
 
+// Fetch Stripe Payment by search filter
 export async function fetchSearchStripePaymentData(searchedVal, userInfo) {
   try {
     const stripe = new Stripe(userInfo.stripeSecretKey);
@@ -83,6 +85,51 @@ export async function fetchSearchStripePaymentData(searchedVal, userInfo) {
     }
 
     return { payments: paymentData,  isError: false };
+  } catch (error) {
+    return { message: "Something went wrong. Try again later.", isError: true };
+  }
+}
+
+
+// Fetch Stripe Payments Data by Limit
+export async function fetchStripeRecentPaymentData(userInfo) {
+  try {
+    const stripe = new Stripe(userInfo.stripeSecretKey);
+
+    //Fetch All PaymentIntents
+    const { data } = await stripe.paymentIntents.list({ limit: 5 });
+
+    let  paymentData = [];
+    let customerDetail = '';
+    const existingShop = await db.SubscriptionUser.findFirst({ 
+      where: { shop_url: userInfo.shop, sub_cancel_date: null }
+    }); 
+
+    for (let i = 0; i < data.length; i++) {
+      const element = data[i];
+
+      if(element.customer == undefined) {
+        customerDetail = "No customer";
+      } else {
+        customerDetail = await stripe.customers.retrieve(element.customer);
+      }
+
+      const currencyData = currency.find(item => item.code.toLowerCase() === element.currency.toLowerCase());
+      if (currencyData || customerDetail) {
+        paymentData.push({
+          ...element,
+          orderID: element.metadata?.order_id || "N/A",
+          currencycode: currencyData.code,
+          symbolNative: currencyData.symbolNative,
+          customerdetail: customerDetail
+        });
+      }
+    }
+    return { 
+      recentPaymentsData: paymentData, 
+      UserInfo:userInfo, 
+      premiumUser: userInfo.premiumUser, 
+      subdata: existingShop,  isError: false };
   } catch (error) {
     return { message: "Something went wrong. Try again later.", isError: true };
   }
