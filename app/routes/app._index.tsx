@@ -352,8 +352,7 @@ export default function Index() {
         <Layout>
           {/* --- Recent Customers Card --- */}
           <Layout.Section oneThird>
-            <Card>
-              <Card.Header title="Recent Customers" />
+            <Card title="Recent Customers" >
               <Card.Section>
                 <div style={{ maxHeight: "300px", overflowY: "auto" }}>
                   {recentStripeCustomers?.length > 0 ? (
@@ -389,8 +388,7 @@ export default function Index() {
 
           {/* --- Recent Payments Card --- */}
           <Layout.Section oneThird>
-            <Card>
-              <Card.Header title="Recent Payments" />
+            <Card  title="Recent Payments" >
               <Card.Section>
                 <div style={{ maxHeight: "300px", overflowY: "auto" }}>
                   {recentPaymentsData?.recentPaymentsData?.length > 0 ? (
@@ -428,8 +426,7 @@ export default function Index() {
 
           {/* --- Recent Invoices Card --- */}
           <Layout.Section oneThird>
-            <Card>
-              <Card.Header title="Recent Invoices" />
+            <Card  title="Recent Invoices" >
               <Card.Section>
                 <div style={{ maxHeight: "300px", overflowY: "auto" }}>
                   {recentInvoices?.length > 0 ? (
