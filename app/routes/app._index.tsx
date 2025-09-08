@@ -207,19 +207,19 @@ export default function Index() {
     "gid://shopify/Product/",
     "",
   );
-  // const thStyle: React.CSSProperties = {
-  //   textAlign: "left",
-  //   padding: "6px 8px",
-  //   borderBottom: "1px solid #e1e3e5",
-  //   fontSize: "13px",
-  //   fontWeight: 600,
-  // };
+  const thStyle: React.CSSProperties = {
+    textAlign: "left",
+    padding: "6px 8px",
+    borderBottom: "1px solid #e1e3e5",
+    fontSize: "13px",
+    fontWeight: 600,
+  };
 
-  // const tdStyle: React.CSSProperties = {
-  //   padding: "6px 8px",
-  //   borderBottom: "1px solid #f0f0f0",
-  //   fontSize: "13px",
-  // };
+  const tdStyle: React.CSSProperties = {
+    padding: "6px 8px",
+    borderBottom: "1px solid #f0f0f0",
+    fontSize: "13px",
+  };
 
   useEffect(() => {
     if (productId) {
@@ -348,118 +348,114 @@ export default function Index() {
           </Layout.Section>
         </Layout>
 
-        {/* Recent Data Section */}
-        <Layout>
-          {/* --- Recent Customers Card --- */}
-          <Layout.Section oneThird>
-            <Card title="Recent Customers" >
-              <Card.Section>
-                <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+        
+          {/* Recent Data Section - Clean Polaris Design */}
+          <Layout>
+            {/* --- Recent Customers Card --- */}
+            <Layout.Section oneThird>
+              <Card title="Recent Customers">
+                <Card.Section>
                   {recentStripeCustomers?.length > 0 ? (
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                      <thead>
-                        <tr>
-                          <th style={thStyle}>Name</th>
-                          <th style={thStyle}>Email</th>
-                          <th style={thStyle}>Card</th>
-                          <th style={thStyle}>Date</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {recentStripeCustomers.map((c) => (
-                          <tr key={c.id}>
-                            <td style={tdStyle}>{c.name || "N/A"}</td>
-                            <td style={tdStyle}>{c.email || "N/A"}</td>
-                            <td style={tdStyle}>
-                              {c.brand ? `${c.brand.toUpperCase()} • ${c.last4}` : "-"}
-                            </td>
-                            <td style={tdStyle}>{formatDate(c.created)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                    <DataTable
+                      columnContentTypes={["text", "text", "text", "text"]}
+                      headings={["Name", "Email", "Card", "Date"]}
+                      rows={recentStripeCustomers.map((c) => [
+                        c.name || "N/A",
+                        c.email || "N/A",
+                        c.brand ? `${c.brand.toUpperCase()} • ${c.last4}` : "-",
+                        formatDate(c.created),
+                      ])}
+                    />
                   ) : (
-                    <p style={{ textAlign: "center", color: "#888" }}>No recent customers</p>
+                    <Text alignment="center" tone="subdued">
+                      No recent customers
+                    </Text>
                   )}
-                </div>
-              </Card.Section>
-            </Card>
-          </Layout.Section>
+                </Card.Section>
+              </Card>
+            </Layout.Section>
 
-          {/* --- Recent Payments Card --- */}
-          <Layout.Section oneThird>
-            <Card  title="Recent Payments" >
-              <Card.Section>
-                <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+            {/* --- Recent Payments Card --- */}
+            <Layout.Section oneThird>
+              <Card title="Recent Payments">
+                <Card.Section>
                   {recentPaymentsData?.recentPaymentsData?.length > 0 ? (
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                      <thead>
-                        <tr>
-                          <th style={thStyle}>Order</th>
-                          <th style={thStyle}>Amount</th>
-                          <th style={thStyle}>Status</th>
-                          <th style={thStyle}>Date</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {recentPaymentsData.recentPaymentsData.map((p) => (
-                          <tr key={p.id}>
-                            <td style={tdStyle}>{p.orderID}</td>
-                            <td style={tdStyle}>
-                              {p.symbolNative} {(p.amount / 100).toFixed(2)}
-                            </td>
-                            <td style={{ ...tdStyle, color: p.status === "succeeded" ? "green" : "red" }}>
-                              {p.status}
-                            </td>
-                            <td style={tdStyle}>{formatDate(p.created)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                    <DataTable
+                      columnContentTypes={["text", "numeric", "text", "text"]}
+                      headings={["Order", "Amount", "Status", "Date"]}
+                      rows={recentPaymentsData.recentPaymentsData.map((p) => [
+                        p.orderID,
+                        `${p.symbolNative} ${(p.amount / 100).toFixed(2)}`,
+                        <Text tone={p.status === "succeeded" ? "success" : "critical"}>
+                          {p.status}
+                        </Text>,
+                        formatDate(p.created),
+                      ])}
+                    />
                   ) : (
-                    <p style={{ textAlign: "center", color: "#888" }}>No recent payments</p>
+                    <Text alignment="center" tone="subdued">
+                      No recent payments
+                    </Text>
                   )}
-                </div>
-              </Card.Section>
-            </Card>
-          </Layout.Section>
+                </Card.Section>
+              </Card>
+            </Layout.Section>
 
-          {/* --- Recent Invoices Card --- */}
-          <Layout.Section oneThird>
-            <Card  title="Recent Invoices" >
-              <Card.Section>
-                <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+            {/* --- Recent Invoices Card --- */}
+            <Layout.Section oneThird>
+              <Card title="Recent Invoices">
+                <Card.Section>
                   {recentInvoices?.length > 0 ? (
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                      <thead>
-                        <tr>
-                          <th style={thStyle}>Invoice</th>
-                          <th style={thStyle}>Customer</th>
-                          <th style={thStyle}>Amount</th>
-                          <th style={thStyle}>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {recentInvoices.map((inv) => (
-                          <tr key={inv.id}>
-                            <td style={tdStyle}>{inv.id}</td>
-                            <td style={tdStyle}>{inv.customerName}</td>
-                            <td style={tdStyle}>{inv.currency} {parseFloat(inv.amount).toFixed(2)}</td>
-                            <td style={{ ...tdStyle, color: inv.status === "paid" ? "green" : "red" }}>
-                              {inv.status}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                    <DataTable
+                      columnContentTypes={["text", "text", "numeric", "text"]}
+                      headings={["Invoice", "Customer", "Amount", "Status"]}
+                      rows={recentInvoices.map((inv) => [
+                        inv.id,
+                        inv.customerName,
+                        `${inv.currency} ${parseFloat(inv.amount).toFixed(2)}`,
+                        <Text tone={inv.status === "paid" ? "success" : "critical"}>
+                          {inv.status}
+                        </Text>,
+                      ])}
+                    />
                   ) : (
-                    <p style={{ textAlign: "center", color: "#888" }}>No recent invoices</p>
+                    <Text alignment="center" tone="subdued">
+                      No recent invoices
+                    </Text>
                   )}
-                </div>
-              </Card.Section>
-            </Card>
-          </Layout.Section>
-        </Layout>
+                </Card.Section>
+              </Card>
+            </Layout.Section>
+          </Layout>
+
+          {/* --- Recent Payouts Card (NEW) --- */}
+          <Layout>
+            <Layout.Section>
+              <Card title="Recent Payouts">
+                <Card.Section>
+                  {recentPayouts?.length > 0 ? (
+                    <DataTable
+                      columnContentTypes={["text", "numeric", "text", "text"]}
+                      headings={["Payout ID", "Amount", "Status", "Arrival Date"]}
+                      rows={recentPayouts.map((payout) => [
+                        payout.id,
+                        `${payout.currency.toUpperCase()} ${(payout.amount / 100).toFixed(2)}`,
+                        <Text tone={payout.status === "paid" ? "success" : "warning"}>
+                          {payout.status}
+                        </Text>,
+                        formatDate(payout.arrival_date),
+                      ])}
+                    />
+                  ) : (
+                    <Text alignment="center" tone="subdued">
+                      No recent payouts
+                    </Text>
+                  )}
+                </Card.Section>
+              </Card>
+            </Layout.Section>
+          </Layout>
+
 
         {/* Keep your marketing content */}
         <Layout>
