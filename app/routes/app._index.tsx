@@ -36,10 +36,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
     const balance = await fetchStripeBalance(userInfo);
-    const { recentStripeCustomers } = await fetchStripeRecentCustomers(userInfo);
-    const recentPaymentsData = await fetchStripeRecentPaymentData(userInfo);
-    const { recentInvoices } = await fetchStripeInvoices(userInfo);
-    const { recentPayouts } = await fetchRecentStripePayouts(userInfo);
     
     // Fetch plan status + subscriptions
     const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
@@ -53,16 +49,21 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       );
     });
 
+    const { recentStripeCustomers } = await fetchStripeRecentCustomers(userInfo);
+    const recentPaymentsData = await fetchStripeRecentPaymentData(userInfo);
+    const { recentInvoices } = await fetchStripeInvoices(userInfo);
+    const { recentPayouts } = await fetchRecentStripePayouts(userInfo);
+
     return json({
       transactions,
       balanceAvailable: balance.available,
       balancePending: balance.pending,
+      planStatus,
+      activeSubs,
+      recentStripeCustomers,
       recentPaymentsData,
       recentInvoices,
       recentPayouts,
-      planStatus,
-      activeSubs,
-      recentStripeCustomers
     });
   } catch (error) {
     console.error("Loader failed:", error);
