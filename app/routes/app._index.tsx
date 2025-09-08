@@ -19,6 +19,7 @@ import { json, redirect } from "@remix-run/node";
 
 import db from "../db.server";
 import { fetchStripeRecentCustomers } from "../models/customer.server";
+import { fetchStripeRecentPaymentData } from "../models/payment.server";
 import { fetchStripeBalanceTransactions, fetchStripeBalance, getShopifyPlanStatus   } from "../models/payouts.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {

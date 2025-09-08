@@ -97,7 +97,7 @@ export async function fetchStripeRecentPaymentData(userInfo) {
     const stripe = new Stripe(userInfo.stripeSecretKey);
 
     //Fetch All PaymentIntents
-    const { data } = await stripe.paymentIntents.list({ limit: 5 });
+    const { data } = await stripe.paymentIntents.list({ limit: 2 });
 
     let  paymentData = [];
     let customerDetail = '';
