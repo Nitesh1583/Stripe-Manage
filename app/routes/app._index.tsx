@@ -207,19 +207,19 @@ export default function Index() {
     "gid://shopify/Product/",
     "",
   );
-  const thStyle: React.CSSProperties = {
-    textAlign: "left",
-    padding: "6px 8px",
-    borderBottom: "1px solid #e1e3e5",
-    fontSize: "13px",
-    fontWeight: 600,
-  };
+  // const thStyle: React.CSSProperties = {
+  //   textAlign: "left",
+  //   padding: "6px 8px",
+  //   borderBottom: "1px solid #e1e3e5",
+  //   fontSize: "13px",
+  //   fontWeight: 600,
+  // };
 
-  const tdStyle: React.CSSProperties = {
-    padding: "6px 8px",
-    borderBottom: "1px solid #f0f0f0",
-    fontSize: "13px",
-  };
+  // const tdStyle: React.CSSProperties = {
+  //   padding: "6px 8px",
+  //   borderBottom: "1px solid #f0f0f0",
+  //   fontSize: "13px",
+  // };
 
   useEffect(() => {
     if (productId) {
