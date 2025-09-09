@@ -34,7 +34,7 @@ export default function PaymentsPage() {
   const [ searchedVal, setSearchedVal ] = useState("");
   const [ currentPage, setCurrentPage ] = useState(1);
   const [ itemsPerPage  ] = useState(8);
-  console.log(UserInfo);
+  console.log(payments);
 
   const [filteredPayments, setFilteredPayments] = useState(payments || []);
 

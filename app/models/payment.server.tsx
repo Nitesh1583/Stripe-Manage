@@ -101,9 +101,11 @@ export async function fetchStripeRecentPaymentData(userInfo) {
     let paymentData = [];
     for (let element of data) {
       let customerName = "No customer";
+      let customerEmail = "No Email";
       if (element.customer) {
         const customer = await stripe.customers.retrieve(element.customer);
         customerName = customer.name || "No Name";
+        customerEmail = customer.email || "No Email";
       }
 
       const currencyData = currency.find(
@@ -116,7 +118,8 @@ export async function fetchStripeRecentPaymentData(userInfo) {
         amount: element.amount,
         currencycode: currencyData?.code || element.currency,
         symbolNative: currencyData?.symbolNative || "$",
-        customerName,
+        customerName: customerName,
+        customerEmail: customerEmail,
         created: element.created,
         status: element.status,
       });

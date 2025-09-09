@@ -339,16 +339,16 @@ export default function Index() {
         <Layout>
           <LegacyCard sectioned>
             <Grid
-              columns={{xs: 1, sm: 4, md: 4, lg: 4, xl: 4}}
+              columns={{xs: 1, sm: 3, md: 3, lg: 3, xl: 3}}
               areas={{
-                xs: ['customers', 'payments', 'invoices', 'payouts'],
+                xs: ['customers', 'payments', 'invoices'],
                 sm: [
                   'customers customers payments payments',
-                  'invoices invoices payouts payouts',
+                  'invoices invoices',
                 ],
-                md: ['customers payments invoices payouts'],
-                lg: ['customers payments invoices payouts'],
-                xl: ['customers payments invoices payouts'],
+                md: ['customers payments invoices'],
+                lg: ['customers payments invoices'],
+                xl: ['customers payments invoices'],
               }}
             >
               <Grid.Cell area="customers">
@@ -678,16 +678,27 @@ const PaymentPlaceholder = ({height = 'auto', width = 'auto', recentPaymentsData
           resourceName={{ singular: "payment", plural: "payments" }}
           itemCount={recentPaymentsData?.recentPaymentsData?.length || 0}
           headings={[
+            { title: "Name / Email" },
             { title: "Order ID" },
             { title: "Amount" },
-            { title: "Status" },
-            { title: "Date" },
+            { title: "Status" }
           ]}
           selectable={false}
         >
           {recentPaymentsData?.recentPaymentsData?.length > 0 ? (
             recentPaymentsData.recentPaymentsData.map((payment, index) => (
               <IndexTable.Row id={payment.id} key={payment.id} position={index}>
+                {/* Name + Email in same cell */}
+                <IndexTable.Cell>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <span style={{ fontWeight: "600" }}>
+                      {payment.customerName || "N/A"}
+                    </span>
+                    <span style={{ fontSize: "13px", color: "#666" }}>
+                      {payment.customerEmail || "No email"}
+                    </span>
+                  </div>
+                </IndexTable.Cell>
                 <IndexTable.Cell>{payment.orderID}</IndexTable.Cell>
                 <IndexTable.Cell>
                   {payment.symbolNative} {(payment.amount / 100).toFixed(2)}{" "}
@@ -756,53 +767,6 @@ const InvoicesPlaceholder = ({height = 'auto', width = 'auto', recentInvoices = 
               <IndexTable.Cell colSpan={4}>
                 <Text alignment="center" tone="subdued">
                   No recent invoices
-                </Text>
-              </IndexTable.Cell>
-            </IndexTable.Row>
-          )}
-        </IndexTable>
-      </Card>
-    </div>
-  );
-};
-
-
-const PayoutsPlaceholder = ({height = 'auto', width = 'auto', recentPayouts = null}) => {
-  return (
-    <div
-      style={{
-        background: '#ffffff',
-        height: height,
-        width: width,
-      }}>
-      <Card title=" Recent Payouts">
-        <IndexTable
-          resourceName={{ singular: "payout", plural: "payouts" }}
-          itemCount={recentPayouts?.length || 0}
-          headings={[
-            { title: "Payout ID" },
-            { title: "Amount" },
-            { title: "Currency" },
-            { title: "Status" },
-            { title: "Date" },
-          ]}
-          selectable={false}
-        >
-          {recentPayouts?.length > 0 ? (
-            recentPayouts.map((payouts, index) => (
-              <IndexTable.Row id={payouts.id} key={payouts.id} position={payouts.id}>
-                  <IndexTable.Cell>{payouts.id}</IndexTable.Cell>
-                  <IndexTable.Cell>{payouts.amount}</IndexTable.Cell>
-                  <IndexTable.Cell>{payouts.currency}</IndexTable.Cell>
-                  <IndexTable.Cell>{payouts.status}</IndexTable.Cell>
-                  <IndexTable.Cell>{payouts.created}</IndexTable.Cell>
-                </IndexTable.Row>
-            ))
-          ) : (
-            <IndexTable.Row id="empty" key="empty" position={0}>
-              <IndexTable.Cell colSpan={4}>
-                <Text alignment="center" tone="subdued">
-                  No recent Payouts
                 </Text>
               </IndexTable.Cell>
             </IndexTable.Row>
