@@ -341,161 +341,43 @@ export default function Index() {
             <Grid
               columns={{xs: 1, sm: 4, md: 4, lg: 4, xl: 4}}
               areas={{
-                xs: ['product', 'sales', 'orders', 'payout'],
+                xs: ['customers', 'payments', 'invoices', 'payouts'],
                 sm: [
-                  'product product sales sales',
-                  'orders orders payout payout',
+                  'customers customers payments payments',
+                  'invoices invoices payouts payouts',
                 ],
-                md: ['product sales orders payout'],
-                lg: ['product sales orders payout'],
-                xl: ['product sales orders payout'],
+                md: ['customers payments invoices payouts'],
+                lg: ['customers payments invoices payouts'],
+                xl: ['customers payments invoices payouts'],
               }}
             >
-              <Grid.Cell area="product">
+              <Grid.Cell area="customers">
+                <Text as="h2" variant="headingMd">
+                  Recent Customers
+                </Text>
                 <CustomerPlaceholder height="100%" recentStripeCustomers={recentStripeCustomers} />
               </Grid.Cell>
-              <Grid.Cell area="sales">
+              <Grid.Cell area="payments">
+                <Text as="h2" variant="headingMd">
+                  Recent Payments
+                </Text>
                 <PaymentPlaceholder height="100%" recentPaymentsData= {recentPaymentsData}/>
               </Grid.Cell>
-              <Grid.Cell area="orders">
+              <Grid.Cell area="invoices">
+                <Text as="h2" variant="headingMd">
+                  Recent Customers
+                </Text>
                 <InvoicesPlaceholder height="100%" recentInvoices = {recentInvoices}/>
               </Grid.Cell>
-              <Grid.Cell area="payout">
+              <Grid.Cell area="payouts">
+                <Text as="h2" variant="headingMd">
+                  Recent Payouts
+                </Text>
                 <PayoutsPlaceholder height="100%" recentInvoices = {recentInvoices}/>
               </Grid.Cell>
             </Grid>
           </LegacyCard>
         </Layout>
-
-        {/* Recent Combined Data Section */}
-        <Layout>
-          {/* Recent Customers */}
-          <Layout.Section oneThird>
-            <Card>
-              <IndexTable
-                resourceName={{ singular: "customer", plural: "customers" }}
-                itemCount={recentStripeCustomers?.length || 0}
-                headings={[
-                  { title: "Name" },
-                  { title: "Email" },
-                  { title: "Card" },
-                  { title: "Date" },
-                ]}
-                selectable={false}
-              >
-                {recentStripeCustomers?.length > 0 ? (
-                  recentStripeCustomers.map((customer, index) => (
-                    <IndexTable.Row id={customer.id} key={customer.id} position={index}>
-                      <IndexTable.Cell>{customer.name || "N/A"}</IndexTable.Cell>
-                      <IndexTable.Cell>{customer.email || "No email"}</IndexTable.Cell>
-                      <IndexTable.Cell>
-                        {customer.brand
-                          ? `${customer.brand.toUpperCase()} / ${customer.last4}`
-                          : "No Card"}
-                      </IndexTable.Cell>
-                      <IndexTable.Cell>{formatDate(customer.created)}</IndexTable.Cell>
-                    </IndexTable.Row>
-                  ))
-                ) : (
-                  <IndexTable.Row id="empty" key="empty" position={0}>
-                    <IndexTable.Cell colSpan={4}>
-                      <Text alignment="center" tone="subdued">
-                        No recent customers
-                      </Text>
-                    </IndexTable.Cell>
-                  </IndexTable.Row>
-                )}
-              </IndexTable>
-            </Card>
-          </Layout.Section>
-
-          {/* Recent Payments */}
-          <Layout.Section oneThird>
-            <Card>
-              <IndexTable
-                resourceName={{ singular: "payment", plural: "payments" }}
-                itemCount={recentPaymentsData?.recentPaymentsData?.length || 0}
-                headings={[
-                  { title: "Order ID" },
-                  { title: "Amount" },
-                  { title: "Status" },
-                  { title: "Date" },
-                ]}
-                selectable={false}
-              >
-                {recentPaymentsData?.recentPaymentsData?.length > 0 ? (
-                  recentPaymentsData.recentPaymentsData.map((payment, index) => (
-                    <IndexTable.Row id={payment.id} key={payment.id} position={index}>
-                      <IndexTable.Cell>{payment.orderID}</IndexTable.Cell>
-                      <IndexTable.Cell>
-                        {payment.symbolNative} {(payment.amount / 100).toFixed(2)}{" "}
-                        {payment.currencycode}
-                      </IndexTable.Cell>
-                      <IndexTable.Cell>
-                        <Text tone={payment.status === "succeeded" ? "success" : "critical"}>
-                          {payment.status}
-                        </Text>
-                      </IndexTable.Cell>
-                      <IndexTable.Cell>{formatDate(payment.created)}</IndexTable.Cell>
-                    </IndexTable.Row>
-                  ))
-                ) : (
-                  <IndexTable.Row id="empty" key="empty" position={0}>
-                    <IndexTable.Cell colSpan={4}>
-                      <Text alignment="center" tone="subdued">
-                        No recent payments
-                      </Text>
-                    </IndexTable.Cell>
-                  </IndexTable.Row>
-                )}
-              </IndexTable>
-            </Card>
-          </Layout.Section>
-
-          {/* Recent Invoices */}
-          <Layout.Section oneThird>
-            <Card>
-              <IndexTable
-                resourceName={{ singular: "invoice", plural: "invoices" }}
-                itemCount={recentInvoices?.length || 0}
-                headings={[
-                  { title: "Invoice ID" },
-                  { title: "Customer" },
-                  { title: "Amount" },
-                  { title: "Status" },
-                ]}
-                selectable={false}
-              >
-                {recentInvoices?.length > 0 ? (
-                  recentInvoices.map((invoice, index) => (
-                    <IndexTable.Row id={invoice.id} key={invoice.id} position={index}>
-                      <IndexTable.Cell>{invoice.id}</IndexTable.Cell>
-                      <IndexTable.Cell>{invoice.customerName}</IndexTable.Cell>
-                      <IndexTable.Cell>
-                        {invoice.currency} {parseFloat(invoice.amount).toFixed(2)}
-                      </IndexTable.Cell>
-                      <IndexTable.Cell>
-                        <Text tone={invoice.status === "paid" ? "success" : "critical"}>
-                          {invoice.status}
-                        </Text>
-                      </IndexTable.Cell>
-                    </IndexTable.Row>
-                  ))
-                ) : (
-                  <IndexTable.Row id="empty" key="empty" position={0}>
-                    <IndexTable.Cell colSpan={4}>
-                      <Text alignment="center" tone="subdued">
-                        No recent invoices
-                      </Text>
-                    </IndexTable.Cell>
-                  </IndexTable.Row>
-                )}
-              </IndexTable>
-            </Card>
-          </Layout.Section>
-        </Layout>
-
-
 
         {/* Keep your marketing content */}
         <Layout>
@@ -886,36 +768,32 @@ const PayoutsPlaceholder = ({height = 'auto', width = 'auto', recentInvoices = n
       }}>
       <Card title=" Recent Payouts">
         <IndexTable
-          resourceName={{ singular: "invoice", plural: "invoices" }}
+          resourceName={{ singular: "payout", plural: "payouts" }}
           itemCount={recentInvoices?.length || 0}
           headings={[
-            { title: "Invoice ID" },
-            { title: "Customer" },
+            { title: "Payout ID" },
             { title: "Amount" },
+            { title: "Currency" },
             { title: "Status" },
+            { title: "Date" },
           ]}
           selectable={false}
         >
           {recentInvoices?.length > 0 ? (
-            recentInvoices.map((invoice, index) => (
-              <IndexTable.Row id={invoice.id} key={invoice.id} position={index}>
-                <IndexTable.Cell>{invoice.id}</IndexTable.Cell>
-                <IndexTable.Cell>{invoice.customerName}</IndexTable.Cell>
-                <IndexTable.Cell>
-                  {invoice.currency} {parseFloat(invoice.amount).toFixed(2)}
-                </IndexTable.Cell>
-                <IndexTable.Cell>
-                  <Text tone={invoice.status === "paid" ? "success" : "critical"}>
-                    {invoice.status}
-                  </Text>
-                </IndexTable.Cell>
-              </IndexTable.Row>
+            recentInvoices.map((payouts, index) => (
+              <IndexTable.Row id={payouts.id} key={payouts.id} position={payouts.id}>
+                  <IndexTable.Cell>{payouts.id}</IndexTable.Cell>
+                  <IndexTable.Cell>{payouts.amount}</IndexTable.Cell>
+                  <IndexTable.Cell>{payouts.currency}</IndexTable.Cell>
+                  <IndexTable.Cell>{payouts.status}</IndexTable.Cell>
+                  <IndexTable.Cell>{payouts.created}</IndexTable.Cell>
+                </IndexTable.Row>
             ))
           ) : (
             <IndexTable.Row id="empty" key="empty" position={0}>
               <IndexTable.Cell colSpan={4}>
                 <Text alignment="center" tone="subdued">
-                  No recent invoices
+                  No recent Payouts
                 </Text>
               </IndexTable.Cell>
             </IndexTable.Row>
