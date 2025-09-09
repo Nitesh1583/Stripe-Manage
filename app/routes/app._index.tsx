@@ -369,12 +369,6 @@ export default function Index() {
                 </Text>
                 <InvoicesPlaceholder height="100%" recentInvoices = {recentInvoices}/>
               </Grid.Cell>
-              <Grid.Cell area="payouts">
-                <Text as="h2" variant="headingMd">
-                  Recent Payouts
-                </Text>
-                <PayoutsPlaceholder height="100%" recentPayouts = {recentPayouts}/>
-              </Grid.Cell>
             </Grid>
           </LegacyCard>
         </Layout>
