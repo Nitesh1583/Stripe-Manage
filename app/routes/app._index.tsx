@@ -9,7 +9,7 @@ import {
   Button,
   BlockStack,
   Box,
-  List,
+  List,Tooltip,
   Link,
   IndexTable, InlineStack, useIndexResourceState,Badge, Grid, LegacyCard
 } from "@shopify/polaris";
@@ -268,43 +268,80 @@ export default function Index() {
 
                     <Text tone="subdued">
                       Available:{" "}
-                      <span
-                        style={{
-                          filter: planStatus === "PAID" ? "none" : "blur(6px)",
-                          userSelect: planStatus === "PAID" ? "auto" : "none",
-                          transition: "filter 0.3s ease-in-out",
-                        }}
-                      >
-                        {balanceAvailable.length > 0
-                          ? balanceAvailable
-                              .map(
-                                (b) =>
-                                  `${(b.amount / 100).toFixed(2)} ${b.currency.toUpperCase()}`
-                              )
-                              .join(", ")
-                          : "0.00"}
-                      </span>
+                      {/* ✅ Only wrap in Tooltip if NOT paid */}
+                      {planStatus !== "PAID" ? (
+                        <Tooltip active content="Upgrade to a paid plan to see your available balance" preferredPosition="above">
+                          <span
+                            style={{
+                              filter: "blur(6px)", // ✅ Blur when not paid
+                              userSelect: "none",
+                              transition: "filter 0.3s ease-in-out",
+                              cursor: "pointer",
+                            }}
+                          >
+                            {balanceAvailable.length > 0
+                              ? balanceAvailable
+                                  .map(
+                                    (b) =>
+                                      `${(b.amount / 100).toFixed(2)} ${b.currency.toUpperCase()}`
+                                  )
+                                  .join(", ")
+                              : "0.00"}
+                          </span>
+                        </Tooltip>
+                      ) : (
+                        //  If paid, show normal value without tooltip or blur
+                        <span>
+                          {balanceAvailable.length > 0
+                            ? balanceAvailable
+                                .map(
+                                  (b) =>
+                                    `${(b.amount / 100).toFixed(2)} ${b.currency.toUpperCase()}`
+                                )
+                                .join(", ")
+                            : "0.00"}
+                        </span>
+                      )}
                     </Text>
 
                     <Text tone="subdued">
                       Pending:{" "}
-                      <span
-                        style={{
-                          filter: planStatus === "PAID" ? "none" : "blur(6px)",
-                          userSelect: planStatus === "PAID" ? "auto" : "none",
-                          transition: "filter 0.3s ease-in-out",
-                        }}
-                      >
-                        {balancePending.length > 0
-                          ? balancePending
-                              .map(
-                                (b) =>
-                                  `${(b.amount / 100).toFixed(2)} ${b.currency.toUpperCase()}`
-                              )
-                              .join(", ")
-                          : "0.00"}
-                      </span>
+                      {/*  Only wrap in Tooltip if NOT paid */}
+                      {planStatus !== "PAID" ? (
+                        <Tooltip active content="Upgrade to a paid plan to see your pending balance" preferredPosition="above">
+                          <span
+                            style={{
+                              filter: "blur(6px)", // ✅ Blur when not paid
+                              userSelect: "none",
+                              transition: "filter 0.3s ease-in-out",
+                              cursor: "pointer",
+                            }}
+                          >
+                            {balancePending.length > 0
+                              ? balancePending
+                                  .map(
+                                    (b) =>
+                                      `${(b.amount / 100).toFixed(2)} ${b.currency.toUpperCase()}`
+                                  )
+                                  .join(", ")
+                              : "0.00"}
+                          </span>
+                        </Tooltip>
+                      ) : (
+                        // ✅ If paid, show normal value without tooltip or blur
+                        <span>
+                          {balancePending.length > 0
+                            ? balancePending
+                                .map(
+                                  (b) =>
+                                    `${(b.amount / 100).toFixed(2)} ${b.currency.toUpperCase()}`
+                                )
+                                .join(", ")
+                            : "0.00"}
+                        </span>
+                      )}
                     </Text>
+
                   </BlockStack>
 
                   <BlockStack gap="100" align="end">
