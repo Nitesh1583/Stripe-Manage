@@ -19,15 +19,31 @@ import { useEffect, useState } from "react";
 import db from "../db.server";
 import { updateUserAccountSetting, updateUserStripeSetting } from "../models/user.server";
 import { authenticate } from "../shopify.server";
+import { getShopifyPlanStatus } from "../models/payouts.server";
 
 export async function loader({ request }) {
   const auth = await authenticate.admin(request);
   const userInfo = await db.user.findFirst({
     where: { shop: auth.session.shop }
-     // where: { shop: "kd-developments.myshopify.com" }
+  });
+
+  //Fetch plan status + subscriptions
+  const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
+
+  console.log("SERVER DEBUG: Plan Status =>", planStatus);
+  activeSubs.forEach((sub) => {
+    console.log(
+      `SERVER DEBUG: Subscription Name: ${sub.name}, Status: ${sub.status}, Price: ${
+        sub.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0
+      }`
+    );
   });
   // if (!userInfo) return redirect("/app/settings");
-  return json({ userInfo });
+  return json({ 
+    userInfo,
+    planStatus,
+    activeSubs
+  });
 }
 
 export async function action({ request }) {
@@ -51,11 +67,13 @@ export async function action({ request }) {
 export default function SettingsPage() {
   const actionData = useActionData();
   const { state } = useNavigation();
-  const { userInfo } = useLoaderData();
+  const { userInfo, planStatus, activeSubs } = useLoaderData<typeof loader>();
   const [email, setEmail] = useState(userInfo?userInfo?.email:"");
   const [stripeApiKeys, setStripeApiKeys] = useState(userInfo);
   const shopify = useAppBridge();
 
+  console.log("SettingsPage plan Status:", planStatus);
+  console.log("SettingsPage active Subs", activeSubs);
 
   useEffect(() => {
     shopify.toast.show(actionData?.message, { isError: actionData?.isError });

@@ -54,11 +54,6 @@ export default function Invoices() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  console.log(invoices);
-  console.log(planStatus);
-  console.log(activeSubs);
-
-
   // Filter invoices
   const filteredInvoices = useMemo(() => {
     if (!searchedVal) return invoices;
