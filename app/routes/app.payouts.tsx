@@ -12,6 +12,7 @@ import { useState, useMemo } from "react";
 import db from "../db.server";
 import { authenticate } from "../shopify.server";
 import { fetchStripePayouts } from "../models/payouts.server";
+import { getShopifyPlanStatus } from "../models/payouts.server";
 
 import "../styles/style.css";
 
@@ -26,17 +27,34 @@ export async function loader({ request }) {
 
   const { payouts } = await fetchStripePayouts(userInfo);
 
-  return json({ payouts });
+  // Fetch plan status + subscriptions
+  const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
+
+  console.log("SERVER DEBUG: Plan Status =>", planStatus);
+  activeSubs.forEach((sub) => {
+    console.log(
+      `SERVER DEBUG: Subscription Name: ${sub.name}, Status: ${sub.status}, Price: ${
+        sub.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0
+      }`
+    );
+  });
+
+  return json({ 
+    payouts,
+    planStatus,
+    activeSubs 
+  });
 }
 
 export default function payouts() {
-  const { payouts } = useLoaderData<typeof loader>();
+  const { payouts, planStatus, activeSubs } = useLoaderData<typeof loader>();
 
   const [searchedVal, setSearchedVal] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  console.log(payouts);
+  console.log(planStatus);
+  console.log(activeSubs);
 
   const filteredPayouts = useMemo(() => {
     if (!searchedVal) return payouts;

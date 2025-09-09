@@ -268,12 +268,12 @@ export default function Index() {
 
                     <Text tone="subdued">
                       Available:{" "}
-                      {/* ✅ Only wrap in Tooltip if NOT paid */}
+                      {/*  Only wrap in Tooltip if NOT paid */}
                       {planStatus !== "PAID" ? (
                         <Tooltip active content="Upgrade to a paid plan to see your available balance" preferredPosition="above">
                           <span
                             style={{
-                              filter: "blur(6px)", // ✅ Blur when not paid
+                              filter: "blur(6px)", //  Blur when not paid
                               userSelect: "none",
                               transition: "filter 0.3s ease-in-out",
                               cursor: "pointer",
@@ -311,7 +311,7 @@ export default function Index() {
                         <Tooltip active content="Upgrade to a paid plan to see your pending" preferredPosition="above">
                           <span
                             style={{
-                              filter: "blur(6px)", // ✅ Blur when not paid
+                              filter: "blur(6px)", //  Blur when not paid
                               userSelect: "none",
                               transition: "filter 0.3s ease-in-out",
                               cursor: "pointer",
@@ -328,7 +328,7 @@ export default function Index() {
                           </span>
                         </Tooltip>
                       ) : (
-                        // ✅ If paid, show normal value without tooltip or blur
+                        //  If paid, show normal value without tooltip or blur
                         <span>
                           {balancePending.length > 0
                             ? balancePending
@@ -355,22 +355,6 @@ export default function Index() {
               </BlockStack>
             </Card>
           </Layout.Section>
-
-          {/* Right Side Recommendation Card */}
-          <Layout.Section secondary>
-            <Card padding="400">
-              <BlockStack gap="200">
-                <Text variant="headingMd" as="h2">
-                  Recommendation
-                </Text>
-                <Text tone="subdued">
-                  Upgrade to a premium membership plan to access all the powerful
-                  features of the Stripe Console.
-                </Text>
-              </BlockStack>
-            </Card>
-          </Layout.Section>
-        </Layout>
 
         {/* Recent fetch */}
         <Layout>
@@ -762,7 +746,7 @@ const InvoicesPlaceholder = ({
   height = "auto",
   width = "auto",
   recentInvoices = null,
-  planStatus, // ✅ Pass planStatus here
+  planStatus, //  Pass planStatus here
 }) => {
   return (
     <div
@@ -787,7 +771,7 @@ const InvoicesPlaceholder = ({
           {recentInvoices?.length > 0 ? (
             recentInvoices.map((invoice, index) => (
               <IndexTable.Row id={invoice.id} key={invoice.id} position={index}>
-                {/* ✅ Customer Info Cell */}
+                {/*  Customer Info Cell */}
                 <IndexTable.Cell>
                   {planStatus !== "PAID" ? (
                     <Tooltip
@@ -813,7 +797,7 @@ const InvoicesPlaceholder = ({
                       </div>
                     </Tooltip>
                   ) : (
-                    // ✅ If paid, show normal data
+                    //  If paid, show normal data
                     <div style={{ display: "flex", flexDirection: "column" }}>
                       <span style={{ fontWeight: "600" }}>
                         {invoice.customerName || "N/A"}
@@ -825,7 +809,7 @@ const InvoicesPlaceholder = ({
                   )}
                 </IndexTable.Cell>
 
-                {/* ✅ Invoice ID Cell */}
+                {/* Invoice ID Cell */}
                 <IndexTable.Cell>
                   {planStatus !== "PAID" ? (
                     <Tooltip
@@ -847,7 +831,7 @@ const InvoicesPlaceholder = ({
                   )}
                 </IndexTable.Cell>
 
-                {/* ✅ Amount Cell */}
+                {/* Amount Cell */}
                 <IndexTable.Cell>
                   {planStatus !== "PAID" ? (
                     <Tooltip
@@ -869,7 +853,7 @@ const InvoicesPlaceholder = ({
                   )}
                 </IndexTable.Cell>
 
-                {/* ✅ Status Cell */}
+                {/*  Status Cell */}
                 <IndexTable.Cell>
                   {planStatus !== "PAID" ? (
                     <Tooltip

@@ -117,7 +117,7 @@ export async function getShopifyPlanStatus(request: Request) {
   try {
     const { admin } = await authenticate.admin(request);
 
-    // ✅ Use Shopify Admin GraphQL client
+    // Use Shopify Admin GraphQL client
     const response = await admin.graphql(`
       {
         appInstallation {
