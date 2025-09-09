@@ -308,7 +308,7 @@ export default function Index() {
                       Pending:{" "}
                       {/*  Only wrap in Tooltip if NOT paid */}
                       {planStatus !== "PAID" ? (
-                        <Tooltip active content="Upgrade to a paid plan to see your pending balance" preferredPosition="above">
+                        <Tooltip active content="Upgrade to a paid plan to see your pending" preferredPosition="above">
                           <span
                             style={{
                               filter: "blur(6px)", // ✅ Blur when not paid
@@ -758,14 +758,20 @@ const PaymentPlaceholder = ({height = 'auto', width = 'auto', recentPaymentsData
   );
 };
 
-const InvoicesPlaceholder = ({height = 'auto', width = 'auto', recentInvoices = null}) => {
+const InvoicesPlaceholder = ({
+  height = "auto",
+  width = "auto",
+  recentInvoices = null,
+  planStatus, // ✅ Pass planStatus here
+}) => {
   return (
     <div
       style={{
-        background: '#ffffff',
+        background: "#ffffff",
         height: height,
         width: width,
-      }}>
+      }}
+    >
       <Card title=" Recent Invoices">
         <IndexTable
           resourceName={{ singular: "invoice", plural: "invoices" }}
@@ -781,25 +787,110 @@ const InvoicesPlaceholder = ({height = 'auto', width = 'auto', recentInvoices = 
           {recentInvoices?.length > 0 ? (
             recentInvoices.map((invoice, index) => (
               <IndexTable.Row id={invoice.id} key={invoice.id} position={index}>
-                {/* Name + Email in same cell */}
+                {/* ✅ Customer Info Cell */}
                 <IndexTable.Cell>
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <span style={{ fontWeight: "600" }}>
-                      {invoice.customerName || "N/A"}
-                    </span>
-                    <span style={{ fontSize: "13px", color: "#666" }}>
-                      {invoice.customerEmail || "No email"}
-                    </span>
-                  </div>
+                  {planStatus !== "PAID" ? (
+                    <Tooltip
+                      preferredPosition="above"
+                      content="Upgrade to a paid plan to see customer details"
+                    >
+                      <div
+                        style={{
+                          filter: "blur(6px)",
+                          userSelect: "none",
+                          cursor: "pointer",
+                          transition: "filter 0.3s ease-in-out",
+                        }}
+                      >
+                        <div style={{ display: "flex", flexDirection: "column" }}>
+                          <span style={{ fontWeight: "600" }}>
+                            {invoice.customerName || "N/A"}
+                          </span>
+                          <span style={{ fontSize: "13px", color: "#666" }}>
+                            {invoice.customerEmail || "No email"}
+                          </span>
+                        </div>
+                      </div>
+                    </Tooltip>
+                  ) : (
+                    // ✅ If paid, show normal data
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <span style={{ fontWeight: "600" }}>
+                        {invoice.customerName || "N/A"}
+                      </span>
+                      <span style={{ fontSize: "13px", color: "#666" }}>
+                        {invoice.customerEmail || "No email"}
+                      </span>
+                    </div>
+                  )}
                 </IndexTable.Cell>
-                <IndexTable.Cell>{invoice.id}</IndexTable.Cell>
+
+                {/* ✅ Invoice ID Cell */}
                 <IndexTable.Cell>
-                  {invoice.currency} {parseFloat(invoice.amount).toFixed(2)}
+                  {planStatus !== "PAID" ? (
+                    <Tooltip
+                      preferredPosition="above"
+                      content="Upgrade to a paid plan to see invoice ID"
+                    >
+                      <span
+                        style={{
+                          filter: "blur(6px)",
+                          userSelect: "none",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {invoice.id}
+                      </span>
+                    </Tooltip>
+                  ) : (
+                    invoice.id
+                  )}
                 </IndexTable.Cell>
+
+                {/* ✅ Amount Cell */}
                 <IndexTable.Cell>
-                  <Text tone={invoice.status === "paid" ? "success" : "critical"}>
-                    {invoice.status}
-                  </Text>
+                  {planStatus !== "PAID" ? (
+                    <Tooltip
+                      preferredPosition="above"
+                      content="Upgrade to a paid plan to see amount"
+                    >
+                      <span
+                        style={{
+                          filter: "blur(6px)",
+                          userSelect: "none",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {invoice.currency} {parseFloat(invoice.amount).toFixed(2)}
+                      </span>
+                    </Tooltip>
+                  ) : (
+                    `${invoice.currency} ${parseFloat(invoice.amount).toFixed(2)}`
+                  )}
+                </IndexTable.Cell>
+
+                {/* ✅ Status Cell */}
+                <IndexTable.Cell>
+                  {planStatus !== "PAID" ? (
+                    <Tooltip
+                      preferredPosition="above"
+                      content="Upgrade to a paid plan to see status"
+                    >
+                      <span
+                        style={{
+                          filter: "blur(6px)",
+                          userSelect: "none",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {invoice.status}
+                      </span>
+                    </Tooltip>
+                  ) : (
+                    <Text tone={invoice.status === "paid" ? "success" : "critical"}>
+                      {invoice.status}
+                    </Text>
+                  )}
                 </IndexTable.Cell>
               </IndexTable.Row>
             ))
