@@ -341,14 +341,14 @@ export default function Index() {
             <Grid
               columns={{xs: 1, sm: 4, md: 4, lg: 6, xl: 6}}
               areas={{
-                xs: ['product', 'sales', 'orders'],
+                xs: ['product', 'sales', 'orders', 'payout'],
                 sm: [
-                  'product product product product',
-                  'sales sales orders orders',
+                  'product product sales sales',
+                  'orders orders payout payout',
                 ],
-                md: ['sales product product orders'],
-                lg: ['product product product product sales orders'],
-                xl: ['product product sales sales orders orders'],
+                md: ['product sales orders payout'],
+                lg: ['product sales orders payout'],
+                xl: ['product product sales sales orders orders payout payout'],
               }}
             >
               <Grid.Cell area="product">
