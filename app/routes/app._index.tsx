@@ -734,8 +734,8 @@ const InvoicesPlaceholder = ({height = 'auto', width = 'auto', recentInvoices = 
           resourceName={{ singular: "invoice", plural: "invoices" }}
           itemCount={recentInvoices?.length || 0}
           headings={[
+            { title: "Customer Name / Email" },
             { title: "Invoice ID" },
-            { title: "Customer" },
             { title: "Amount" },
             { title: "Status" },
           ]}
@@ -744,8 +744,18 @@ const InvoicesPlaceholder = ({height = 'auto', width = 'auto', recentInvoices = 
           {recentInvoices?.length > 0 ? (
             recentInvoices.map((invoice, index) => (
               <IndexTable.Row id={invoice.id} key={invoice.id} position={index}>
+                {/* Name + Email in same cell */}
+                <IndexTable.Cell>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <span style={{ fontWeight: "600" }}>
+                      {invoice.customerName || "N/A"}
+                    </span>
+                    <span style={{ fontSize: "13px", color: "#666" }}>
+                      {invoice.customerEmail || "No email"}
+                    </span>
+                  </div>
+                </IndexTable.Cell>
                 <IndexTable.Cell>{invoice.id}</IndexTable.Cell>
-                <IndexTable.Cell>{invoice.customerName}</IndexTable.Cell>
                 <IndexTable.Cell>
                   {invoice.currency} {parseFloat(invoice.amount).toFixed(2)}
                 </IndexTable.Cell>

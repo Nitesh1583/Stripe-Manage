@@ -60,6 +60,7 @@ export async function fetchStripeRecentInvoices(userInfo) {
     const invoiceData = recentInvoices.data.map((inv) => ({
       id: inv.id,
       customerName: inv.customer_name,
+      customerEmail: inv.customer_email,
       amount: (inv.amount_due / 100).toFixed(2),
       currency: inv.currency?.toUpperCase() || "USD",
       status: inv.status,
