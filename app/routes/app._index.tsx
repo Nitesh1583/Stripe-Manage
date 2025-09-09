@@ -339,7 +339,7 @@ export default function Index() {
         <Layout>
           <LegacyCard sectioned>
             <Grid
-              columns={{xs: 1, sm: 4, md: 4, lg: 4, xl: 6}}
+              columns={{xs: 1, sm: 4, md: 4, lg: 4, xl: 4}}
               areas={{
                 xs: ['product', 'sales', 'orders', 'payout'],
                 sm: [
