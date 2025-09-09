@@ -352,20 +352,22 @@ export default function Index() {
               }}
             >
               <Grid.Cell area="product">
-                <CustomerPlaceholder height="60px" recentStripeCustomers={recentStripeCustomers} />
+                <CustomerPlaceholder height="100%" recentStripeCustomers={recentStripeCustomers} />
               </Grid.Cell>
               <Grid.Cell area="sales">
-                <PaymentPlaceholder height="60px" recentPaymentsData= {recentPaymentsData}/>
+                <PaymentPlaceholder height="100%" recentPaymentsData= {recentPaymentsData}/>
               </Grid.Cell>
               <Grid.Cell area="orders">
-                <InvoicesPlaceholder height="60px" recentInvoices = {recentInvoices}/>
+                <InvoicesPlaceholder height="100%" recentInvoices = {recentInvoices}/>
+              </Grid.Cell>
+              <Grid.Cell area="orders">
+                <PayoutsPlaceholder height="100%" recentInvoices = {recentInvoices}/>
               </Grid.Cell>
             </Grid>
           </LegacyCard>
         </Layout>
 
         {/* Recent Combined Data Section */}
-
         <Layout>
           {/* Recent Customers */}
           <Layout.Section oneThird>
@@ -732,7 +734,7 @@ const CustomerPlaceholder = ({height = 'auto', width = 'auto', recentStripeCusto
         height: height,
         width: width,
       }}>
-      <Card>
+      <Card title=" Recent Customers">
       <IndexTable
         resourceName={{ singular: "customer", plural: "customers" }}
         itemCount={recentStripeCustomers?.length || 0}
@@ -780,7 +782,7 @@ const PaymentPlaceholder = ({height = 'auto', width = 'auto', recentPaymentsData
         height: height,
         width: width,
       }}>
-      <Card>
+      <Card title=" Recent Payments">
         <IndexTable
           resourceName={{ singular: "payment", plural: "payments" }}
           itemCount={recentPaymentsData?.recentPaymentsData?.length || 0}
@@ -831,7 +833,58 @@ const InvoicesPlaceholder = ({height = 'auto', width = 'auto', recentInvoices = 
         height: height,
         width: width,
       }}>
-      <Card>
+      <Card title=" Recent Invoices">
+        <IndexTable
+          resourceName={{ singular: "invoice", plural: "invoices" }}
+          itemCount={recentInvoices?.length || 0}
+          headings={[
+            { title: "Invoice ID" },
+            { title: "Customer" },
+            { title: "Amount" },
+            { title: "Status" },
+          ]}
+          selectable={false}
+        >
+          {recentInvoices?.length > 0 ? (
+            recentInvoices.map((invoice, index) => (
+              <IndexTable.Row id={invoice.id} key={invoice.id} position={index}>
+                <IndexTable.Cell>{invoice.id}</IndexTable.Cell>
+                <IndexTable.Cell>{invoice.customerName}</IndexTable.Cell>
+                <IndexTable.Cell>
+                  {invoice.currency} {parseFloat(invoice.amount).toFixed(2)}
+                </IndexTable.Cell>
+                <IndexTable.Cell>
+                  <Text tone={invoice.status === "paid" ? "success" : "critical"}>
+                    {invoice.status}
+                  </Text>
+                </IndexTable.Cell>
+              </IndexTable.Row>
+            ))
+          ) : (
+            <IndexTable.Row id="empty" key="empty" position={0}>
+              <IndexTable.Cell colSpan={4}>
+                <Text alignment="center" tone="subdued">
+                  No recent invoices
+                </Text>
+              </IndexTable.Cell>
+            </IndexTable.Row>
+          )}
+        </IndexTable>
+      </Card>
+    </div>
+  );
+};
+
+
+const PayoutsPlaceholder = ({height = 'auto', width = 'auto', recentInvoices = null}) => {
+  return (
+    <div
+      style={{
+        background: '#ffffff',
+        height: height,
+        width: width,
+      }}>
+      <Card title=" Recent Payouts">
         <IndexTable
           resourceName={{ singular: "invoice", plural: "invoices" }}
           itemCount={recentInvoices?.length || 0}
