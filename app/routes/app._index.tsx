@@ -360,7 +360,7 @@ export default function Index() {
               <Grid.Cell area="orders">
                 <InvoicesPlaceholder height="100%" recentInvoices = {recentInvoices}/>
               </Grid.Cell>
-              <Grid.Cell area="orders">
+              <Grid.Cell area="payout">
                 <PayoutsPlaceholder height="100%" recentInvoices = {recentInvoices}/>
               </Grid.Cell>
             </Grid>
