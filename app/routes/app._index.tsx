@@ -373,7 +373,7 @@ export default function Index() {
                 <Text as="h2" variant="headingMd">
                   Recent Payouts
                 </Text>
-                <PayoutsPlaceholder height="100%" recentInvoices = {recentInvoices}/>
+                <PayoutsPlaceholder height="100%" recentPayouts = {recentPayouts}/>
               </Grid.Cell>
             </Grid>
           </LegacyCard>
@@ -758,7 +758,7 @@ const InvoicesPlaceholder = ({height = 'auto', width = 'auto', recentInvoices = 
 };
 
 
-const PayoutsPlaceholder = ({height = 'auto', width = 'auto', recentInvoices = null}) => {
+const PayoutsPlaceholder = ({height = 'auto', width = 'auto', recentPayouts = null}) => {
   return (
     <div
       style={{
@@ -769,7 +769,7 @@ const PayoutsPlaceholder = ({height = 'auto', width = 'auto', recentInvoices = n
       <Card title=" Recent Payouts">
         <IndexTable
           resourceName={{ singular: "payout", plural: "payouts" }}
-          itemCount={recentInvoices?.length || 0}
+          itemCount={recentPayouts?.length || 0}
           headings={[
             { title: "Payout ID" },
             { title: "Amount" },
@@ -779,8 +779,8 @@ const PayoutsPlaceholder = ({height = 'auto', width = 'auto', recentInvoices = n
           ]}
           selectable={false}
         >
-          {recentInvoices?.length > 0 ? (
-            recentInvoices.map((payouts, index) => (
+          {recentPayouts?.length > 0 ? (
+            recentPayouts.map((payouts, index) => (
               <IndexTable.Row id={payouts.id} key={payouts.id} position={payouts.id}>
                   <IndexTable.Cell>{payouts.id}</IndexTable.Cell>
                   <IndexTable.Cell>{payouts.amount}</IndexTable.Cell>
