@@ -621,7 +621,7 @@ const CustomerPlaceholder = ({height = 'auto', width = 'auto', recentStripeCusto
         resourceName={{ singular: "customer", plural: "customers" }}
         itemCount={recentStripeCustomers?.length || 0}
         headings={[
-          { title: "Name" },
+          { title: "Name / Email" },
           // { title: "Email" },
           { title: "Card" },
           // { title: "Date" },
@@ -631,8 +631,17 @@ const CustomerPlaceholder = ({height = 'auto', width = 'auto', recentStripeCusto
         {recentStripeCustomers?.length > 0 ? (
           recentStripeCustomers.map((customer, index) => (
             <IndexTable.Row id={customer.id} key={customer.id} position={index}>
-              <IndexTable.Cell>{customer.name || "N/A"} {customer.email || "No email"}</IndexTable.Cell>
-              {/*<IndexTable.Cell>{customer.email || "No email"}</IndexTable.Cell>*/}
+              {/* Name + Email in same cell */}
+                <IndexTable.Cell>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <span style={{ fontWeight: "600" }}>
+                      {customer.name || "N/A"}
+                    </span>
+                    <span style={{ fontSize: "13px", color: "#666" }}>
+                      {customer.email || "No email"}
+                    </span>
+                  </div>
+                </IndexTable.Cell>
               <IndexTable.Cell>
                 {customer.brand
                   ? `${customer.brand.toUpperCase()} / ${customer.last4}`
