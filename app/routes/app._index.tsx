@@ -273,7 +273,7 @@ export default function Index() {
                         <Tooltip active content="Upgrade to a paid plan to see your available balance" preferredPosition="above">
                           <span
                             style={{
-                              filter: "blur(6px)", //  Blur when not paid
+                              filter: "blur(6px)", // ✅ Blur when not paid
                               userSelect: "none",
                               transition: "filter 0.3s ease-in-out",
                               cursor: "pointer",
@@ -328,7 +328,7 @@ export default function Index() {
                           </span>
                         </Tooltip>
                       ) : (
-                        //  If paid, show normal value without tooltip or blur
+                        // If paid, show normal value without tooltip or blur
                         <span>
                           {balancePending.length > 0
                             ? balancePending
@@ -355,6 +355,7 @@ export default function Index() {
               </BlockStack>
             </Card>
           </Layout.Section>
+        </Layout>
 
         {/* Recent fetch */}
         <Layout>
@@ -746,7 +747,7 @@ const InvoicesPlaceholder = ({
   height = "auto",
   width = "auto",
   recentInvoices = null,
-  planStatus, //  Pass planStatus here
+  planStatus, // ✅ Pass planStatus here
 }) => {
   return (
     <div
