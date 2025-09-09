@@ -754,7 +754,7 @@ const CustomerPlaceholder = ({height = 'auto', width = 'auto', recentStripeCusto
                   ? `${customer.brand.toUpperCase()} / ${customer.last4}`
                   : "No Card"}
               </IndexTable.Cell>
-              <IndexTable.Cell>{formatDate(customer.created)}</IndexTable.Cell>
+              {/*<IndexTable.Cell>{formatDate(customer.created)}</IndexTable.Cell>*/}
             </IndexTable.Row>
           ))
         ) : (
@@ -805,7 +805,7 @@ const PaymentPlaceholder = ({height = 'auto', width = 'auto', recentPaymentsData
                     {payment.status}
                   </Text>
                 </IndexTable.Cell>
-                <IndexTable.Cell>{formatDate(payment.created)}</IndexTable.Cell>
+                {/*<IndexTable.Cell>{formatDate(payment.created)}</IndexTable.Cell>*/}
               </IndexTable.Row>
             ))
           ) : (
