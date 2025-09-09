@@ -290,7 +290,7 @@ export default function Index() {
                           </span>
                         </Tooltip>
                       ) : (
-                        // ✅ If paid, show normal value without tooltip or blur
+                        //  If paid, show normal value without tooltip or blur
                         <span>
                           {balanceAvailable.length > 0
                             ? balanceAvailable
@@ -306,7 +306,7 @@ export default function Index() {
 
                     <Text tone="subdued">
                       Pending:{" "}
-                      {/* ✅ Only wrap in Tooltip if NOT paid */}
+                      {/*  Only wrap in Tooltip if NOT paid */}
                       {planStatus !== "PAID" ? (
                         <Tooltip active content="Upgrade to a paid plan to see your pending balance" preferredPosition="above">
                           <span
