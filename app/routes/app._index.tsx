@@ -348,7 +348,7 @@ export default function Index() {
                 ],
                 md: ['product sales orders payout'],
                 lg: ['product sales orders payout'],
-                xl: ['product product sales sales orders orders payout payout'],
+                xl: ['product sales orders payout'],
               }}
             >
               <Grid.Cell area="product">
