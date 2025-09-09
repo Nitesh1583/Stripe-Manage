@@ -365,7 +365,7 @@ export default function Index() {
               </Grid.Cell>
               <Grid.Cell area="invoices">
                 <Text as="h2" variant="headingMd">
-                  Recent Customers
+                  Recent Invoices
                 </Text>
                 <InvoicesPlaceholder height="100%" recentInvoices = {recentInvoices}/>
               </Grid.Cell>
@@ -622,17 +622,17 @@ const CustomerPlaceholder = ({height = 'auto', width = 'auto', recentStripeCusto
         itemCount={recentStripeCustomers?.length || 0}
         headings={[
           { title: "Name" },
-          { title: "Email" },
+          // { title: "Email" },
           { title: "Card" },
-          { title: "Date" },
+          // { title: "Date" },
         ]}
         selectable={false}
       >
         {recentStripeCustomers?.length > 0 ? (
           recentStripeCustomers.map((customer, index) => (
             <IndexTable.Row id={customer.id} key={customer.id} position={index}>
-              <IndexTable.Cell>{customer.name || "N/A"}</IndexTable.Cell>
-              <IndexTable.Cell>{customer.email || "No email"}</IndexTable.Cell>
+              <IndexTable.Cell>{customer.name || "N/A"} {customer.email || "No email"}</IndexTable.Cell>
+              {/*<IndexTable.Cell>{customer.email || "No email"}</IndexTable.Cell>*/}
               <IndexTable.Cell>
                 {customer.brand
                   ? `${customer.brand.toUpperCase()} / ${customer.last4}`
