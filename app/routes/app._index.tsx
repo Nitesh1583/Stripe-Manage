@@ -54,7 +54,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
 
     if (userInfo.premiumUser !== premiumUserValue) {
-      userInfo = await db.user.update({
+      await db.user.update({
         where: { shop: auth.session.shop },
         data: { premiumUser: premiumUserValue },
       });
@@ -86,7 +86,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       recentPaymentsData,
       recentInvoices,
       recentPayouts,
-      userInfo, // send updated userinfo with premiumUser
     });
   } catch (error) {
     console.error("Loader failed:", error);
