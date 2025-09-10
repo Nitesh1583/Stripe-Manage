@@ -19,7 +19,7 @@ export async function getStripeSubscriptions(userInfo) {
     });
 
     // Fetch all subscriptions
-    const subscriptionsList = await stripe.subscriptions.list();
+    const subscriptionsList = await stripe.subscriptions.list({limit : 99});
 
     // Extract and format required fields
     const subscriptionData = subscriptionsList.data.map((subscription) => {
@@ -38,7 +38,7 @@ export async function getStripeSubscriptions(userInfo) {
       };
     });
 
-    return subscriptionData; // ✅ Return clean array
+    return subscriptionData; // 
   } catch (error) {
     console.error("Error fetching subscriptions:", error);
     return { message: "Unable to fetch subscriptions", error };
