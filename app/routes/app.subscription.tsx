@@ -5,7 +5,7 @@ import {
   IndexTable,
   Page,
   Layout,
-  Text,
+  Pagination,
 } from "@shopify/polaris";
 import { useState, useMemo } from "react";
 
@@ -25,7 +25,7 @@ export async function loader({ request }) {
 
   if (!userInfo) return redirect("/app");
 
-  const subscriptionData = await getStripeSubscriptions(userInfo); // get all subscriptions
+  const subscriptionData = await getStripeSubscriptions(userInfo);
 
   return json({ subscriptionData });
 }
@@ -33,38 +33,50 @@ export async function loader({ request }) {
 export default function Subscription() {
   const { subscriptionData } = useLoaderData<typeof loader>();
 
-  // Local search state
   const [searchValue, setSearchValue] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(8);
 
-  // Filtered data based on search
+  // Filter data by search input
   const filteredData = useMemo(() => {
+    const search = searchValue.toLowerCase();
     return subscriptionData.filter((item) => {
-      const search = searchValue.toLowerCase();
       return (
-        item.customerId.toLowerCase().includes(search) ||
-        item.subscriptionId.toLowerCase().includes(search)
+        // item.customerId.toLowerCase().includes(search) ||
+        item.subscriptionId.toLowerCase().includes(search) ||
+        item.status.toLowerCase().includes(search)
       );
     });
   }, [searchValue, subscriptionData]);
 
+  // Pagination logic
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePagination = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
   return (
-    <Page title="Subscriptions">
+    <Page title="Subscriptions" backAction={{ content: "Home", url: "/app" }}>
       <Layout>
         <Layout.Section>
-          {/* Search Box */}
-          <input
-            type="text"
-            placeholder="Search subscription or customer"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            style={{
-              width: "100%",
-              marginBottom: "1rem",
-              padding: "8px",
-              borderRadius: "6px",
-              border: "1px solid #ccc",
-            }}
-          />
+          {/* Search bar styled same as customers page */}
+          <label htmlFor="search">
+            <input
+              id="search"
+              type="text"
+              placeholder="Search subscription or customer"
+              value={searchValue}
+              onChange={(e) => {
+                setSearchValue(e.target.value);
+                setCurrentPage(1); // reset to first page when searching
+              }}
+            />
+          </label>
+
           {/* Subscription Table */}
           <Card>
             <IndexTable
@@ -83,7 +95,7 @@ export default function Subscription() {
               ]}
               selectable={false}
             >
-              {filteredData.map((sub, index) => (
+              {paginatedData.map((sub, index) => (
                 <IndexTable.Row
                   id={sub.subscriptionId}
                   key={sub.subscriptionId}
@@ -100,6 +112,14 @@ export default function Subscription() {
                 </IndexTable.Row>
               ))}
             </IndexTable>
+
+            {/* Pagination */}
+            <Pagination
+              hasPrevious={currentPage > 1}
+              hasNext={currentPage < Math.ceil(filteredData.length / itemsPerPage)}
+              onPrevious={() => handlePagination(currentPage - 1)}
+              onNext={() => handlePagination(currentPage + 1)}
+            />
           </Card>
         </Layout.Section>
       </Layout>
