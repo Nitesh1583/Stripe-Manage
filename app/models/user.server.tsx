@@ -1,5 +1,6 @@
 import db from "../db.server";
-
+import { redirect } from '@remix-run/node';
+ 
 //create shopify stripe app user
 
 export async function createUser(formData, shop){
@@ -124,9 +125,10 @@ export async function updateUserStripeSetting(formData, shop) {
       return { errors, message: "Fill correct all field correctly", isError: true };
     }
 
-    // 🔑 Check if user already had a key or this is first time saving
+    // Check if user already had a key or this is first time saving
     const existingUser = await db.user.findFirst({ where: { shop: shop } });
-    const isFirstTime = !existingUser?.stripeSecretKey;
+    // const isFirstTime = !existingUser?.stripeSecretKey;
+    const isFirstTime = existingUser.premiumUser;
 
     await db.user.update({
       where: { shop: shop },
@@ -136,12 +138,17 @@ export async function updateUserStripeSetting(formData, shop) {
       },
     });
 
-    return {
-      message: "Stripe apikeys updated",
-      errors,
-      isError: false,
-      redirectToPricing: isFirstTime, // ✅ return flag for redirect
-    };
+    if (isFirstTime == 0) {
+      return redirect('https://admin.shopify.com/store/'+${shop.split(".")[0]}+'/charges/stripe-manage/pricing_plans')
+    }
+    if (isFirstTime == 1 || isFirstTime == 2) {
+      return {
+        message: "Stripe apikeys updated",
+        errors,
+        isError: false,
+        redirectToPricing: isFirstTime, //  return for redirect
+      };
+    }
 
   } catch (error) {
     return { message: "Unable to stripe apikeys", error, isError: true };
