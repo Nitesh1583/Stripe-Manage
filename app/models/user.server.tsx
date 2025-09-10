@@ -139,7 +139,7 @@ export async function updateUserStripeSetting(formData, shop) {
     });
 
     if (isFirstTime == 0) {
-      return redirect('https://admin.shopify.com/store/'+${shop.split(".")[0]}+'/charges/stripe-manage/pricing_plans')
+      return redirect('https://admin.shopify.com/store/'+shop.split(".")[0]+'/charges/stripe-manage/pricing_plans');
     }
     if (isFirstTime == 1 || isFirstTime == 2) {
       return {
