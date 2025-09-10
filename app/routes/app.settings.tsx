@@ -6,6 +6,7 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import { useAppBridge } from "@shopify/app-bridge-react";
+import { Redirect } from "@shopify/app-bridge/actions";
 import {
   BlockStack,
   Button,
