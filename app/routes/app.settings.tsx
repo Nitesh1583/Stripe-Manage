@@ -97,10 +97,9 @@ export default function SettingsPage() {
   }, [actionData]);
 
   if(redirectToPricing == 0) {
-    console.log("get 0")
+    console.log("get 0");
     return redirect(`https://admin.shopify.com/store/${userInfo?.shop.split(".")[0]}/charges/stripe-manage/pricing_plans`);
-  }else if (
-
+  }else(
     console.log("Stripe key updated !");
   )
 
