@@ -50,7 +50,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 };
 
-export default function ThankYouPage() {planStatus, activeSubs} = useLoaderData<typeof loader>();
+export default function ThankYouPage() {
+  const {planStatus, activeSubs} = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const [chargeId, setChargeId] = useState<string | null>(null);
 
