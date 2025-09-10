@@ -74,7 +74,6 @@ export default function SettingsPage() {
 
   console.log("SettingsPage plan Status:", planStatus);
   console.log("SettingsPage active Subs", activeSubs);
-
   const app = useAppBridge(); 
 
   useEffect(() => {
