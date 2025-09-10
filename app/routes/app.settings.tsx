@@ -99,9 +99,9 @@ export default function SettingsPage() {
   if(redirectToPricing == 0) {
     console.log("get 0");
     return redirect(`https://admin.shopify.com/store/${userInfo?.shop.split(".")[0]}/charges/stripe-manage/pricing_plans`);
-  }else(
+  }else {
     console.log("Stripe key updated !");
-  )
+  }
 
   return (
     <Page title="Settings" backAction={{ content: "Home", url: "/app" }}>
