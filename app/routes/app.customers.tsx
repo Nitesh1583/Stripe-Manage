@@ -120,120 +120,55 @@ export default function CustomerPage() {
   return (
     <Page
       title="Customers"
-      backAction={{ content: "Home", url: "/app" }}
-      // primaryAction={{
-      //   content: "Add customer",
-      //   onAction: () => setModel(!model),
-      //   onAction: () => premiumUser?setModel(!model):navigate('/app/pricing'),
-      //   icon: premiumUser ? PlusIcon : LockIcon,
-      // }}
-      // secondaryActions={[
-      //   { content: "Export", onAction: () => alert("Duplicate action") },
-      //   { content: "import", onAction: () => alert("Duplicate action") },
-      // ]}
-    >
-      {(premiumUser == 0 && userTakesub == 0 && daysDifference <= 7) ?
-        <>
-          <Layout>  
-            <Layout.Section>
-              <CalloutCard
-                  title=""
-                  primaryAction={{
-                    content: "Upgrade Now",
-                    onAction: () => {
-                      const shopName = UserInfo?.shop.split(".")[0];
-                      const url = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
-                      console.log("Redirecting to pricing page:", url);
-                      window.open(url, "_top");
-                    },
-                  }}
-                >
-                  <Text as="p" tone="critical">
-                    Time is running out! Your free trial of Stripe Console ends on {newTrialEndDate} and we’d hate for you to lose access to all the premium features you’ve been enjoying.
-                  </Text>
-                </CalloutCard>
-            </Layout.Section>
-          </Layout>
-        </>
-      :''}
-
-      {(userTakesub == 1 || (userTakesub == 0 && daysDifference <= 7)) ? (
-      <>
+      backAction={{ content: "Home", url: "/app" }}>
       <Layout>
-        
         <Layout.Section>          
           {/* Add for spacing*/}
         </Layout.Section>  
          
-         <Layout.Section>
+        <Layout.Section>
           <label htmlFor="search">
             <input id="search" 
               type="text" 
               placeholder="Search name or email" 
               value={searchedVal} 
-              onChange={handleSearch} />
+              onChange={handleSearch} 
+            />
           </label>
 
-          {/*<CreateStripeCustomerModel model={model} setModel={setModel} />*/}
-
           <Card>
-            <IndexTable resourceName={{ singular: "customer", plural: "customers", }} itemCount={customers.length}
+            <IndexTable resourceName={{ singular: "customer", plural: "customers", }} 
+              itemCount={customers.length}
               headings={[
-            { title: "Name" },
-            { title: "Email" },
-            { title: "Card last4/Brand" },
-            { title: "Created" },
-            // { title: "Action" },
-          ]}
-          selectable={false}
-        >
-          {paginatedCustomers.map((customer) => {
-            return (
-              <TableRow
-                key={customer?.id}
-                customer={customer}
-                setActiveIndex={setActiveIndex}
-                isActive={activeIndex === customer?.id}
-                
-              />
-            );
-          })}
-          {/*{filteredCustomers.map((customer) => (
-            <TableRow key={customer.id} customer={customer} />
-          ))}*/}
-        </IndexTable>
-        <Pagination
-        hasPrevious={currentPage > 1}
-        hasNext={currentPage < Math.ceil(filteredCustomers.length / itemsPerPage)}
-        onNext={() => handlePagination(currentPage + 1)}
-        onPrevious={() => handlePagination(currentPage - 1)}
-        currentPage = {currentPage}
-        />
-      </Card>
-      </Layout.Section> 
+                { title: "Name" },
+                { title: "Email" },
+                { title: "Card last4/Brand" },
+                { title: "Created" },
+                // { title: "Action" },
+              ]}
+              selectable={false}
+            >
+              {paginatedCustomers.map((customer) => {
+                return (
+                  <TableRow
+                    key={customer?.id}
+                    customer={customer}
+                    setActiveIndex={setActiveIndex}
+                    isActive={activeIndex === customer?.id}                 
+                  />
+                );
+              })}
+            </IndexTable>
+            <Pagination
+            hasPrevious={currentPage > 1}
+            hasNext={currentPage < Math.ceil(filteredCustomers.length / itemsPerPage)}
+            onNext={() => handlePagination(currentPage + 1)}
+            onPrevious={() => handlePagination(currentPage - 1)}
+            currentPage = {currentPage}
+            />
+          </Card>
+        </Layout.Section> 
       </Layout>
-      </>
-      ):(
-      // Show only if trial has ended and no subscription
-        (userTakesub == 0 && daysDifference > 7) && (
-          <CalloutCard
-            title="No Trial/Subscription Found!"
-            primaryAction={{
-              content: "Buy Subscription",
-              onAction: () => {
-                    const shopName = UserInfo?.shop.split(".")[0];
-                    const url = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
-                    console.log("Redirecting to pricing page:", url);
-                    window.open(url, "_top");
-                  },
-            }}
-          >
-            <Text as="p">
-              Your trial period has ended. If you want to continue, click on the below button to buy the subscription.
-            </Text>
-          </CalloutCard>
-        )
-    )}
     </Page>
   );
 }

@@ -87,29 +87,6 @@ export default function DisputePage() {
         title="Products"
         backAction={{ content: "Home", url: "/app" }}
       >
-        {(premiumUser == 0 && userTakesub == 0 && daysDifference <= 7) && (
-          <Layout>
-            <Layout.Section>
-              <CalloutCard
-                title=""
-                primaryAction={{
-                  content: "Upgrade Now",
-                  onAction: () => {
-                    const shopName = UserInfo?.shop.split(".")[0];
-                    const url = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
-                    window.open(url, "_top");
-                  },
-                }}
-              >
-                <Text as="p" tone="critical">
-                    Time is running out! Your free trial of Stripe Console ends on {newTrialEndDate} and we’d hate for you to lose access to all the premium features you’ve been enjoying.
-                  </Text>
-              </CalloutCard>
-            </Layout.Section>
-          </Layout>
-        )}
-
-        {(userTakesub == 1 || (userTakesub == 0 && daysDifference <= 7)) ? (
           <Layout>
             <Layout.Section>
               {/*Add for spacing*/}
@@ -179,25 +156,6 @@ export default function DisputePage() {
               </Card>
             </Layout.Section>
           </Layout>
-        ) : (
-          (userTakesub == 0 && daysDifference > 7) && (
-            <CalloutCard
-              title="No Trial/Subscription Found!"
-              primaryAction={{
-                content: "Buy Subscription",
-                onAction: () => {
-                  const shopName = UserInfo?.shop.split(".")[0];
-                  const url = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
-                  window.open(url, "_top");
-                },
-              }}
-            >
-              <Text as="p">
-                Your trial period has ended. Please buy a subscription to continue.
-              </Text>
-            </CalloutCard>
-          )
-        )}
       </Page>
     </>
   );
