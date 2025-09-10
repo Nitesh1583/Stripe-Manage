@@ -71,24 +71,25 @@ export default function SettingsPage() {
   const { userInfo, planStatus, activeSubs } = useLoaderData<typeof loader>();
   const [email, setEmail] = useState(userInfo?userInfo?.email:"");
   const [stripeApiKeys, setStripeApiKeys] = useState(userInfo);
-  const shopify = useAppBridge();
 
   console.log("SettingsPage plan Status:", planStatus);
   console.log("SettingsPage active Subs", activeSubs);
 
+  const app = useAppBridge(); 
+
   useEffect(() => {
     if (actionData?.message) {
-      shopify.toast.show(actionData.message, { isError: actionData.isError });
+      app.toast.show(actionData.message, { isError: actionData.isError });
     }
 
     if (actionData?.redirectToPricing && userInfo?.shop) {
       const shopName = userInfo.shop.split(".")[0];
 
-      // Use App Bridge Redirect instead of window.location
-      const redirect = Redirect.create(shopify);
+      // Use App Bridge Redirect correctly
+      const redirect = Redirect.create(app);
       redirect.dispatch(
-        Redirect.Action.ADMIN_PATH,
-        `/charges/stripe-manage/pricing_plans`
+        Redirect.Action.REMOTE, // Or ADMIN_PATH if you want relative path
+        `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`
       );
     }
   }, [actionData]);
