@@ -76,8 +76,17 @@ export default function SettingsPage() {
   console.log("SettingsPage active Subs", activeSubs);
 
   useEffect(() => {
-    shopify.toast.show(actionData?.message, { isError: actionData?.isError });
+    if (actionData?.message) {
+      shopify.toast.show(actionData.message, { isError: actionData.isError });
+    }
+
+    // Redirect if first-time Stripe key was saved
+    if (actionData?.redirectToPricing && userInfo?.shop) {
+      const shopName = userInfo.shop.split(".")[0];
+      window.location.href = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
+    }
   }, [actionData]);
+
   return (
     <Page title="Settings" backAction={{ content: "Home", url: "/app" }}>
       <BlockStack gap="400">

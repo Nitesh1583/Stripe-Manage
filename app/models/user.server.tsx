@@ -108,22 +108,14 @@ export async function updateUserAccountSetting(formData, shop){
 }
 
 //update shopify stripe app user
-
-export async function updateUserStripeSetting(formData, shop){
+export async function updateUserStripeSetting(formData, shop) {
   try {
     const formInput = Object.fromEntries(formData);
     const stripePublishKey = null;
     const stripeSecretKey = formInput["stripeSecretKey"];
     const errors = {};
-    const stripepublishKeyRegex = /^pk_(test|live)_/;
     const stripesecretKeyRegex = /^(sk_test|sk_live)_/;
 
-    // Validate Stripe publishable key
-    // if (!stripePublishKey || !stripepublishKeyRegex.test(stripePublishKey)) {
-    //   errors.stripePublishKey = "Please enter a valid Stripe publishable key";
-    // }
-
-    // Validate Stripe secret key
     if (!stripeSecretKey || !stripesecretKeyRegex.test(stripeSecretKey)) {
       errors.stripeSecretKey = "Please enter a valid Stripe secret key";
     }
@@ -132,15 +124,24 @@ export async function updateUserStripeSetting(formData, shop){
       return { errors, message: "Fill correct all field correctly", isError: true };
     }
 
+    // 🔑 Check if user already had a key or this is first time saving
+    const existingUser = await db.user.findFirst({ where: { shop: shop } });
+    const isFirstTime = !existingUser?.stripeSecretKey;
+
     await db.user.update({
       where: { shop: shop },
       data: {
         stripePublishKey: stripePublishKey,
-        stripeSecretKey: stripeSecretKey
-      }
-    })
+        stripeSecretKey: stripeSecretKey,
+      },
+    });
 
-    return { message: "Stripe apikeys updated", errors, isError: false };
+    return {
+      message: "Stripe apikeys updated",
+      errors,
+      isError: false,
+      redirectToPricing: isFirstTime, // ✅ return flag for redirect
+    };
 
   } catch (error) {
     return { message: "Unable to stripe apikeys", error, isError: true };
