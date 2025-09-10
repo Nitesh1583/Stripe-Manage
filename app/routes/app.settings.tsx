@@ -84,16 +84,6 @@ export default function SettingsPage() {
       app.toast.show(actionData.message, { isError: actionData.isError });
     }
 
-    // if (actionData?.redirectToPricing && userInfo?.shop) {
-    //   const shopName = userInfo.shop.split(".")[0];
-
-    //   // Use App Bridge Redirect correctly
-    //   const redirect = Redirect.create(app);
-    //   redirect.dispatch(
-    //     Redirect.Action.REMOTE, // Or ADMIN_PATH if you want relative path
-    //     `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`
-    //   );
-    // }
   }, [actionData]);
 
   if(redirectToPricing == 0) {

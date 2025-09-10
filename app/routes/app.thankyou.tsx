@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import {
   Page,
   Layout,
@@ -8,7 +9,10 @@ import {
   Button,
   BlockStack,
 } from "@shopify/polaris";
+import { authenticate } from "../shopify.server";
 import { TitleBar } from "@shopify/app-bridge-react";
+import db from "../db.server";
+import { getShopifyPlanStatus   } from "../models/payouts.server";
 
 export default function ThankYouPage() {
   const [searchParams] = useSearchParams();
