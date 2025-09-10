@@ -13,7 +13,8 @@ export async function action({ request }) {
     }
 
     const shop = session.shop; // get shop from session
-    const result = await saveShopifyChargeId(shop, chargeId);
+    const result = await saveShopifyChargeId(shop, chargeId, request);
+
 
     return json(result);
   } catch (error) {

@@ -1,5 +1,7 @@
 import db from "../db.server";
 import { redirect } from '@remix-run/node';
+import { getShopifyPlanStatus } from "./payouts.server";
+import { authenticate } from "../shopify.server";
  
 //create shopify stripe app user
 
@@ -109,14 +111,21 @@ export async function updateUserAccountSetting(formData, shop){
 }
 
 //update shopify stripe app user
-export async function updateUserStripeSetting(formData, shop) {
+export async function updateUserStripeSetting(formData, shop){
   try {
     const formInput = Object.fromEntries(formData);
     const stripePublishKey = null;
     const stripeSecretKey = formInput["stripeSecretKey"];
     const errors = {};
+    const stripepublishKeyRegex = /^pk_(test|live)_/;
     const stripesecretKeyRegex = /^(sk_test|sk_live)_/;
 
+    // Validate Stripe publishable key
+    // if (!stripePublishKey || !stripepublishKeyRegex.test(stripePublishKey)) {
+    //   errors.stripePublishKey = "Please enter a valid Stripe publishable key";
+    // }
+
+    // Validate Stripe secret key
     if (!stripeSecretKey || !stripesecretKeyRegex.test(stripeSecretKey)) {
       errors.stripeSecretKey = "Please enter a valid Stripe secret key";
     }
@@ -125,46 +134,34 @@ export async function updateUserStripeSetting(formData, shop) {
       return { errors, message: "Fill correct all field correctly", isError: true };
     }
 
-    // Check if user already had a key or this is first time saving
-    const existingUser = await db.user.findFirst({ where: { shop: shop } });
-    // const isFirstTime = !existingUser?.stripeSecretKey;
-    const isFirstTime = existingUser.premiumUser;
-
     await db.user.update({
       where: { shop: shop },
       data: {
         stripePublishKey: stripePublishKey,
-        stripeSecretKey: stripeSecretKey,
-      },
-    });
+        stripeSecretKey: stripeSecretKey
+      }
+    })
 
-    if (isFirstTime == 0) {
-      return {
-        message: "Stripe apikeys updated",
-        errors,
-        isError: false,
-        redirectToPricing: isFirstTime, //  return for redirect
-      };
-
-      // return redirect('https://admin.shopify.com/store/'+shop.split(".")[0]+'/charges/stripe-manage/pricing_plans');
-    }
-    if (isFirstTime == 1 || isFirstTime == 2) {
-      return {
-        message: "Stripe apikeys updated",
-        errors,
-        isError: false,
-        redirectToPricing: isFirstTime, //  return for redirect
-      };
-    }
+    return { message: "Stripe apikeys updated", errors, isError: false };
 
   } catch (error) {
     return { message: "Unable to stripe apikeys", error, isError: true };
   }
 }
 
-export async function saveShopifyChargeId(shop: string, chargeId: string) {
+
+export async function saveShopifyChargeId(shop: string, chargeId: string, request?: Request) {
   try {
-    // Create/Update subscription table
+
+    // Determine plan status (only if request is provided)
+    let premiumValue = 0;
+    if (request) {
+      const { planStatus } = await getShopifyPlanStatus(request);
+      if (planStatus === "FREE") premiumValue = 1;
+      if (planStatus === "PAID") premiumValue = 2;
+    }
+
+    // Save subscription data
     const subscriptionUserData = await db.subscriptionUser.upsert({
       where: { subscription_id: chargeId },
       update: {
@@ -185,25 +182,24 @@ export async function saveShopifyChargeId(shop: string, chargeId: string) {
       where: { shop },
       update: { 
         shopifyChargeId: chargeId,
-        premiumUser: 1, // mark user as premium
-        subCount:1,
+        premiumUser: premiumValue,
         updatedAt: new Date(),
       },
       create: {
         shop,
         shopifyChargeId: chargeId,
-        premiumUser: 0,
-        subCount: 0
+        premiumUser: premiumValue,
       },
     });
 
     return { 
-      message: "Charge ID saved successfully", 
+      message: "Charge ID & premium status saved successfully", 
       user: updatedUser, 
       subscription: subscriptionUserData, 
       isError: false 
     };
   } catch (error: any) {
+     console.error("Error saving chargeId & premiumUser:", error);
     return { message: `Unable to save charge ID: ${error.message}`, isError: true };
   }
 }
