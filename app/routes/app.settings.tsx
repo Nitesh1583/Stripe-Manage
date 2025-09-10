@@ -30,6 +30,7 @@ export async function loader({ request }) {
 
   //Fetch plan status + subscriptions
   const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
+  const { redirectToPricing } = await updateUserStripeSetting(request);
 
   console.log("SERVER DEBUG: Plan Status =>", planStatus);
   activeSubs.forEach((sub) => {
@@ -43,7 +44,8 @@ export async function loader({ request }) {
   return json({ 
     userInfo,
     planStatus,
-    activeSubs
+    activeSubs,
+    redirectToPricing
   });
 }
 
@@ -68,7 +70,7 @@ export async function action({ request }) {
 export default function SettingsPage() {
   const actionData = useActionData();
   const { state } = useNavigation();
-  const { userInfo, planStatus, activeSubs } = useLoaderData<typeof loader>();
+  const { userInfo, planStatus, activeSubs, redirectToPricing } = useLoaderData<typeof loader>();
   const [email, setEmail] = useState(userInfo?userInfo?.email:"");
   const [stripeApiKeys, setStripeApiKeys] = useState(userInfo);
 
