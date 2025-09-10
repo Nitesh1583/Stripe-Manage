@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "@remix-run/react";
+import { useFetcher, useLoaderData  } from "@remix-run/react";
 import {
   Page,
   Layout,
@@ -9,10 +10,53 @@ import {
   BlockStack,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
+import { fetchStripeRecentPayouts, getShopifyPlanStatus } from "../models/payouts.server";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 
-export default function ThankYouPage() {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  try {
+    const auth = await authenticate.admin(request);
+
+    const userInfo = await db.user.findFirst({
+      where: { shop: auth.session.shop },
+    });
+
+    // Fetch plan status + subscriptions
+    const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
+
+    console.log("SERVER DEBUG: Plan Status =>", planStatus);
+    activeSubs.forEach((sub) => {
+      console.log(
+        `SERVER DEBUG: Subscription Name: ${sub.name}, Status: ${sub.status}, Price: ${
+          sub.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0
+        }`
+      );
+    });
+
+    return json({
+      planStatus,
+      activeSubs,
+    });
+
+  }catch (error) {
+    console.error("Loader failed:", error);
+    return json(
+      {
+        planStatus: null,
+        activeSubs: [],
+      },
+      { status: 500 }
+    );
+  }
+};
+
+export default function ThankYouPage() {planStatus, activeSubs} = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const [chargeId, setChargeId] = useState<string | null>(null);
+
+  // Client debug logs
+  console.log("CLIENT DEBUG: Plan Status =>", planStatus);
+  console.log("CLIENT DEBUG: Active Subscriptions =>", activeSubs);
 
   useEffect(() => {
     const id = searchParams.get("charge_id");
