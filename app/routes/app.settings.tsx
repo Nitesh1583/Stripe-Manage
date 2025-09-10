@@ -80,10 +80,15 @@ export default function SettingsPage() {
       shopify.toast.show(actionData.message, { isError: actionData.isError });
     }
 
-    // Redirect if first-time Stripe key was saved
     if (actionData?.redirectToPricing && userInfo?.shop) {
       const shopName = userInfo.shop.split(".")[0];
-      window.location.href = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
+
+      // Use App Bridge Redirect instead of window.location
+      const redirect = Redirect.create(shopify);
+      redirect.dispatch(
+        Redirect.Action.ADMIN_PATH,
+        `/charges/stripe-manage/pricing_plans`
+      );
     }
   }, [actionData]);
 
