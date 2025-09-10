@@ -115,45 +115,17 @@ export default function PaymentsPage() {
 
   return (
     <Page title="Payments"
-        backAction={{ content: "Home", url: "/app" }}
-      >      
-      {(premiumUser == 0 && userTakesub == 0 && daysDifference <= 7) ?
-        <>
-          <Layout>  
-            <Layout.Section>
-              <CalloutCard
-                  title=""
-                  primaryAction={{
-                    content: "Upgrade Now",
-                    onAction: () => {
-                      const shopName = UserInfo?.shop.split(".")[0];
-                      const url = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
-                      console.log("Redirecting to pricing page:", url);
-                      window.open(url, "_top");
-                    },
-                  }}
-                >
-                  <Text as="p" tone="critical">
-                    Time is running out! Your free trial of Stripe Console ends on {newTrialEndDate} and we’d hate for you to lose access to all the premium features you’ve been enjoying.
-                  </Text>
-                </CalloutCard>
-            </Layout.Section>
-          </Layout>
-        </>
-      :''}
-
-      {(userTakesub == 1 || (userTakesub == 0 && daysDifference <= 7)) ? (
-        <>
-        <Layout>
-         <Layout.Section>
-           {/*Add for spacing*/}
-         </Layout.Section>  
+      backAction={{ content: "Home", url: "/app" }}> 
+      <Layout>
+        <Layout.Section>
+          {/*Add for spacing*/}
+        </Layout.Section>  
          
-         <Layout.Section>
-
-
+        <Layout.Section>
           <label htmlFor="search">
-            <input id="search" type="text" value={searchedVal} onChange={handleSearch} placeholder="Search by Order ID or Customer Name" />
+            <input id="search" type="text" value={searchedVal} 
+              onChange={handleSearch} 
+              placeholder="Search by Order ID or Customer Name" />
           </label>
           <Card>
             <IndexTable
@@ -188,29 +160,6 @@ export default function PaymentsPage() {
           </Card>
           </Layout.Section> 
         </Layout>
-        </>
-      ) : (
-          // Show only if trial has ended and no subscription
-        (userTakesub == 0 && daysDifference > 7) && (
-          <CalloutCard
-            title="No Trial/Subscription Found!"
-            primaryAction={{
-              content: "Buy Subscription",
-              onAction: () => {
-                    const shopName = UserInfo?.shop.split(".")[0];
-                    const url = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
-                    console.log("Redirecting to pricing page:", url);
-                    window.open(url, "_top");
-                  },
-            }}
-          >
-            <Text as="p">
-              Your trial period has ended. If you want to continue, click on the below button to buy the subscription.
-            </Text>
-          </CalloutCard>
-        )
-
-      )}
-    </Page>
+      </Page>
   );
 }

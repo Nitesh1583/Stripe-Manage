@@ -248,7 +248,8 @@ export default function Index() {
                      <Text variant="heading2xl" as="p">
                       ${todayTotal.toFixed(2)}
                     </Text>
-                    <Text tone="subdued">as of {new Date().toLocaleTimeString()}</Text>
+                    <Text tone="subdued"> as of {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}</Text>
+                    
                   </BlockStack>
 
                   <BlockStack gap="100" align="end">
