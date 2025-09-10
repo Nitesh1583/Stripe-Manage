@@ -7,6 +7,7 @@ import {
 } from "@remix-run/react";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { Redirect } from "@shopify/app-bridge/actions";
+import { redirect } from '@remix-run/node';
 import {
   BlockStack,
   Button,
@@ -30,7 +31,7 @@ export async function loader({ request }) {
 
   //Fetch plan status + subscriptions
   const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
-  // const { redirectToPricing } = await updateUserStripeSetting(request);
+  const { redirectToPricing } = await updateUserStripeSetting(request);
 
   console.log("SERVER DEBUG: Plan Status =>", planStatus);
   activeSubs.forEach((sub) => {
@@ -94,6 +95,14 @@ export default function SettingsPage() {
     //   );
     // }
   }, [actionData]);
+
+  if(redirectToPricing == 0) {
+    console.log("get 0")
+    return redirect(`https://admin.shopify.com/store/${userInfo?.shop.split(".")[0]}/charges/stripe-manage/pricing_plans`);
+  }else if (
+
+    console.log("Stripe key updated !");
+  )
 
   return (
     <Page title="Settings" backAction={{ content: "Home", url: "/app" }}>
