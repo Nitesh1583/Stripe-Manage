@@ -117,7 +117,6 @@ export async function getShopifyPlanStatus(request: Request) {
   try {
     const { admin } = await authenticate.admin(request);
 
-    // Use Shopify Admin GraphQL client
     const response = await admin.graphql(`
       {
         appInstallation {
@@ -151,10 +150,9 @@ export async function getShopifyPlanStatus(request: Request) {
 
     const activeSubs = data?.data?.appInstallation?.activeSubscriptions ?? [];
 
-    let planStatus = "FREE";
+    let planStatus = "NONE"; // ✅ Default changed to NONE
 
     if (activeSubs.length > 0) {
-      // ✅ Check subscription status + price
       const hasPaid = activeSubs.some((sub) => {
         const price = sub?.lineItems?.[0]?.plan?.pricingDetails?.price?.amount || 0;
         return ["ACTIVE", "ACCEPTED", "PENDING"].includes(sub.status) && price > 0;
@@ -167,9 +165,10 @@ export async function getShopifyPlanStatus(request: Request) {
     return { planStatus, activeSubs };
   } catch (error) {
     console.error("Error fetching Shopify Plan Status:", error);
-    return { planStatus: "FREE", activeSubs: [] };
+    return { planStatus: "NONE", activeSubs: [] }; // ✅ Return NONE when error
   }
 }
+
 
 // Fetch Recent Stripe Payouts for dashboard
 export async function fetchStripeRecentPayouts(userInfo) {
