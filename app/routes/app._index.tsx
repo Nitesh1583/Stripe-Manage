@@ -86,6 +86,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       recentPaymentsData,
       recentInvoices,
       recentPayouts,
+      premiumUser: userInfo.premiumUser, 
     });
   } catch (error) {
     console.error("Loader failed:", error);
@@ -247,10 +248,10 @@ export default function Index() {
     } 
   }, [planStatus]);
 
-  useEffect(() => {
-    console.log("Plan Status:", planStatus);
-    console.log("premiumUser in DB:", userInfo?.premiumUser);
-  }, [planStatus, userInfo]);
+useEffect(() => {
+  console.log("Plan Status:", planStatus);
+  console.log("premiumUser in DB:", premiumUser); // ✅ use premiumUser from loader
+}, [planStatus, premiumUser]);
 
   return (
     <Page>
