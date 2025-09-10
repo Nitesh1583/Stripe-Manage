@@ -30,7 +30,7 @@ export async function loader({ request }) {
 
   //Fetch plan status + subscriptions
   const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
-  const { redirectToPricing } = await updateUserStripeSetting(request);
+  // const { redirectToPricing } = await updateUserStripeSetting(request);
 
   console.log("SERVER DEBUG: Plan Status =>", planStatus);
   activeSubs.forEach((sub) => {
@@ -45,7 +45,7 @@ export async function loader({ request }) {
     userInfo,
     planStatus,
     activeSubs,
-    redirectToPricing
+    // redirectToPricing
   });
 }
 
@@ -83,16 +83,16 @@ export default function SettingsPage() {
       app.toast.show(actionData.message, { isError: actionData.isError });
     }
 
-    if (actionData?.redirectToPricing && userInfo?.shop) {
-      const shopName = userInfo.shop.split(".")[0];
+    // if (actionData?.redirectToPricing && userInfo?.shop) {
+    //   const shopName = userInfo.shop.split(".")[0];
 
-      // Use App Bridge Redirect correctly
-      const redirect = Redirect.create(app);
-      redirect.dispatch(
-        Redirect.Action.REMOTE, // Or ADMIN_PATH if you want relative path
-        `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`
-      );
-    }
+    //   // Use App Bridge Redirect correctly
+    //   const redirect = Redirect.create(app);
+    //   redirect.dispatch(
+    //     Redirect.Action.REMOTE, // Or ADMIN_PATH if you want relative path
+    //     `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`
+    //   );
+    // }
   }, [actionData]);
 
   return (
