@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useFetcher, useLoaderData  } from "@remix-run/react";
 import {
   Page,
@@ -34,11 +34,32 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     if (!userInfo) return redirect("/app");
 
+     // Fetch Stripe data
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
     const balance = await fetchStripeBalance(userInfo);
     
     // Fetch plan status + subscriptions
     const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
+    console.log("SERVER DEBUG: Plan Status =>", planStatus);
+
+    // Auto-update premiumUser based on planStatus
+    let premiumUserValue = 0; // default: no plan
+
+    if (!planStatus || planStatus === "NONE" || planStatus === null) {
+      premiumUserValue = 0;
+    } else if (planStatus === "FREE") {
+      premiumUserValue = 1;
+    } else if (planStatus === "PAID") {
+      premiumUserValue = 2;
+    }
+
+    if (userInfo.premiumUser !== premiumUserValue) {
+      userInfo = await db.user.update({
+        where: { shop: auth.session.shop },
+        data: { premiumUser: premiumUserValue },
+      });
+      console.log(`DB updated: premiumUser => ${premiumUserValue}`);
+    }
 
     console.log("SERVER DEBUG: Plan Status =>", planStatus);
     activeSubs.forEach((sub) => {
@@ -49,6 +70,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       );
     });
 
+    //Fetch additional data
     const { recentStripeCustomers } = await fetchStripeRecentCustomers(userInfo);
     const recentPaymentsData = await fetchStripeRecentPaymentData(userInfo);
     const { recentInvoices } = await fetchStripeRecentInvoices(userInfo);
@@ -64,6 +86,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       recentPaymentsData,
       recentInvoices,
       recentPayouts,
+      userInfo, // send updated userinfo with premiumUser
     });
   } catch (error) {
     console.error("Loader failed:", error);
@@ -216,12 +239,19 @@ export default function Index() {
   const generateProduct = () => fetcher.submit({}, { method: "POST" });
 
   useEffect(() => {
-    if (planStatus === "PAID") {
-      console.log("User is on a paid plan");
-    } else {
+    if (!planStatus || planStatus === "NONE" || planStatus === null) {
+       console.log("No plan is Active");
+    } else if (planStatus === "FREE") {
       console.log("User is on free plan");
-    }  
+    } else if (planStatus === "PAID") {
+      console.log("User is on a paid plan");
+    } 
   }, [planStatus]);
+
+  useEffect(() => {
+    console.log("Plan Status:", planStatus);
+    console.log("premiumUser in DB:", userInfo?.premiumUser);
+  }, [planStatus, userInfo]);
 
   return (
     <Page>
@@ -273,7 +303,7 @@ export default function Index() {
                         <Tooltip active content="Upgrade to a paid plan to see your available balance" preferredPosition="above">
                           <span
                             style={{
-                              filter: "blur(6px)", // ✅ Blur when not paid
+                              filter: "blur(6px)", // Blur when not paid
                               userSelect: "none",
                               transition: "filter 0.3s ease-in-out",
                               cursor: "pointer",
