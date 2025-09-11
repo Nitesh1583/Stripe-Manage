@@ -393,7 +393,7 @@ export default function Index() {
                 <Text as="h2" variant="headingMd">
                   Recent Invoices
                 </Text>
-                <InvoicesPlaceholder height="100%" recentInvoices = {recentInvoices} premiumUser={premiumUser} //>
+                <InvoicesPlaceholder height="100%" recentInvoices = {recentInvoices} premiumUser={premiumUser} >
               </Grid.Cell>
             </Grid>
           </LegacyCard>
