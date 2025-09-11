@@ -752,8 +752,10 @@ const InvoicesPlaceholder = ({
   width = "auto",
   recentInvoices = null,
   planStatus,
-  premiumUser // ✅ Pass planStatus here
+  premiumUser
 }) => {
+  const numericPremiumUser = Number(premiumUser); // ✅ always number
+  
   return (
     <div
       style={{
@@ -779,7 +781,7 @@ const InvoicesPlaceholder = ({
               <IndexTable.Row id={invoice.id} key={invoice.id} position={index}>
                 {/*  Customer Info Cell */}
                 <IndexTable.Cell>
-                  {premiumUser !== 2 ? (
+                  {numericPremiumUser !== 2 ? (
                     <Tooltip
                       preferredPosition="above"
                       content="Upgrade to a paid plan to see customer details"
@@ -817,7 +819,7 @@ const InvoicesPlaceholder = ({
 
                 {/* Invoice ID Cell */}
                 <IndexTable.Cell>
-                  {premiumUser !== 2 ? (
+                  {numericPremiumUser !== 2 ? (
                     <Tooltip
                       preferredPosition="above"
                       content="Upgrade to a paid plan to see invoice ID"
@@ -839,7 +841,7 @@ const InvoicesPlaceholder = ({
 
                 {/* Amount Cell */}
                 <IndexTable.Cell>
-                  {premiumUser !== 2 ? (
+                  {numericPremiumUser !== 2 ? (
                     <Tooltip
                       preferredPosition="above"
                       content="Upgrade to a paid plan to see amount"
@@ -861,7 +863,7 @@ const InvoicesPlaceholder = ({
 
                 {/*  Status Cell */}
                 <IndexTable.Cell>
-                  {premiumUser !== 2 ? (
+                  {numericPremiumUser !== 2 ? (
                     <Tooltip
                       preferredPosition="above"
                       content="Upgrade to a paid plan to see status"
