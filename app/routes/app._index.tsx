@@ -754,8 +754,8 @@ const InvoicesPlaceholder = ({
   planStatus,
   premiumUser
 }) => {
-  const numericPremiumUser = Number(premiumUser); // ✅ always number
-  
+  const numericPremiumUser = premiumUser; // ✅ always number
+
   return (
     <div
       style={{
