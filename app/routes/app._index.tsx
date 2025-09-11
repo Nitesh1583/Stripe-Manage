@@ -64,6 +64,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       recentPaymentsData,
       recentInvoices,
       recentPayouts,
+      userInfo
     });
   } catch (error) {
     console.error("Loader failed:", error);
@@ -152,7 +153,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
   const { transactions, balanceAvailable, balancePending, planStatus, activeSubs, recentStripeCustomers, 
-  recentPaymentsData, recentInvoices, recentPayouts} = useLoaderData<typeof loader>();
+  recentPaymentsData, recentInvoices, recentPayouts, userInfo} = useLoaderData<typeof loader>();
+
+  // Extract premiumUser value
+  const premiumUser = userInfo?.premiumUser ?? 0; // fallback to 0 if null
 
   // Client debug logs
   console.log("CLIENT DEBUG: Plan Status =>", planStatus);
@@ -235,8 +239,7 @@ export default function Index() {
         
         {/*  Top Overview Section */}
         <Layout>
-          <Layout.Section>
-            
+          <Layout.Section>            
             <Card padding="400">
               <BlockStack gap="400">
                 {/* Top Row: Gross Volume + Yesterday */}
@@ -270,7 +273,7 @@ export default function Index() {
                     <Text tone="subdued">
                       Available:{" "}
                       {/*  Only wrap in Tooltip if NOT paid */}
-                      {planStatus !== "PAID" ? (
+                      {premiumUser !== "2" ? (
                         <Tooltip content="Upgrade to a paid plan to see your available balance" preferredPosition="above">
                           <span
                             style={{
@@ -308,7 +311,7 @@ export default function Index() {
                     <Text tone="subdued">
                       Pending:{" "}
                       {/*  Only wrap in Tooltip if NOT paid */}
-                      {planStatus !== "PAID" ? (
+                      {premiumUser !== "2" ? (
                         <Tooltip content="Upgrade to a paid plan to see your pending" preferredPosition="above">
                           <span
                             style={{
@@ -748,7 +751,8 @@ const InvoicesPlaceholder = ({
   height = "auto",
   width = "auto",
   recentInvoices = null,
-  planStatus, // ✅ Pass planStatus here
+  planStatus,
+  premiumUser // ✅ Pass planStatus here
 }) => {
   return (
     <div
@@ -775,7 +779,7 @@ const InvoicesPlaceholder = ({
               <IndexTable.Row id={invoice.id} key={invoice.id} position={index}>
                 {/*  Customer Info Cell */}
                 <IndexTable.Cell>
-                  {planStatus !== "PAID" ? (
+                  {premiumUser !== "2" ? (
                     <Tooltip
                       preferredPosition="above"
                       content="Upgrade to a paid plan to see customer details"
@@ -813,7 +817,7 @@ const InvoicesPlaceholder = ({
 
                 {/* Invoice ID Cell */}
                 <IndexTable.Cell>
-                  {planStatus !== "PAID" ? (
+                  {premiumUser !== "2" ? (
                     <Tooltip
                       preferredPosition="above"
                       content="Upgrade to a paid plan to see invoice ID"
@@ -835,7 +839,7 @@ const InvoicesPlaceholder = ({
 
                 {/* Amount Cell */}
                 <IndexTable.Cell>
-                  {planStatus !== "PAID" ? (
+                  {premiumUser !== "2" ? (
                     <Tooltip
                       preferredPosition="above"
                       content="Upgrade to a paid plan to see amount"
@@ -857,7 +861,7 @@ const InvoicesPlaceholder = ({
 
                 {/*  Status Cell */}
                 <IndexTable.Cell>
-                  {planStatus !== "PAID" ? (
+                  {premiumUser !== "2" ? (
                     <Tooltip
                       preferredPosition="above"
                       content="Upgrade to a paid plan to see status"
