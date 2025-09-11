@@ -273,7 +273,7 @@ export default function Index() {
                     <Text tone="subdued">
                       Available:{" "}
                       {/*  Only wrap in Tooltip if NOT paid */}
-                      {premiumUser !== "2" ? (
+                      {premiumUser !== 2 ? (
                         <Tooltip content="Upgrade to a paid plan to see your available balance" preferredPosition="above">
                           <span
                             style={{
@@ -311,7 +311,7 @@ export default function Index() {
                     <Text tone="subdued">
                       Pending:{" "}
                       {/*  Only wrap in Tooltip if NOT paid */}
-                      {premiumUser !== "2" ? (
+                      {premiumUser !== 2 ? (
                         <Tooltip content="Upgrade to a paid plan to see your pending" preferredPosition="above">
                           <span
                             style={{
@@ -779,7 +779,7 @@ const InvoicesPlaceholder = ({
               <IndexTable.Row id={invoice.id} key={invoice.id} position={index}>
                 {/*  Customer Info Cell */}
                 <IndexTable.Cell>
-                  {premiumUser !== "2" ? (
+                  {premiumUser !== 2 ? (
                     <Tooltip
                       preferredPosition="above"
                       content="Upgrade to a paid plan to see customer details"
@@ -817,7 +817,7 @@ const InvoicesPlaceholder = ({
 
                 {/* Invoice ID Cell */}
                 <IndexTable.Cell>
-                  {premiumUser !== "2" ? (
+                  {premiumUser !== 2 ? (
                     <Tooltip
                       preferredPosition="above"
                       content="Upgrade to a paid plan to see invoice ID"
@@ -839,7 +839,7 @@ const InvoicesPlaceholder = ({
 
                 {/* Amount Cell */}
                 <IndexTable.Cell>
-                  {premiumUser !== "2" ? (
+                  {premiumUser !== 2 ? (
                     <Tooltip
                       preferredPosition="above"
                       content="Upgrade to a paid plan to see amount"
@@ -861,7 +861,7 @@ const InvoicesPlaceholder = ({
 
                 {/*  Status Cell */}
                 <IndexTable.Cell>
-                  {premiumUser !== "2" ? (
+                  {premiumUser !== 2 ? (
                     <Tooltip
                       preferredPosition="above"
                       content="Upgrade to a paid plan to see status"

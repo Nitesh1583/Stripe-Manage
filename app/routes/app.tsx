@@ -49,7 +49,7 @@ export default function App() {
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
       ) : premiumUser === 2 ? (
-        /* ✅ Case 2: premiumUser = 2 (Full Access) */
+        /* Case 2: premiumUser = 2 (Full Access) */
         <NavMenu>
           <Link to="/app" rel="home">Dashboard</Link>
           <Link to="/app/products">Products</Link>
@@ -62,7 +62,7 @@ export default function App() {
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
       ) : (
-        /* ✅ Case 3: premiumUser = 0 or 1 (Limited Menu) */
+        /*  Case 3: premiumUser = 0 or 1 (Limited Menu) */
         <NavMenu>
           <Link to="/app" rel="home">Dashboard</Link>
           <Link to="/app/products">Products</Link>
