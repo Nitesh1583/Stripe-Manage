@@ -393,7 +393,7 @@ export default function Index() {
                 <Text as="h2" variant="headingMd">
                   Recent Invoices
                 </Text>
-                <InvoicesPlaceholder height="100%" recentInvoices = {recentInvoices}/>
+                <InvoicesPlaceholder height="100%" recentInvoices = {recentInvoices} premiumUser={premiumUser} //>
               </Grid.Cell>
             </Grid>
           </LegacyCard>
@@ -754,7 +754,7 @@ const InvoicesPlaceholder = ({
   planStatus,
   premiumUser
 }) => {
-  const numericPremiumUser = premiumUser; // ✅ always number
+  const numericPremiumUser = Number(premiumUser); 
 
   return (
     <div
