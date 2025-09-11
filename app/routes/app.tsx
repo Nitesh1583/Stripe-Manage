@@ -37,27 +37,38 @@ export default function App() {
     );
   };
 
+  // Extract premiumUser value
+  const premiumUser = userInfo?.premiumUser ?? 0; // fallback to 0 if null
+
   return (
     <AppProvider i18n={polarisTranslations} isEmbeddedApp apiKey={apiKey}>
+      {/* Case 1: No user or no Stripe Secret Key */}
       {!userInfo || !userInfo.stripeSecretKey ? (
         <NavMenu>
-          <Link to="/app" rel="home">
-            Dashboard
-          </Link>
+          <Link to="/app" rel="home">Dashboard</Link>
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
-      ) : (
+      ) : premiumUser === 2 ? (
+        /* ✅ Case 2: premiumUser = 2 (Full Access) */
         <NavMenu>
-          <Link to="/app" rel="home">
-            Dashboard
-          </Link>
+          <Link to="/app" rel="home">Dashboard</Link>
           <Link to="/app/products">Products</Link>
           <Link to="/app/customers">Customers</Link>
           <Link to="/app/payments">Payments</Link>
           <Link to="/app/payouts">Payouts</Link>
           <Link to="/app/invoices">Invoices</Link>
           <Link to="/app/subscription">Subscription</Link>
-          <Link to="/app" onClick={handlePricing}> Pricing </Link>
+          <Link to="/app" onClick={handlePricing}>Pricing</Link>
+          <Link to="/app/settings">Settings</Link>
+        </NavMenu>
+      ) : (
+        /* ✅ Case 3: premiumUser = 0 or 1 (Limited Menu) */
+        <NavMenu>
+          <Link to="/app" rel="home">Dashboard</Link>
+          <Link to="/app/products">Products</Link>
+          <Link to="/app/customers">Customers</Link>
+          <Link to="/app/payments">Payments</Link>
+          <Link to="/app" onClick={handlePricing}>Pricing</Link>
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
       )}

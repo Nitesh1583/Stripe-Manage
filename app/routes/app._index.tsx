@@ -271,7 +271,7 @@ export default function Index() {
                       Available:{" "}
                       {/*  Only wrap in Tooltip if NOT paid */}
                       {planStatus !== "PAID" ? (
-                        <Tooltip active content="Upgrade to a paid plan to see your available balance" preferredPosition="above">
+                        <Tooltip content="Upgrade to a paid plan to see your available balance" preferredPosition="above">
                           <span
                             style={{
                               filter: "blur(6px)", // ✅ Blur when not paid
@@ -309,7 +309,7 @@ export default function Index() {
                       Pending:{" "}
                       {/*  Only wrap in Tooltip if NOT paid */}
                       {planStatus !== "PAID" ? (
-                        <Tooltip active content="Upgrade to a paid plan to see your pending" preferredPosition="above">
+                        <Tooltip content="Upgrade to a paid plan to see your pending" preferredPosition="above">
                           <span
                             style={{
                               filter: "blur(6px)", //  Blur when not paid
