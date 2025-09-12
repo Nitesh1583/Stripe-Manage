@@ -96,9 +96,10 @@ export default function SettingsPage() {
   if (actionData?.redirectUrl) {
     console.log("Redirect URL from server:", actionData.redirectUrl);
 
-    setTimeout(() => {
-      window.location.href = actionData.redirectUrl;
-    }, 1500); // wait so toast shows first
+    window.open(
+      actionData.redirectUrl,
+      "_top"
+    );// wait so toast shows first
   }
 }, [actionData]);
   
