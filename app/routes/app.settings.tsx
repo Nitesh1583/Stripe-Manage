@@ -92,6 +92,8 @@ export default function SettingsPage() {
   // Extract premiumUser value
   const premiumUser = userInfo?.premiumUser ?? 0;
 
+  const stripeSecretkey = userInfo?.stripeSecretKey;
+
   // Handle Pricing Button Click
   const handlePricing = () => {
     if (userInfo?.shop) {
@@ -117,7 +119,7 @@ export default function SettingsPage() {
     <Page title="Settings" backAction={{ content: "Home", url: "/app" }}>
       <BlockStack gap="400">
         {/* Show message if no plan is active OR stripeSecretKey is present */}
-        {(premiumUser === 0 && !!stripeApiKeys?.stripeSecretKey) && (
+        {(premiumUser === 0 && stripeSecretkey == null || stripeSecretkey == '') && (
           <Banner title="No plan is active" status="critical">
             <p>
               No plan is currently active on your account. Please choose a plan
@@ -161,7 +163,7 @@ export default function SettingsPage() {
             <Form method="PATCH">
               <FormLayout>
                 <Text as="h3" variant="headingMd">
-                  Update Stripe API keys
+                  Update Stripe API key
                 </Text>
 
                 <TextField
