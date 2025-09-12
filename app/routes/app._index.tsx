@@ -1,19 +1,19 @@
 import { useEffect } from "react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { useFetcher, useLoaderData  } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import {
   Page,
   Layout,
   Text,
   Card,
-  Button,
   BlockStack,
-  Box,
-  List,Tooltip,
-  Link,
-  IndexTable, InlineStack, useIndexResourceState,Badge, Grid, LegacyCard
+  Tooltip,
+  IndexTable,
+  InlineStack,
+  Badge,
+  Grid,
 } from "@shopify/polaris";
-import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
+import { useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 import { json, redirect } from "@remix-run/node";
 
@@ -21,9 +21,8 @@ import db from "../db.server";
 import { fetchStripeRecentCustomers } from "../models/customer.server";
 import { fetchStripeRecentPaymentData } from "../models/payment.server";
 import { fetchStripeRecentInvoices } from "../models/invoices.server";
-import { fetchStripeRecentPayouts } from "../models/payouts.server";
-import { fetchStripeBalanceTransactions, fetchStripeBalance, 
-getShopifyPlanStatus, getNextPayout} from "../models/payouts.server";
+import { fetchStripeRecentPayouts, fetchStripeBalanceTransactions, fetchStripeBalance, 
+getShopifyPlanStatus, getNextPayout } from "../models/payouts.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
@@ -42,15 +41,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     // Fetch plan status + subscriptions
     const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
     const normalizedPlanStatus = planStatus === "PAID" || planStatus === "FREE" ? planStatus : "NONE";
-
-    console.log("SERVER DEBUG: Plan Status =>", planStatus);
-    activeSubs.forEach((sub) => {
-      console.log(
-        `SERVER DEBUG: Subscription Name: ${sub.name}, Status: ${sub.status}, Price: ${
-          sub.lineItems?.[0]?.plan?.pricingDetails?.price?.amount ?? 0
-        }`
-      );
-    });
 
     const { recentStripeCustomers } = await fetchStripeRecentCustomers(userInfo);
     const recentPaymentsData = await fetchStripeRecentPaymentData(userInfo);
@@ -85,151 +75,33 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 };
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
-  const color = ["Red", "Orange", "Yellow", "Green"][
-    Math.floor(Math.random() * 4)
-  ];
-  const response = await admin.graphql(
-    `#graphql
-      mutation populateProduct($product: ProductCreateInput!) {
-        productCreate(product: $product) {
-          product {
-            id
-            title
-            handle
-            status
-            variants(first: 10) {
-              edges {
-                node {
-                  id
-                  price
-                  barcode
-                  createdAt
-                }
-              }
-            }
-          }
-        }
-      }`,
-    {
-      variables: {
-        product: {
-          title: `${color} Snowboard`,
-        },
-      },
-    },
-  );
-  const responseJson = await response.json();
-
-  const product = responseJson.data!.productCreate!.product!;
-  const variantId = product.variants.edges[0]!.node!.id!;
-
-  const variantResponse = await admin.graphql(
-    `#graphql
-    mutation shopifyRemixTemplateUpdateVariant($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
-      productVariantsBulkUpdate(productId: $productId, variants: $variants) {
-        productVariants {
-          id
-          price
-          barcode
-          createdAt
-        }
-      }
-    }`,
-    {
-      variables: {
-        productId: product.id,
-        variants: [{ id: variantId, price: "100.00" }],
-      },
-    },
-  );
-
-  const variantResponseJson = await variantResponse.json();
-
-  return {
-    product: responseJson!.data!.productCreate!.product,
-    variant:
-      variantResponseJson!.data!.productVariantsBulkUpdate!.productVariants,
-  };
-};
-
 export default function Index() {
-  const fetcher = useFetcher<typeof action>();
-  const { transactions, balanceAvailable, balancePending, planStatus, activeSubs, recentStripeCustomers, 
-  recentPaymentsData, recentInvoices, recentPayouts, userInfo, nextPayout } = useLoaderData<typeof loader>();
+  const { transactions, balanceAvailable, balancePending, planStatus, recentStripeCustomers, 
+    recentPaymentsData, recentInvoices, userInfo, nextPayout } = useLoaderData<typeof loader>();
 
-  // Extract premiumUser value
-  const premiumUser = userInfo?.premiumUser ?? 0; // fallback to 0 if null
+  const premiumUser = userInfo?.premiumUser ?? 0;
 
-  // Client debug logs
-  console.log("CLIENT DEBUG: Plan Status =>", planStatus);
-  console.log("CLIENT DEBUG: Active Subscriptions =>", activeSubs);
-  console.log("Recent Customers => ", recentStripeCustomers);
-  console.log("Recent Payment List => ", recentPaymentsData);
-  console.log("Recent Invoices List => ", recentInvoices);
-  console.log("Recent Payouts List => ", recentPayouts);
-  console.log("Next Payout  => ", nextPayout);
-
-  // Helper function to format Stripe's created timestamp
-  const formatDate = (timestamp: number) => {
-    const date = new Date(timestamp * 1000); // Stripe gives seconds, JS needs ms
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  // Get today's date range
+  // Calculate today's & yesterday's totals
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // start of today
+  today.setHours(0, 0, 0, 0);
   const startOfDay = today.getTime() / 1000;
   const endOfDay = startOfDay + 86400;
 
-  // Calculate yesterday's date range
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
   const startOfYesterday = yesterday.getTime() / 1000;
   const endOfYesterday = startOfYesterday + 86400;
 
-  // Filter today's transactions
-  const todayTransactions = transactions.filter(
-    (tx) => tx.created >= startOfDay && tx.created < endOfDay
-  );
+  const todayTotal = transactions
+    .filter((tx) => tx.created >= startOfDay && tx.created < endOfDay)
+    .reduce((sum, tx) => sum + tx.amount, 0) / 100;
 
-  // Filter yesterday's transactions
-  const yesterdayTransactions = transactions.filter(
-    (tx) => tx.created >= startOfYesterday && tx.created < endOfYesterday
-  );
-
-  // Calculate totals
-  const todayTotal = todayTransactions.reduce((sum, tx) => sum + tx.amount, 0) / 100;
-  const yesterdayTotal = yesterdayTransactions.reduce((sum, tx) => sum + tx.amount, 0) / 100;
-
-  const shopify = useAppBridge();
-  
-  const isLoading =
-    ["loading", "submitting"].includes(fetcher.state) &&
-    fetcher.formMethod === "POST";
-  const productId = fetcher.data?.product?.id.replace(
-    "gid://shopify/Product/",
-    "",
-  );
+  const yesterdayTotal = transactions
+    .filter((tx) => tx.created >= startOfYesterday && tx.created < endOfYesterday)
+    .reduce((sum, tx) => sum + tx.amount, 0) / 100;
 
   useEffect(() => {
-    if (productId) {
-      shopify.toast.show("Product created");
-    }
-  }, [productId, shopify]);
-  const generateProduct = () => fetcher.submit({}, { method: "POST" });
-
-  useEffect(() => {
-    if (planStatus === "PAID") {
-      console.log("User is on a paid plan");
-    } else {
-      console.log("User is on free plan");
-    }  
+    console.log("Current Plan Status:", planStatus);
   }, [planStatus]);
 
   return (
@@ -253,21 +125,16 @@ export default function Index() {
               : "No Plan Active"}
           </Badge>
         </InlineStack>
-        
-        {/*  Top Overview Section */}
+
+        {/* Overview Section */}
         <Layout>
           <Layout.Section>            
             <Card padding="400">
               <BlockStack gap="400">
-                {/* Top Row: Gross Volume + Yesterday */}
                 <InlineStack align="space-between" blockAlign="center">
                   <BlockStack gap="100">
-                    <Text variant="headingMd" as="h2">
-                      Today volume
-                    </Text>
-                     <Text variant="heading2xl" as="p">
-                      ${todayTotal.toFixed(2)}
-                    </Text>
+                    <Text variant="headingMd" as="h2">Today volume</Text>
+                    <Text variant="heading2xl" as="p">${todayTotal.toFixed(2)}</Text>
                     <Text tone="subdued">
                       as of{" "}
                       {new Date().toLocaleDateString("en-US", {
@@ -280,192 +147,51 @@ export default function Index() {
                         minute: "2-digit",
                       })}
                     </Text>
-                    
                   </BlockStack>
 
                   <BlockStack gap="100" align="end">
-                    <Text variant="headingMd" as="h2">
-                      Yesterday
-                    </Text>
-                    <Text variant="headingLg" as="p">
-                      ${yesterdayTotal.toFixed(2)}
-                    </Text>
+                    <Text variant="headingMd" as="h2">Yesterday</Text>
+                    <Text variant="headingLg" as="p">${yesterdayTotal.toFixed(2)}</Text>
                   </BlockStack>
                 </InlineStack>
-
-                {/* Bottom Row: USD Balance + Payouts */}
-                <InlineStack align="space-between">
-                  <BlockStack gap="100">
-                    <Text variant="headingSm">USD Balance</Text>
-
-                    <Text tone="subdued">
-                      Available:{" "}
-                      {/*  Only wrap in Tooltip if NOT paid */}
-                      {premiumUser !== 2 ? (
-                        <Tooltip content="Upgrade to a paid plan to see your available balance" preferredPosition="above">
-                          <span
-                            style={{
-                              filter: "blur(6px)", // ✅ Blur when not paid
-                              userSelect: "none",
-                              transition: "filter 0.3s ease-in-out",
-                              cursor: "pointer",
-                            }}
-                          >
-                            {balanceAvailable.length > 0
-                              ? balanceAvailable
-                                  .map(
-                                    (b) =>
-                                      `${(b.amount / 100).toFixed(2)} ${b.currency.toUpperCase()}`
-                                  )
-                                  .join(", ")
-                              : "0.00"}
-                          </span>
-                        </Tooltip>
-                      ) : (
-                        //  If paid, show normal value without tooltip or blur
-                        <span>
-                          {balanceAvailable.length > 0
-                            ? balanceAvailable
-                                .map(
-                                  (b) =>
-                                    `${(b.amount / 100).toFixed(2)} ${b.currency.toUpperCase()}`
-                                )
-                                .join(", ")
-                            : "0.00"}
-                        </span>
-                      )}
-                    </Text>
-
-                    <Text tone="subdued">
-                      Pending:{" "}
-                      {/*  Only wrap in Tooltip if NOT paid */}
-                      {premiumUser !== 2 ? (
-                        <Tooltip content="Upgrade to a paid plan to see your pending" preferredPosition="above">
-                          <span
-                            style={{
-                              filter: "blur(6px)", //  Blur when not paid
-                              userSelect: "none",
-                              transition: "filter 0.3s ease-in-out",
-                              cursor: "pointer",
-                            }}
-                          >
-                            {balancePending.length > 0
-                              ? balancePending
-                                  .map(
-                                    (b) =>
-                                      `${(b.amount / 100).toFixed(2)} ${b.currency.toUpperCase()}`
-                                  )
-                                  .join(", ")
-                              : "0.00"}
-                          </span>
-                        </Tooltip>
-                      ) : (
-                        // If paid, show normal value without tooltip or blur
-                        <span>
-                          {balancePending.length > 0
-                            ? balancePending
-                                .map(
-                                  (b) =>
-                                    `${(b.amount / 100).toFixed(2)} ${b.currency.toUpperCase()}`
-                                )
-                                .join(", ")
-                            : "0.00"}
-                        </span>
-                      )}
-                    </Text>
-
-                  </BlockStack>
-
-                  {/* Right side - Payout Section */}
-                  <BlockStack gap="100" align="end">
-                    <Text variant="headingSm">Payouts</Text>
-
-                    {premiumUser !== 2 ? (
-                      <Tooltip
-                        content="Upgrade to a paid plan to see your next payout date or amount"
-                        preferredPosition="above"
-                      >
-                        <div
-                          style={{
-                            filter: "blur(6px)",
-                            userSelect: "none",
-                            transition: "filter 0.3s ease-in-out",
-                            cursor: "pointer",
-                          }}
-                        >
-                          <Text tone="subdued">
-                            Expected{" "}
-                            {nextPayout
-                              ? `${new Date(nextPayout.arrival_date * 1000).toLocaleDateString("en-US", {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                })} • ${(nextPayout.amount / 100).toFixed(2)} ${nextPayout.currency.toUpperCase()}`
-                              : "N/A"}
-                          </Text>
-                        </div>
-                      </Tooltip>
-                    ) : (
-                      <Text tone="subdued">
-                        Expected{" "}
-                        {nextPayout
-                          ? `${new Date(nextPayout.arrival_date * 1000).toLocaleDateString("en-US", {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            })} • ${(nextPayout.amount / 100).toFixed(2)} ${nextPayout.currency.toUpperCase()}`
-                          : "N/A"}
-                      </Text>
-                    )}
-                  </BlockStack>
-
-                </InlineStack>
-
-
               </BlockStack>
             </Card>
           </Layout.Section>
         </Layout>
 
-        {/* Recent fetch */}
+        {/* Recent Data */}
         <Layout>
-          <LegacyCard sectioned>
-            <Grid
-              columns={{xs: 1, sm: 3, md: 3, lg: 3, xl: 3}}
-              areas={{
-                xs: ['customers', 'payments', 'invoices'],
-                sm: [
-                  'customers customers payments payments',
-                  'invoices invoices',
-                ],
-                md: ['customers payments invoices'],
-                lg: ['customers payments invoices'],
-                xl: ['customers payments invoices'],
-              }}
-            >
-              <Grid.Cell area="customers">
-                <Text as="h2" variant="headingMd">
-                  Recent Customers
-                </Text>
-                <CustomerPlaceholder height="100%" recentStripeCustomers={recentStripeCustomers} />
-              </Grid.Cell>
-              <Grid.Cell area="payments">
-                <Text as="h2" variant="headingMd">
-                  Recent Payments
-                </Text>
-                <PaymentPlaceholder height="100%" recentPaymentsData= {recentPaymentsData}/>
-              </Grid.Cell>
-              <Grid.Cell area="invoices">
-                <Text as="h2" variant="headingMd">
-                  Recent Invoices
-                </Text>
-                <InvoicesPlaceholder height="100%" recentInvoices = {recentInvoices} premiumUser={premiumUser} />
-              </Grid.Cell>
-            </Grid>
-          </LegacyCard>
+          <Layout.Section>
+            <Card padding="400">
+              <Grid
+                columns={{ xs: 1, sm: 3, md: 3, lg: 3, xl: 3 }}
+                areas={{
+                  xs: ["customers", "payments", "invoices"],
+                  md: ["customers payments invoices"],
+                  lg: ["customers payments invoices"],
+                }}
+                gap="400"
+              >
+                <Grid.Cell area="customers">
+                  <Text as="h2" variant="headingMd">Recent Customers</Text>
+                  <CustomerPlaceholder recentStripeCustomers={recentStripeCustomers} />
+                </Grid.Cell>
+
+                <Grid.Cell area="payments">
+                  <Text as="h2" variant="headingMd">Recent Payments</Text>
+                  <PaymentPlaceholder recentPaymentsData={recentPaymentsData} />
+                </Grid.Cell>
+
+                <Grid.Cell area="invoices">
+                  <Text as="h2" variant="headingMd">Recent Invoices</Text>
+                  <InvoicesPlaceholder recentInvoices={recentInvoices} premiumUser={premiumUser} />
+                </Grid.Cell>
+              </Grid>
+            </Card>
+          </Layout.Section>
         </Layout>
 
-        {/* Keep your marketing content */}
+                {/* Keep your marketing content */}
         <Layout>
           <Layout.Section>
             <Card>
@@ -689,279 +415,135 @@ export default function Index() {
             </Card>
           </Layout.Section>
         </Layout>
+        
       </BlockStack>
     </Page>
   );
 }
 
-const CustomerPlaceholder = ({height = 'auto', width = 'auto', recentStripeCustomers = null}) => {
+// === Placeholders remain same ===
+const CustomerPlaceholder = ({ recentStripeCustomers = [] }) => (
+  <Card title=" Recent Customers">
+    <IndexTable
+      resourceName={{ singular: "customer", plural: "customers" }}
+      itemCount={recentStripeCustomers.length}
+      headings={[
+        { title: "Name / Email" },
+        { title: "Card" },
+      ]}
+      selectable={false}
+    >
+      {recentStripeCustomers.length > 0 ? (
+        recentStripeCustomers.map((customer, index) => (
+          <IndexTable.Row id={customer.id} key={customer.id} position={index}>
+            <IndexTable.Cell>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontWeight: "600" }}>{customer.name || "N/A"}</span>
+                <span style={{ fontSize: "13px", color: "#666" }}>{customer.email || "No email"}</span>
+              </div>
+            </IndexTable.Cell>
+            <IndexTable.Cell>
+              {customer.brand ? `${customer.brand.toUpperCase()} / ${customer.last4}` : "No Card"}
+            </IndexTable.Cell>
+          </IndexTable.Row>
+        ))
+      ) : (
+        <IndexTable.Row id="empty" key="empty" position={0}>
+          <IndexTable.Cell colSpan={4}>
+            <Text alignment="center" tone="subdued">No recent customers</Text>
+          </IndexTable.Cell>
+        </IndexTable.Row>
+      )}
+    </IndexTable>
+  </Card>
+);
+
+const PaymentPlaceholder = ({ recentPaymentsData = { recentPaymentsData: [] } }) => (
+  <Card title=" Recent Payments">
+    <IndexTable
+      resourceName={{ singular: "payment", plural: "payments" }}
+      itemCount={recentPaymentsData.recentPaymentsData?.length || 0}
+      headings={[
+        { title: "Name / Email" },
+        { title: "Order ID" },
+        { title: "Amount" },
+        { title: "Status" }
+      ]}
+      selectable={false}
+    >
+      {recentPaymentsData.recentPaymentsData?.length > 0 ? (
+        recentPaymentsData.recentPaymentsData.map((payment, index) => (
+          <IndexTable.Row id={payment.id} key={payment.id} position={index}>
+            <IndexTable.Cell>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <span style={{ fontWeight: "600" }}>{payment.customerName || "N/A"}</span>
+                <span style={{ fontSize: "13px", color: "#666" }}>{payment.customerEmail || "No email"}</span>
+              </div>
+            </IndexTable.Cell>
+            <IndexTable.Cell>{payment.orderID}</IndexTable.Cell>
+            <IndexTable.Cell>
+              {payment.symbolNative} {(payment.amount / 100).toFixed(2)} {payment.currencycode}
+            </IndexTable.Cell>
+            <IndexTable.Cell>
+              <Text tone={payment.status === "succeeded" ? "success" : "critical"}>{payment.status}</Text>
+            </IndexTable.Cell>
+          </IndexTable.Row>
+        ))
+      ) : (
+        <IndexTable.Row id="empty" key="empty" position={0}>
+          <IndexTable.Cell colSpan={4}>
+            <Text alignment="center" tone="subdued">No recent payments</Text>
+          </IndexTable.Cell>
+        </IndexTable.Row>
+      )}
+    </IndexTable>
+  </Card>
+);
+
+const InvoicesPlaceholder = ({ recentInvoices = [], premiumUser }) => {
+  const numericPremiumUser = Number(premiumUser); 
   return (
-    <div
-      style={{
-        background: '#ffffff',
-        height: height,
-        width: width,
-      }}>
-      <Card title=" Recent Customers">
+    <Card title=" Recent Invoices">
       <IndexTable
-        resourceName={{ singular: "customer", plural: "customers" }}
-        itemCount={recentStripeCustomers?.length || 0}
+        resourceName={{ singular: "invoice", plural: "invoices" }}
+        itemCount={recentInvoices.length}
         headings={[
-          { title: "Name / Email" },
-          // { title: "Email" },
-          { title: "Card" },
-          // { title: "Date" },
+          { title: "Customer Name / Email" },
+          { title: "Invoice ID" },
+          { title: "Amount" },
+          { title: "Status" },
         ]}
         selectable={false}
       >
-        {recentStripeCustomers?.length > 0 ? (
-          recentStripeCustomers.map((customer, index) => (
-            <IndexTable.Row id={customer.id} key={customer.id} position={index}>
-              {/* Name + Email in same cell */}
-                <IndexTable.Cell>
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <span style={{ fontWeight: "600" }}>
-                      {customer.name || "N/A"}
-                    </span>
-                    <span style={{ fontSize: "13px", color: "#666" }}>
-                      {customer.email || "No email"}
-                    </span>
-                  </div>
-                </IndexTable.Cell>
+        {recentInvoices.length > 0 ? (
+          recentInvoices.map((invoice, index) => (
+            <IndexTable.Row id={invoice.id} key={invoice.id} position={index}>
               <IndexTable.Cell>
-                {customer.brand
-                  ? `${customer.brand.toUpperCase()} / ${customer.last4}`
-                  : "No Card"}
+                {numericPremiumUser !== 2 ? (
+                  <Tooltip preferredPosition="above" content="Upgrade to a paid plan to see customer details">
+                    <div style={{ filter: "blur(6px)" }}>
+                      {invoice.customerName} / {invoice.customerEmail}
+                    </div>
+                  </Tooltip>
+                ) : (
+                  `${invoice.customerName} / ${invoice.customerEmail}`
+                )}
               </IndexTable.Cell>
-              {/*<IndexTable.Cell>{formatDate(customer.created)}</IndexTable.Cell>*/}
+              <IndexTable.Cell>{invoice.id}</IndexTable.Cell>
+              <IndexTable.Cell>{invoice.currency} {parseFloat(invoice.amount).toFixed(2)}</IndexTable.Cell>
+              <IndexTable.Cell>
+                <Text tone={invoice.status === "paid" ? "success" : "critical"}>{invoice.status}</Text>
+              </IndexTable.Cell>
             </IndexTable.Row>
           ))
         ) : (
           <IndexTable.Row id="empty" key="empty" position={0}>
             <IndexTable.Cell colSpan={4}>
-              <Text alignment="center" tone="subdued">
-                No recent customers
-              </Text>
+              <Text alignment="center" tone="subdued">No recent invoices</Text>
             </IndexTable.Cell>
           </IndexTable.Row>
         )}
       </IndexTable>
     </Card>
-    </div>
-  );
-};
-
-const PaymentPlaceholder = ({height = 'auto', width = 'auto', recentPaymentsData = null}) => {
-  return (
-    <div
-      style={{
-        background: '#ffffff',
-        height: height,
-        width: width,
-      }}>
-      <Card title=" Recent Payments">
-        <IndexTable
-          resourceName={{ singular: "payment", plural: "payments" }}
-          itemCount={recentPaymentsData?.recentPaymentsData?.length || 0}
-          headings={[
-            { title: "Name / Email" },
-            { title: "Order ID" },
-            { title: "Amount" },
-            { title: "Status" }
-          ]}
-          selectable={false}
-        >
-          {recentPaymentsData?.recentPaymentsData?.length > 0 ? (
-            recentPaymentsData.recentPaymentsData.map((payment, index) => (
-              <IndexTable.Row id={payment.id} key={payment.id} position={index}>
-                {/* Name + Email in same cell */}
-                <IndexTable.Cell>
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <span style={{ fontWeight: "600" }}>
-                      {payment.customerName || "N/A"}
-                    </span>
-                    <span style={{ fontSize: "13px", color: "#666" }}>
-                      {payment.customerEmail || "No email"}
-                    </span>
-                  </div>
-                </IndexTable.Cell>
-                <IndexTable.Cell>{payment.orderID}</IndexTable.Cell>
-                <IndexTable.Cell>
-                  {payment.symbolNative} {(payment.amount / 100).toFixed(2)}{" "}
-                  {payment.currencycode}
-                </IndexTable.Cell>
-                <IndexTable.Cell>
-                  <Text tone={payment.status === "succeeded" ? "success" : "critical"}>
-                    {payment.status}
-                  </Text>
-                </IndexTable.Cell>
-                {/*<IndexTable.Cell>{formatDate(payment.created)}</IndexTable.Cell>*/}
-              </IndexTable.Row>
-            ))
-          ) : (
-            <IndexTable.Row id="empty" key="empty" position={0}>
-              <IndexTable.Cell colSpan={4}>
-                <Text alignment="center" tone="subdued">
-                  No recent payments
-                </Text>
-              </IndexTable.Cell>
-            </IndexTable.Row>
-          )}
-        </IndexTable>
-      </Card>
-    </div>
-  );
-};
-
-const InvoicesPlaceholder = ({
-  height = "auto",
-  width = "auto",
-  recentInvoices = null,
-  premiumUser
-}) => {
-  const numericPremiumUser = Number(premiumUser); 
-
-  return (
-    <div
-      style={{
-        background: "#ffffff",
-        height: height,
-        width: width,
-      }}
-    >
-      <Card title=" Recent Invoices">
-        <IndexTable
-          resourceName={{ singular: "invoice", plural: "invoices" }}
-          itemCount={recentInvoices?.length || 0}
-          headings={[
-            { title: "Customer Name / Email" },
-            { title: "Invoice ID" },
-            { title: "Amount" },
-            { title: "Status" },
-          ]}
-          selectable={false}
-        >
-          {recentInvoices?.length > 0 ? (
-            recentInvoices.map((invoice, index) => (
-              <IndexTable.Row id={invoice.id} key={invoice.id} position={index}>
-                {/*  Customer Info Cell */}
-                <IndexTable.Cell>
-                  {numericPremiumUser !== 2 ? (
-                    <Tooltip
-                      preferredPosition="above"
-                      content="Upgrade to a paid plan to see customer details"
-                    >
-                      <div
-                        style={{
-                          filter: "blur(6px)",
-                          userSelect: "none",
-                          cursor: "pointer",
-                          transition: "filter 0.3s ease-in-out",
-                        }}
-                      >
-                        <div style={{ display: "flex", flexDirection: "column" }}>
-                          <span style={{ fontWeight: "600" }}>
-                            {invoice.customerName || "N/A"}
-                          </span>
-                          <span style={{ fontSize: "13px", color: "#666" }}>
-                            {invoice.customerEmail || "No email"}
-                          </span>
-                        </div>
-                      </div>
-                    </Tooltip>
-                  ) : (
-                    //  If paid, show normal data
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <span style={{ fontWeight: "600" }}>
-                        {invoice.customerName || "N/A"}
-                      </span>
-                      <span style={{ fontSize: "13px", color: "#666" }}>
-                        {invoice.customerEmail || "No email"}
-                      </span>
-                    </div>
-                  )}
-                </IndexTable.Cell>
-
-                {/* Invoice ID Cell */}
-                <IndexTable.Cell>
-                  {numericPremiumUser !== 2 ? (
-                    <Tooltip
-                      preferredPosition="above"
-                      content="Upgrade to a paid plan to see invoice ID"
-                    >
-                      <span
-                        style={{
-                          filter: "blur(6px)",
-                          userSelect: "none",
-                          cursor: "pointer",
-                        }}
-                      >
-                        {invoice.id}
-                      </span>
-                    </Tooltip>
-                  ) : (
-                    invoice.id
-                  )}
-                </IndexTable.Cell>
-
-                {/* Amount Cell */}
-                <IndexTable.Cell>
-                  {numericPremiumUser !== 2 ? (
-                    <Tooltip
-                      preferredPosition="above"
-                      content="Upgrade to a paid plan to see amount"
-                    >
-                      <span
-                        style={{
-                          filter: "blur(6px)",
-                          userSelect: "none",
-                          cursor: "pointer",
-                        }}
-                      >
-                        {invoice.currency} {parseFloat(invoice.amount).toFixed(2)}
-                      </span>
-                    </Tooltip>
-                  ) : (
-                    `${invoice.currency} ${parseFloat(invoice.amount).toFixed(2)}`
-                  )}
-                </IndexTable.Cell>
-
-                {/*  Status Cell */}
-                <IndexTable.Cell>
-                  {numericPremiumUser !== 2 ? (
-                    <Tooltip
-                      preferredPosition="above"
-                      content="Upgrade to a paid plan to see status"
-                    >
-                      <span
-                        style={{
-                          filter: "blur(6px)",
-                          userSelect: "none",
-                          cursor: "pointer",
-                        }}
-                      >
-                        {invoice.status}
-                      </span>
-                    </Tooltip>
-                  ) : (
-                    <Text tone={invoice.status === "paid" ? "success" : "critical"}>
-                      {invoice.status}
-                    </Text>
-                  )}
-                </IndexTable.Cell>
-              </IndexTable.Row>
-            ))
-          ) : (
-            <IndexTable.Row id="empty" key="empty" position={0}>
-              <IndexTable.Cell colSpan={4}>
-                <Text alignment="center" tone="subdued">
-                  No recent invoices
-                </Text>
-              </IndexTable.Cell>
-            </IndexTable.Row>
-          )}
-        </IndexTable>
-      </Card>
-    </div>
   );
 };
