@@ -31,6 +31,7 @@ export async function loader({ request }) {
 
   //Fetch plan status + subscriptions
   const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
+  const princingUrl = await updateUserStripeSetting();
 
   console.log("SERVER DEBUG: Plan Status =>", planStatus);
   activeSubs.forEach((sub) => {
@@ -87,12 +88,19 @@ export default function SettingsPage() {
   const premiumUser = userInfo?.premiumUser ?? 0; // fallback to 0 if null
 
   useEffect(() => {
-    if (actionData?.message) {
-      app.toast.show(actionData.message, { isError: actionData.isError });
-    }
-  }, [actionData]);
+  if (actionData?.message) {
+    app.toast.show(actionData.message, { isError: actionData.isError });
+  }
 
-  const redirectUrl = `https://admin.shopify.com/store/${userInfo?.shop.split(".")[0]}/charges/stripe-manage/pricing_plans`;
+  // Log redirect URL for debugging
+  if (actionData?.redirectUrl) {
+    console.log("Redirect URL from server:", actionData.redirectUrl);
+
+    setTimeout(() => {
+      window.location.href = actionData.redirectUrl;
+    }, 1500); // wait so toast shows first
+  }
+}, [actionData]);
   
   return (
     <Page title="Settings" backAction={{ content: "Home", url: "/app" }}>

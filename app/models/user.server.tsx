@@ -131,7 +131,7 @@ export async function updateUserStripeSetting(formData, shop){
     // Fetch existing user
     const existingUser = await db.user.findFirst({ where: { shop } });
 
-    const isFirstTimeUpdate = !existingUser?.stripeSecretKey; // true if no key was saved before
+    const isFirstTimeUpdate = !existingUser?.stripeSecretKey;
 
     await db.user.update({
       where: { shop: shop },
@@ -141,14 +141,17 @@ export async function updateUserStripeSetting(formData, shop){
       }
     });
 
-    // If first time, redirect to Shopify pricing plan page
+      let redirectUrl = null;
     if (isFirstTimeUpdate) {
       const shopName = shop.split(".")[0];
-      const redirectUrl = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
-      return redirect(redirectUrl);
+      redirectUrl = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
     }
 
-    return { message: "Stripe apikeys updated", errors, isError: false };
+    return { 
+      message: "Stripe apikeys updated", 
+      redirectUrl,  // pass redirect url if first time
+      isError: false 
+    };
 
   } catch (error) {
     return { message: "Unable to stripe apikeys", error, isError: true };
