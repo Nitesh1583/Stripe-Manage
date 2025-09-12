@@ -111,7 +111,7 @@ export async function updateUserAccountSetting(formData, shop){
 }
 
 //update shopify stripe app user
-export async function updateUserStripeSetting(formData, shop){
+export async function updateUserStripeSetting(formData, shop, userinfo){
   try {
     const formInput = Object.fromEntries(formData);
     const stripePublishKey = null;
