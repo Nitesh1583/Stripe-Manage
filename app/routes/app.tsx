@@ -52,7 +52,7 @@ export default function App() {
         /* CASE 2: User updated stripe key but not upgraded (premiumUser = 0) */
         <NavMenu>
           <Link to="/app" rel="home">Dashboard</Link>
-          <Link to="/app" onClick={handlePricing}>Pricing</Link>
+          <Link to="/app/settings" onClick={handlePricing}>Pricing</Link>
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
       ) : premiumUser === 2 ? (
@@ -65,7 +65,7 @@ export default function App() {
           <Link to="/app/payouts">Payouts</Link>
           <Link to="/app/invoices">Invoices</Link>
           <Link to="/app/subscription">Subscription</Link>
-          <Link to="/app" onClick={handlePricing}>Pricing</Link>
+          <Link to="/app/settings" onClick={handlePricing}>Pricing</Link>
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
       ) : (
@@ -75,7 +75,7 @@ export default function App() {
           <Link to="/app/products">Products</Link>
           <Link to="/app/customers">Customers</Link>
           <Link to="/app/payments">Payments</Link>
-          <Link to="/app" onClick={handlePricing}>Pricing</Link>
+          <Link to="/app/settings" onClick={handlePricing}>Pricing</Link>
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
       )}
