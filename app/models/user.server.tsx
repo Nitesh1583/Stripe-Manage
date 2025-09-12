@@ -117,13 +117,7 @@ export async function updateUserStripeSetting(formData, shop){
     const stripePublishKey = null;
     const stripeSecretKey = formInput["stripeSecretKey"];
     const errors = {};
-    const stripepublishKeyRegex = /^pk_(test|live)_/;
     const stripesecretKeyRegex = /^(sk_test|sk_live)_/;
-
-    // Validate Stripe publishable key
-    // if (!stripePublishKey || !stripepublishKeyRegex.test(stripePublishKey)) {
-    //   errors.stripePublishKey = "Please enter a valid Stripe publishable key";
-    // }
 
     // Validate Stripe secret key
     if (!stripeSecretKey || !stripesecretKeyRegex.test(stripeSecretKey)) {
@@ -134,13 +128,25 @@ export async function updateUserStripeSetting(formData, shop){
       return { errors, message: "Fill correct all field correctly", isError: true };
     }
 
+    // Fetch existing user
+    const existingUser = await db.user.findFirst({ where: { shop } });
+
+    const isFirstTimeUpdate = !existingUser?.stripeSecretKey; // true if no key was saved before
+
     await db.user.update({
       where: { shop: shop },
       data: {
         stripePublishKey: stripePublishKey,
         stripeSecretKey: stripeSecretKey
       }
-    })
+    });
+
+    // If first time, redirect to Shopify pricing plan page
+    if (isFirstTimeUpdate) {
+      const shopName = shop.split(".")[0];
+      const redirectUrl = `https://admin.shopify.com/store/${shopName}/charges/stripe-manage/pricing_plans`;
+      return redirect(redirectUrl);
+    }
 
     return { message: "Stripe apikeys updated", errors, isError: false };
 
@@ -203,6 +209,3 @@ export async function saveShopifyChargeId(shop: string, chargeId: string, reques
     return { message: `Unable to save charge ID: ${error.message}`, isError: true };
   }
 }
-
-
-
