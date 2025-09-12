@@ -93,7 +93,7 @@ export default function SettingsPage() {
   const premiumUser = userInfo?.premiumUser ?? 0;
 
   const stripeSecretkey = userInfo?.stripeSecretKey;
-  console.log(stripeSecretKey);
+  console.log(stripeSecretkey);
 
   // Handle Pricing Button Click
   const handlePricing = () => {
