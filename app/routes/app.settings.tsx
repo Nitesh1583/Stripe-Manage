@@ -119,7 +119,7 @@ export default function SettingsPage() {
     <Page title="Settings" backAction={{ content: "Home", url: "/app" }}>
       <BlockStack gap="400">
         {/* Show message if no plan is active OR stripeSecretKey is present */}
-        {(premiumUser === 0 && stripeSecretkey == null || stripeSecretkey == '') && (
+        {(premiumUser === 0 && (stripeSecretkey != null || stripeSecretkey != '')) && (
           <Banner title="No plan is active" status="critical">
             <p>
               No plan is currently active on your account. Please choose a plan
