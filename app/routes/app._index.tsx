@@ -41,6 +41,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     
     // Fetch plan status + subscriptions
     const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
+    const normalizedPlanStatus = planStatus === "PAID" || planStatus === "FREE" ? planStatus : "NONE";
 
     console.log("SERVER DEBUG: Plan Status =>", planStatus);
     activeSubs.forEach((sub) => {
@@ -60,7 +61,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       transactions,
       balanceAvailable: balance.available,
       balancePending: balance.pending,
-      planStatus,
+      planStatus: normalizedPlanStatus,
       activeSubs,
       recentStripeCustomers,
       recentPaymentsData,
@@ -236,8 +237,20 @@ export default function Index() {
       <BlockStack gap="500">
         {/* Plan Status Badge */}
         <InlineStack align="center">
-          <Badge tone={planStatus === "PAID" ? "success" : "critical"}>
-            {planStatus === "PAID" ? "Paid Plan Active" : "Free Plan"}
+          <Badge
+            tone={
+              planStatus === "PAID"
+                ? "success"
+                : planStatus === "FREE"
+                ? "attention"
+                : "critical"
+            }
+          >
+            {planStatus === "PAID"
+              ? "Paid Plan Active"
+              : planStatus === "FREE"
+              ? "Free Plan Active"
+              : "No Plan Active"}
           </Badge>
         </InlineStack>
         
@@ -369,7 +382,7 @@ export default function Index() {
 
                     {premiumUser !== 2 ? (
                       <Tooltip
-                        content="Upgrade to a paid plan to see your next payout date"
+                        content="Upgrade to a paid plan to see your next payout date or amount"
                         preferredPosition="above"
                       >
                         <div
@@ -804,7 +817,6 @@ const InvoicesPlaceholder = ({
   height = "auto",
   width = "auto",
   recentInvoices = null,
-  planStatus,
   premiumUser
 }) => {
   const numericPremiumUser = Number(premiumUser); 
