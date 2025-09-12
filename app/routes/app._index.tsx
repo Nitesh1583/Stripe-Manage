@@ -255,7 +255,18 @@ export default function Index() {
                      <Text variant="heading2xl" as="p">
                       ${todayTotal.toFixed(2)}
                     </Text>
-                    <Text tone="subdued"> as of {new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}</Text>
+                    <Text tone="subdued">
+                      as of{" "}
+                      {new Date().toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}{" "}
+                      {new Date().toLocaleTimeString("en-US", {
+                        hour: "numeric",
+                        minute: "2-digit",
+                      })}
+                    </Text>
                     
                   </BlockStack>
 
@@ -352,25 +363,50 @@ export default function Index() {
 
                   </BlockStack>
 
-                  <BlockStack gap="100" align="end">
-                    <Text variant="headingSm">Payouts</Text>
-
-                    {nextPayout ? (
-                      <>
-                        <Text tone="subdued">
-                          Expected {new Date(nextPayout.arrivalDate).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </Text>
-                        <Text tone="subdued">
-                          {nextPayout.amount} {nextPayout.currency} ({nextPayout.status})
-                        </Text>
-                      </>
-                    ) : (
-                      <Text tone="subdued">No upcoming payout</Text>
-                    )}
-                  </BlockStack>
+                  {/* Right side - Payout Section */}
+                  {premiumUser !== 2 ? (
+                    <BlockStack gap="100" align="end">
+                      <Tooltip content="Upgrade to a paid plan to see your next payout date" 
+                        preferredPosition="above">
+                        <div
+                          style={{
+                            filter: "blur(6px)",
+                            userSelect: "none",
+                            transition: "filter 0.3s ease-in-out",
+                            cursor: "pointer",
+                          }}
+                        >
+                          <Text variant="headingSm">Payouts</Text>
+                          <Text tone="subdued">
+                            Expected{" "}
+                            {nextPayout
+                              ? new Date(nextPayout.arrival_date * 1000).toLocaleDateString("en-US", {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                })
+                              : "N/A"}
+                          </Text>
+                          <Button plain>View</Button>
+                        </div>
+                      </Tooltip>
+                    </BlockStack>
+                  ) : (
+                    <BlockStack gap="100" align="end">
+                      <Text variant="headingSm">Payouts</Text>
+                      <Text tone="subdued">
+                        Expected{" "}
+                        {nextPayout
+                          ? new Date(nextPayout.arrival_date * 1000).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })
+                          : "N/A"}
+                      </Text>
+                      <Button plain>View</Button>
+                    </BlockStack>
+                  )}
 
                 </InlineStack>
 
