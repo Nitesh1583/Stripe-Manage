@@ -31,7 +31,6 @@ export async function loader({ request }) {
 
   //Fetch plan status + subscriptions
   const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
-  const { redirectToPricing } = await updateUserStripeSetting(request);
 
   console.log("SERVER DEBUG: Plan Status =>", planStatus);
   activeSubs.forEach((sub) => {
@@ -46,7 +45,6 @@ export async function loader({ request }) {
     userInfo,
     planStatus,
     activeSubs,
-    // redirectToPricing
   });
 }
 
@@ -58,11 +56,17 @@ export async function action({ request }) {
 
   switch (method) {
     case "POST":
-      const updateInfoSetting = await updateUserAccountSetting(formData, shop);
-      return json(updateInfoSetting);
-    case "PATCH":
-      const updateStripeSetting = await updateUserStripeSetting(formData, shop);
-      return json(updateStripeSetting);
+      return json(await updateUserAccountSetting(formData, shop));
+
+    case "PATCH": {
+      const result = await updateUserStripeSetting(formData, shop);
+      if (result?.status === 302) {
+        // If redirect() was returned, pass it through
+        return result;
+      }
+      return json(result);
+    }
+
     default:
       return json({ message: "Method not allowed", isError: true });
   }
@@ -71,7 +75,7 @@ export async function action({ request }) {
 export default function SettingsPage() {
   const actionData = useActionData();
   const { state } = useNavigation();
-  const { userInfo, planStatus, activeSubs, redirectToPricing } = useLoaderData<typeof loader>();
+  const { userInfo, planStatus, activeSubs } = useLoaderData<typeof loader>();
   const [email, setEmail] = useState(userInfo?userInfo?.email:"");
   const [stripeApiKeys, setStripeApiKeys] = useState(userInfo);
 
@@ -79,20 +83,17 @@ export default function SettingsPage() {
   console.log("SettingsPage active Subs", activeSubs);
   const app = useAppBridge(); 
 
+  // Extract premiumUser value
+  const premiumUser = userInfo?.premiumUser ?? 0; // fallback to 0 if null
+
   useEffect(() => {
     if (actionData?.message) {
       app.toast.show(actionData.message, { isError: actionData.isError });
     }
-
   }, [actionData]);
 
-  if(redirectToPricing == 0) {
-    console.log("get 0");
-    return redirect(`https://admin.shopify.com/store/${userInfo?.shop.split(".")[0]}/charges/stripe-manage/pricing_plans`);
-  }else {
-    console.log("Stripe key updated !");
-  }
-
+  const redirectUrl = `https://admin.shopify.com/store/${userInfo?.shop.split(".")[0]}/charges/stripe-manage/pricing_plans`;
+  
   return (
     <Page title="Settings" backAction={{ content: "Home", url: "/app" }}>
       <BlockStack gap="400">
