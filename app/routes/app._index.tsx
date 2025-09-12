@@ -168,6 +168,7 @@ export default function Index() {
   console.log("Recent Payment List => ", recentPaymentsData);
   console.log("Recent Invoices List => ", recentInvoices);
   console.log("Recent Payouts List => ", recentPayouts);
+  console.log("Next Payout  => ", nextPayout);
 
   // Helper function to format Stripe's created timestamp
   const formatDate = (timestamp: number) => {
