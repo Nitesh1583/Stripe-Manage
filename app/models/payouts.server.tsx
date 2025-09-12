@@ -165,7 +165,7 @@ export async function getShopifyPlanStatus(request: Request) {
     return { planStatus, activeSubs };
   } catch (error) {
     console.error("Error fetching Shopify Plan Status:", error);
-    return { planStatus: "NONE", activeSubs: [] }; // ✅ Return NONE when error
+    return { planStatus: "NONE", activeSubs: [] }; // Return NONE when error
   }
 }
 
