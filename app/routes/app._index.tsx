@@ -22,7 +22,8 @@ import { fetchStripeRecentCustomers } from "../models/customer.server";
 import { fetchStripeRecentPaymentData } from "../models/payment.server";
 import { fetchStripeRecentInvoices } from "../models/invoices.server";
 import { fetchStripeRecentPayouts } from "../models/payouts.server";
-import { fetchStripeBalanceTransactions, fetchStripeBalance, getShopifyPlanStatus   } from "../models/payouts.server";
+import { fetchStripeBalanceTransactions, fetchStripeBalance, 
+getShopifyPlanStatus, getNextPayout} from "../models/payouts.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
@@ -36,6 +37,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
     const balance = await fetchStripeBalance(userInfo);
+    const { nextPayout } = await getNextPayout(userInfo);
     
     // Fetch plan status + subscriptions
     const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
@@ -64,7 +66,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       recentPaymentsData,
       recentInvoices,
       recentPayouts,
-      userInfo
+      userInfo,
+      nextPayout
     });
   } catch (error) {
     console.error("Loader failed:", error);
@@ -153,7 +156,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
   const { transactions, balanceAvailable, balancePending, planStatus, activeSubs, recentStripeCustomers, 
-  recentPaymentsData, recentInvoices, recentPayouts, userInfo} = useLoaderData<typeof loader>();
+  recentPaymentsData, recentInvoices, recentPayouts, userInfo, nextPayout } = useLoaderData<typeof loader>();
 
   // Extract premiumUser value
   const premiumUser = userInfo?.premiumUser ?? 0; // fallback to 0 if null
@@ -350,9 +353,24 @@ export default function Index() {
 
                   <BlockStack gap="100" align="end">
                     <Text variant="headingSm">Payouts</Text>
-                    <Text tone="subdued">Expected Sep 2</Text>
-                    <Button plain>View</Button>
+
+                    {nextPayout ? (
+                      <>
+                        <Text tone="subdued">
+                          Expected {new Date(nextPayout.arrivalDate).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </Text>
+                        <Text tone="subdued">
+                          {nextPayout.amount} {nextPayout.currency} ({nextPayout.status})
+                        </Text>
+                      </>
+                    ) : (
+                      <Text tone="subdued">No upcoming payout</Text>
+                    )}
                   </BlockStack>
+
                 </InlineStack>
 
 

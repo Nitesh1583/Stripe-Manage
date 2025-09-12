@@ -197,3 +197,46 @@ export async function fetchStripeRecentPayouts(userInfo) {
     };
   }
 }
+
+// Fetch Next Payout date
+export async function getNextPayout(userInfo) {
+  try {
+    if (!userInfo?.stripeSecretKey) {
+      console.error("No Stripe key provided");
+      return { nextPayout: null, isError: true, message: "No Stripe key provided" };
+    }
+
+    const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
+
+    // Get only pending payouts (next upcoming payout)
+    const payouts = await stripe.payouts.list({
+      status: "pending", // fetch only scheduled payouts
+      limit: 1,
+    });
+
+    if (payouts.data.length === 0) {
+      return { nextPayout: null, isError: false, message: "No upcoming payout found" };
+    }
+
+    const nextPayout = payouts.data[0];
+
+    return {
+      nextPayout: {
+        id: nextPayout.id,
+        amount: (nextPayout.amount / 100).toFixed(2),
+        currency: nextPayout.currency?.toUpperCase() || "USD",
+        arrivalDate: new Date(nextPayout.arrival_date * 1000).toLocaleString(),
+        status: nextPayout.status,
+      },
+      isError: false,
+    };
+  } catch (error) {
+    console.error("Error fetching next payout:", error);
+    return {
+      nextPayout: null,
+      message: "Unable to fetch next payout date",
+      error,
+      isError: true,
+    };
+  }
+}
