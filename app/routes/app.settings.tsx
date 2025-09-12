@@ -87,6 +87,16 @@ export default function SettingsPage() {
   // Extract premiumUser value
   const premiumUser = userInfo?.premiumUser ?? 0; // fallback to 0 if null
 
+  // Handle Pricing Button Click
+  const handlePricing = () => {
+    if (userInfo?.shop) {
+      window.open(
+        `https://admin.shopify.com/store/${userInfo.shop.split(".")[0]}/charges/stripe-manage/pricing_plans`,
+        "_top"
+      );
+    }
+  };
+
   useEffect(() => {
   if (actionData?.message) {
     app.toast.show(actionData.message, { isError: actionData.isError });
@@ -105,7 +115,23 @@ export default function SettingsPage() {
   
   return (
     <Page title="Settings" backAction={{ content: "Home", url: "/app" }}>
-      <BlockStack gap="400">
+      <BlockStack 
+        {/* Show message if no plan is active */}
+        {premiumUser === 0 && (
+          <Banner title="No plan is active" status="critical">
+            <p>
+              No plan is currently active on your account. Please choose a plan
+              to unlock all features.
+            </p>
+            <InlineStack align="start" gap="200">
+              <Button onClick={handlePricing} variant="primary">
+                Choose Plan
+              </Button>
+            </InlineStack>
+          </Banner>
+        )}
+
+        {/* Account Info */}
         <Card>
           <Form method={"POST"}>
             <FormLayout>

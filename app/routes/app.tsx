@@ -42,14 +42,21 @@ export default function App() {
 
   return (
     <AppProvider i18n={polarisTranslations} isEmbeddedApp apiKey={apiKey}>
-      {/* Case 1: No user or no Stripe Secret Key */}
+      {/* CASE 1: New User OR No Stripe Key */}
       {!userInfo || !userInfo.stripeSecretKey ? (
         <NavMenu>
           <Link to="/app" rel="home">Dashboard</Link>
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
+      ) : premiumUser === 0 ? (
+        /* CASE 2: User updated stripe key but not upgraded (premiumUser = 0) */
+        <NavMenu>
+          <Link to="/app" rel="home">Dashboard</Link>
+          <Link to="/app" onClick={handlePricing}>Pricing</Link>
+          <Link to="/app/settings">Settings</Link>
+        </NavMenu>
       ) : premiumUser === 2 ? (
-        /* Case 2: premiumUser = 2 (Full Access) */
+        /* CASE 3: Full Access (premiumUser = 2) */
         <NavMenu>
           <Link to="/app" rel="home">Dashboard</Link>
           <Link to="/app/products">Products</Link>
@@ -62,7 +69,7 @@ export default function App() {
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
       ) : (
-        /*  Case 3: premiumUser = 0 or 1 (Limited Menu) */
+        /* CASE 4: Limited Access (premiumUser = 1) */
         <NavMenu>
           <Link to="/app" rel="home">Dashboard</Link>
           <Link to="/app/products">Products</Link>
