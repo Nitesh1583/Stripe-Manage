@@ -364,10 +364,14 @@ export default function Index() {
                   </BlockStack>
 
                   {/* Right side - Payout Section */}
-                  {premiumUser !== 2 ? (
-                    <BlockStack gap="100" align="end">
-                      <Tooltip content="Upgrade to a paid plan to see your next payout date" 
-                        preferredPosition="above">
+                  <BlockStack gap="100" align="end">
+                    <Text variant="headingSm">Payouts</Text>
+
+                    {premiumUser !== 2 ? (
+                      <Tooltip
+                        content="Upgrade to a paid plan to see your next payout date"
+                        preferredPosition="above"
+                      >
                         <div
                           style={{
                             filter: "blur(6px)",
@@ -376,37 +380,31 @@ export default function Index() {
                             cursor: "pointer",
                           }}
                         >
-                          <Text variant="headingSm">Payouts</Text>
                           <Text tone="subdued">
                             Expected{" "}
                             {nextPayout
-                              ? new Date(nextPayout.arrival_date * 1000).toLocaleDateString("en-US", {
+                              ? `${new Date(nextPayout.arrival_date * 1000).toLocaleDateString("en-US", {
                                   year: "numeric",
                                   month: "long",
                                   day: "numeric",
-                                })
+                                })} • ${(nextPayout.amount / 100).toFixed(2)} ${nextPayout.currency.toUpperCase()}`
                               : "N/A"}
                           </Text>
-                          <Button plain>View</Button>
                         </div>
                       </Tooltip>
-                    </BlockStack>
-                  ) : (
-                    <BlockStack gap="100" align="end">
-                      <Text variant="headingSm">Payouts</Text>
+                    ) : (
                       <Text tone="subdued">
                         Expected{" "}
                         {nextPayout
-                          ? new Date(nextPayout.arrival_date * 1000).toLocaleDateString("en-US", {
+                          ? `${new Date(nextPayout.arrival_date * 1000).toLocaleDateString("en-US", {
                               year: "numeric",
                               month: "long",
                               day: "numeric",
-                            })
+                            })} • ${(nextPayout.amount / 100).toFixed(2)} ${nextPayout.currency.toUpperCase()}`
                           : "N/A"}
                       </Text>
-                      <Button plain>View</Button>
-                    </BlockStack>
-                  )}
+                    )}
+                  </BlockStack>
 
                 </InlineStack>
 
