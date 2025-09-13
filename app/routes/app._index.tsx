@@ -195,38 +195,44 @@ export default function Index() {
           </Badge>
         </InlineStack>
 
-        <BlockStack gap="400">
-          {/* Show Text only when premiumUser is 0 (No Plan active) */}
-          {premiumUser === 0 && (
-            <>
-              <p>
-                No plan is currently active on your account. Please choose a plan
-                to unlock all features.
-              </p>
-              <InlineStack align="start" gap="200">
-                <Button onClick={handlePricing} variant="primary" textAlign= "center">
-                  Choose Plan
-                </Button>
-              </InlineStack>
-            </>
-          )}
-        </BlockStack>
+        <Box
+          padding="400"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <BlockStack gap="400" align="center">
+            {/* Show Text only when premiumUser is 0 (No Plan active) */}
+            {premiumUser === 0 && (
+              <>
+                <p style={{ textAlign: "center" }}>
+                  No plan is currently active on your account. Please choose a plan
+                  to unlock all features.
+                </p>
+                <InlineStack align="center" gap="200">
+                  <Button onClick={handlePricing} variant="primary">
+                    Choose Plan
+                  </Button>
+                </InlineStack>
+              </>
+            )}
 
-        <BlockStack gap="400">
-          {/* Show Text only when premiumUser is 1 (Free Plan active) */}
-          {premiumUser === 1 && (
-            <>
-              <p>
-                You are currently on the Free Plan. Upgrade to unlock premium features.
-              </p>
-              <InlineStack align="start" gap="200">
-                <Button onClick={handlePricing} variant="primary" textAlign="center">
-                  Upgrade Plan
-                </Button>
-              </InlineStack>
-            </>
-          )}
-        </BlockStack>
+            {/* Show Text only when premiumUser is 1 (Free Plan active) */}
+            {premiumUser === 1 && (
+              <>
+                <p style={{ textAlign: "center" }}>
+                  You are currently on the Free Plan. Upgrade to unlock premium features.
+                </p>
+                <InlineStack align="center" gap="200">
+                  <Button onClick={handlePricing} variant="primary">
+                    Upgrade Now
+                  </Button>
+                </InlineStack>
+              </>
+            )}
+          </BlockStack>
+        </Box>
+
         
         {/*  Top Overview Section */}
         <Layout>
