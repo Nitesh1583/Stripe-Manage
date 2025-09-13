@@ -119,7 +119,7 @@ export default function SettingsPage() {
   return (
     <Page title="Settings" backAction={{ content: "Home", url: "/app" }}>
       <BlockStack gap="400">
-        {/* Show Banner only when premiumUser is 0 AND stripeSecretKey is not null/empty */}
+        {/* Show Banner only when premiumUser is 0(No Plan Active) AND stripeSecretKey is not null/empty */}
         {premiumUser === 0 && !!stripeSecretkey && (
           <Banner title="No plan is active" status="critical">
             <p>
@@ -134,7 +134,7 @@ export default function SettingsPage() {
           </Banner>
         )}
 
-        {/* Show Banner only when premiumUser is 1 */}
+        {/* Show Banner only when premiumUser is 1 (Free Plan Active*/}
         {premiumUser === 1 && (
           <Banner title="Free plan is active" status="info">
             <p>
@@ -144,6 +144,21 @@ export default function SettingsPage() {
             <InlineStack align="start" gap="200">
               <Button onClick={handlePricing} variant="primary">
                 Upgrade your plan now 
+              </Button>
+            </InlineStack>
+          </Banner>
+        )}
+
+        {/* Show Banner only when premiumUser is 2 (Paid Plan Active) */}
+        {premiumUser === 1 && (
+          <Banner title="Free plan is active" status="info">
+            <p>
+              You are currently on the Paid Plan. Enjoy premium features.  
+              If you cancel your plan, you will switch back to the free plan.
+            </p>
+            <InlineStack align="start" gap="200">
+              <Button onClick={handlePricing} variant="primary">
+                Cancel Plan
               </Button>
             </InlineStack>
           </Banner>
