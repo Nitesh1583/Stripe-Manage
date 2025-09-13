@@ -204,7 +204,7 @@ export default function Index() {
                 to unlock all features.
               </p>
               <InlineStack align="start" gap="200">
-                <Button onClick={handlePricing} variant="primary">
+                <Button onClick={handlePricing} variant="primary" textAlign= "center">
                   Choose Plan
                 </Button>
               </InlineStack>
@@ -220,31 +220,13 @@ export default function Index() {
                 You are currently on the Free Plan. Upgrade to unlock premium features.
               </p>
               <InlineStack align="start" gap="200">
-                <Button onClick={handlePricing} variant="primary">
+                <Button onClick={handlePricing} variant="primary" textAlign="center">
                   Upgrade Plan
                 </Button>
               </InlineStack>
             </>
           )}
         </BlockStack>
-
-        <BlockStack gap="400">
-          {/* Show Text only when premiumUser is 2 (Paid Plan active) */}
-          {premiumUser === 2 && (
-            <>
-              <p>
-                You are currently on the Paid Plan. Enjoy premium features.  
-                If you cancel your plan, you will switch back to the free plan.
-              </p>
-              <InlineStack align="start" gap="200">
-                <Button onClick={handlePricing} variant="primary">
-                  Cancel Plan
-                </Button>
-              </InlineStack>
-            </>
-          )}
-        </BlockStack>
-
         
         {/*  Top Overview Section */}
         <Layout>
