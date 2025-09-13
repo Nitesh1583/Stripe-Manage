@@ -228,6 +228,23 @@ export default function Index() {
           )}
         </BlockStack>
 
+        <BlockStack gap="400">
+          {/* Show Text only when premiumUser is 2 (Paid Plan active) */}
+          {premiumUser === 2 && (
+            <>
+              <p>
+                You are currently on the Paid Plan. Enjoy premium features.  
+                If you cancel your plan, you will switch back to the free plan.
+              </p>
+              <InlineStack align="start" gap="200">
+                <Button onClick={handlePricing} variant="primary">
+                  Cancel Plan
+                </Button>
+              </InlineStack>
+            </>
+          )}
+        </BlockStack>
+
         
         {/*  Top Overview Section */}
         <Layout>
