@@ -12,15 +12,25 @@ import {
 import { authenticate } from "../shopify.server";
 import { TitleBar } from "@shopify/app-bridge-react";
 import db from "../db.server";
-import { getShopifyPlanStatus   } from "../models/payouts.server";
-import { Redirect } from "@shopify/app-bridge/actions";
+import { getShopifyPlanStatus } from "../models/payouts.server";
 
 export default function ThankYouPage() {
   const [searchParams] = useSearchParams();
   const [chargeId, setChargeId] = useState<string | null>(null);
-  const app = useAppBridge();
+  const [shopName, setShopName] = useState<string | null>(null);
 
   useEffect(() => {
+    // Fetch shop name from backend (optional if you already have it in loader)
+    fetch("/app/get-shop-info")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.shop) {
+          setShopName(data.shop.split(".")[0]);
+        }
+      })
+      .catch((err) => console.error("Error fetching shop info:", err));
+
+    // Save chargeId
     const id = searchParams.get("charge_id");
     if (id) {
       setChargeId(id);
@@ -39,8 +49,14 @@ export default function ThankYouPage() {
   }, [searchParams]);
 
   const goToDashboard = () => {
-    const redirect = Redirect.create(app);
-    redirect.dispatch(Redirect.Action.APP, "/app");
+    if (shopName) {
+      window.open(
+        `https://admin.shopify.com/store/${shopName}/apps/stripe-manage/app`,
+        "_top"
+      );
+    } else {
+      console.error("Shop name not available — cannot redirect.");
+    }
   };
 
   return (
