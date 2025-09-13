@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { useSearchParams, useLoaderData } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import {
   Page,
   Layout,
@@ -12,25 +12,34 @@ import {
 import { authenticate } from "../shopify.server";
 import { TitleBar } from "@shopify/app-bridge-react";
 import db from "../db.server";
-import { getShopifyPlanStatus } from "../models/payouts.server";
+import { json } from "@remix-run/node";
+
+// Loader to get userInfo 
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  try {
+    const auth = await authenticate.admin(request);
+
+    const userInfo = await db.user.findFirst({
+      where: { shop: auth.session.shop },
+    });
+
+    if (!userInfo) {
+      throw new Response("User not found", { status: 404 });
+    }
+
+    return json({ userInfo });
+  } catch (error) {
+    console.error("ThankYouPage Loader failed:", error);
+    throw new Response("Error loading ThankYouPage", { status: 500 });
+  }
+};
 
 export default function ThankYouPage() {
+  const { userInfo } = useLoaderData<typeof loader>(); // ✅ Access userInfo from loader
   const [searchParams] = useSearchParams();
   const [chargeId, setChargeId] = useState<string | null>(null);
-  const [shopName, setShopName] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch shop name from backend (optional if you already have it in loader)
-    fetch("/app/get-shop-info")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.shop) {
-          setShopName(data.shop.split(".")[0]);
-        }
-      })
-      .catch((err) => console.error("Error fetching shop info:", err));
-
-    // Save chargeId
     const id = searchParams.get("charge_id");
     if (id) {
       setChargeId(id);
@@ -48,14 +57,16 @@ export default function ThankYouPage() {
     }
   }, [searchParams]);
 
+  //  Uses userInfo to build correct Shopify URL
   const goToDashboard = () => {
-    if (shopName) {
+    if (userInfo?.shop) {
+      const shopName = userInfo.shop.split(".")[0];
       window.open(
         `https://admin.shopify.com/store/${shopName}/apps/stripe-manage/app`,
         "_top"
       );
     } else {
-      console.error("Shop name not available — cannot redirect.");
+      console.error("Shop info not found. Cannot redirect.");
     }
   };
 
