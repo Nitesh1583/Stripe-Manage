@@ -163,6 +163,16 @@ export default function Index() {
     }  
   }, [planStatus]);
 
+  // Handle Pricing Button Click
+  const handlePricing = () => {
+    if (userInfo?.shop) {
+      window.open(
+        `https://admin.shopify.com/store/${userInfo.shop.split(".")[0]}/charges/stripe-manage/pricing_plans`,
+        "_top"
+      );
+    }
+  };
+
   return (
     <Page>
       <BlockStack gap="500">
@@ -184,6 +194,40 @@ export default function Index() {
               : "No Plan Active"}
           </Badge>
         </InlineStack>
+
+        <BlockStack gap="400">
+          {/* Show Text only when premiumUser is 0 (No Plan active) */}
+          {premiumUser === 0 && (
+            <>
+              <p>
+                No plan is currently active on your account. Please choose a plan
+                to unlock all features.
+              </p>
+              <InlineStack align="start" gap="200">
+                <Button onClick={handlePricing} variant="primary">
+                  Choose Plan
+                </Button>
+              </InlineStack>
+            </>
+          )}
+        </BlockStack>
+
+        <BlockStack gap="400">
+          {/* Show Text only when premiumUser is 1 (Free Plan active) */}
+          {premiumUser === 1 && (
+            <>
+              <p>
+                You are currently on the Free Plan. Upgrade to unlock premium features.
+              </p>
+              <InlineStack align="start" gap="200">
+                <Button onClick={handlePricing} variant="primary">
+                  Upgrade Plan
+                </Button>
+              </InlineStack>
+            </>
+          )}
+        </BlockStack>
+
         
         {/*  Top Overview Section */}
         <Layout>

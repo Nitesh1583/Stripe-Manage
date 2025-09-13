@@ -136,14 +136,14 @@ export default function SettingsPage() {
 
         {/* Show Banner only when premiumUser is 1 */}
         {premiumUser === 1 && (
-          <Banner title="Free plan is active" status="critical">
+          <Banner title="Free plan is active" status="info">
             <p>
-              Free plan is currently active on your account. Please choose a plan
+              Free plan is currently active on your account. Please choose a upgrade plan
               to unlock all features.
             </p>
             <InlineStack align="start" gap="200">
               <Button onClick={handlePricing} variant="primary">
-                Choose Plan
+                Upgrade your plan now 
               </Button>
             </InlineStack>
           </Banner>
