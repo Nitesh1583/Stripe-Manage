@@ -151,7 +151,7 @@ export default function SettingsPage() {
 
         {/* Show Banner only when premiumUser is 2 (Paid Plan Active) */}
         {premiumUser === 2 && (
-          <Banner title="Free plan is active" status="info">
+          <Banner title="Paid plan is active" status="info">
             <p>
               You are currently on the Paid Plan. Enjoy premium features.  
               If you cancel your plan, you will switch back to the free plan.
