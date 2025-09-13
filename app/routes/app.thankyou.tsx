@@ -60,7 +60,7 @@ export default function ThankYouPage() {
               )}
 
               <Button
-                onClick={() => (window.location.href = "/")}
+                onClick={() => (window.location.href = "/app")}
                 variant="primary"
               >
                 Go to Dashboard
