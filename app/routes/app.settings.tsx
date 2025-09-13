@@ -143,7 +143,7 @@ export default function SettingsPage() {
             </p>
             <InlineStack align="start" gap="200">
               <Button onClick={handlePricing} variant="primary">
-                Upgrade your plan now 
+                Upgrade now 
               </Button>
             </InlineStack>
           </Banner>

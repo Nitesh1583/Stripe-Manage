@@ -221,7 +221,7 @@ export default function Index() {
               </p>
               <InlineStack align="start" gap="200">
                 <Button onClick={handlePricing} variant="primary" textAlign="center">
-                  Upgrade Plan
+                  Upgrade Now
                 </Button>
               </InlineStack>
             </>
