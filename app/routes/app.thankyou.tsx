@@ -18,7 +18,6 @@ import { Redirect } from "@shopify/app-bridge/actions";
 export default function ThankYouPage() {
   const [searchParams] = useSearchParams();
   const [chargeId, setChargeId] = useState<string | null>(null);
-  const app = useAppBridge();
 
   useEffect(() => {
     const id = searchParams.get("charge_id");
