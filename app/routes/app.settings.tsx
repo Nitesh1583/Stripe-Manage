@@ -134,6 +134,21 @@ export default function SettingsPage() {
           </Banner>
         )}
 
+        {/* Show Banner only when premiumUser is 1 */}
+        {premiumUser === 1 && (
+          <Banner title="Free plan is active" status="critical">
+            <p>
+              Free plan is currently active on your account. Please choose a plan
+              to unlock all features.
+            </p>
+            <InlineStack align="start" gap="200">
+              <Button onClick={handlePricing} variant="primary">
+                Choose Plan
+              </Button>
+            </InlineStack>
+          </Banner>
+        )}
+
         {/* Account Info */}
         <Card>
           <Form method="POST">
