@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import {
   AppProvider as PolarisAppProvider,
@@ -15,17 +14,29 @@ import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 
 import { login } from "../../shopify.server";
 import { loginErrorMessage } from "./error.server";
+import { useEffect, useState } from "react";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const errors = loginErrorMessage(await login(request));
+  // First, try to log in / create session
+  const result = await login(request);
+
+  // If login() already created a session, redirect directly to /app
+  if (result?.session) {
+    return redirect("/app");
+  }
+
+  // Otherwise, show login form with errors (if any)
+  const errors = loginErrorMessage(result);
   return { errors, polarisTranslations };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  // Return the redirect URL instead of trying App Bridge redirect
+  // Handle POST (manual login from form)
   const redirectUrl = await login(request);
+
+  // If login() returns a redirect URL, send it back
   return { redirectUrl };
 };
 
@@ -35,7 +46,7 @@ export default function Auth() {
   const [shop, setShop] = useState("");
   const { errors } = actionData || loaderData;
 
-  // Client-side redirect without App Bridge
+  // Client-side redirect (in case action returned a redirect URL)
   useEffect(() => {
     if (actionData?.redirectUrl) {
       window.location.assign(actionData.redirectUrl);
