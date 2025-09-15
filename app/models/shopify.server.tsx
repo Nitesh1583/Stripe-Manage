@@ -27,7 +27,7 @@ const shopify = shopifyApp({
   },
   hooks: {
     afterAuth: async ({ session }) => {
-      shopify.registerWebhooks({ session });
+      await shopify.registerWebhooks({ session });
     },
   },
   future: {
@@ -45,6 +45,24 @@ export const apiVersion = LATEST_API_VERSION;
 export const addDocumentResponseHeaders = shopify.addDocumentResponseHeaders;
 export const authenticate = shopify.authenticate;
 export const unauthenticated = shopify.unauthenticated;
-export const login = shopify.login;
+
+/**
+ * ✅ Safe login wrapper: returns {session, redirectUrl, error?}
+ */
+export async function login(request: Request) {
+  try {
+    const result = await shopify.login(request);
+
+    return {
+      session: result?.session || null,
+      redirectUrl: result?.redirectUrl || null,
+      error: null,
+    };
+  } catch (err: any) {
+    console.error("❌ Shopify login failed:", err.message || err);
+    return { session: null, redirectUrl: null, error: "Login failed" };
+  }
+}
+
 export const registerWebhooks = shopify.registerWebhooks;
 export const sessionStorage = shopify.sessionStorage;
