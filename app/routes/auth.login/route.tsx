@@ -17,9 +17,7 @@ import { useEffect, useState } from "react";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
-/**
- * Extracts error message from login() result
- */
+/** Extracts error message from login() result */
 function loginErrorMessage(result: any) {
   if (!result) return {};
   if (result.error) return { shop: result.error };
@@ -30,14 +28,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const result = await login(request);
 
   if (result.session) {
-    // Redirect if we already have a session (from cookie OR DB fallback)
-    return redirect("/app");
+    console.log("✅ Loader found session:", result.session.shop);
+    return redirect("/app/settings");
   }
 
-  return {
-    errors: loginErrorMessage(result),
-    polarisTranslations,
-  };
+  return { errors: loginErrorMessage(result), polarisTranslations };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -50,14 +45,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function Auth() {
-  //  Correct usage — no destructuring mistake
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-
   const [shop, setShop] = useState("");
 
-  //  Safely get errors (avoid undefined)
-  const errors = actionData?.errors || loaderData?.errors || {};
+  const errors = actionData?.errors || loaderData.errors;
 
   useEffect(() => {
     if (actionData?.redirectUrl) {

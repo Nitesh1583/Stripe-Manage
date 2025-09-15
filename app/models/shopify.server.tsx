@@ -27,6 +27,7 @@ const shopify = shopifyApp({
   },
   hooks: {
     afterAuth: async ({ session }) => {
+      console.log("✅ afterAuth hook - saving session:", session.shop);
       await shopify.registerWebhooks({ session });
     },
   },
@@ -47,33 +48,37 @@ export const authenticate = shopify.authenticate;
 export const unauthenticated = shopify.unauthenticated;
 
 /**
- * ✅ Safe login wrapper: returns {session, redirectUrl, error?}
+ * ✅ Safe login wrapper: checks Shopify cookie session, then DB.
  */
 export async function login(request: Request) {
   try {
+    // 1️⃣ Try to get active Shopify session from cookies
     const result = await shopify.login(request);
-
-    // If cookie/session is valid, return it
     if (result?.session) {
+      console.log("✅ Found active Shopify session from cookie:", result.session.shop);
       return { session: result.session, redirectUrl: result.redirectUrl, error: null };
     }
 
-    /**
-     * ✅ Fallback: Manually check DB by extracting shop param
-     */
-    const url = new URL(request.url);
-    const shopParam = url.searchParams.get("shop");
-    if (shopParam) {
-      const dbSession = await prisma.session.findFirst({
-        where: { shop: shopParam },
-      });
+    // 2️⃣ No active cookie session → fallback to DB lookup
+    console.log("🔍 No active session cookie found, checking DB...");
+    const existingSessions = await prisma.session.findMany({
+      orderBy: { createdAt: "desc" },
+    });
 
-      if (dbSession) {
-        console.log("✅ Found session in DB for shop:", shopParam);
-        return { session: dbSession, redirectUrl: "/app/settings", error: null };
-      }
+    console.log("🗂 Sessions in DB:", existingSessions);
+
+    if (existingSessions.length > 0) {
+      const latestSession = existingSessions[0];
+      console.log("✅ Found session in DB:", latestSession.shop);
+
+      return {
+        session: latestSession,
+        redirectUrl: "/app/settings",
+        error: null,
+      };
     }
 
+    console.warn("⚠️ No session found in DB");
     return { session: null, redirectUrl: null, error: "No active session found" };
   } catch (err: any) {
     console.error("❌ Shopify login failed:", err.message || err);
