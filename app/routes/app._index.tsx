@@ -285,7 +285,7 @@ export default function Index() {
                         <Tooltip content="Upgrade to a paid plan to see your available balance" preferredPosition="above">
                           <span
                             style={{
-                              filter: "blur(6px)", // ✅ Blur when not paid
+                              filter: "blur(6px)", // Blur when not paid
                               userSelect: "none",
                               transition: "filter 0.3s ease-in-out",
                               cursor: "pointer",
