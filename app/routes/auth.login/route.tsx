@@ -12,42 +12,45 @@ import {
 import polarisTranslations from "@shopify/polaris/locales/en.json";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 
-// import { login } from "../../shopify.server";
 import { login } from "../../models/shopify.server";
-import { loginErrorMessage } from "./error.server";
 import { useEffect, useState } from "react";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
+/**
+ * ✅ Extracts error message from login() result
+ */
+function loginErrorMessage(result: any) {
+  if (!result) return {};
+  if (result.error) return { shop: result.error };
+  return {};
+}
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  // First, try to log in / create session
   const result = await login(request);
 
-  // If login() already created a session, redirect directly to /app
-  if (result?.session) {
+  if (result.session) {
+    // ✅ User already logged in, redirect to app
     return redirect("/app/settings");
   }
 
-  // Otherwise, show login form with errors (if any)
   const errors = loginErrorMessage(result);
   return { errors, polarisTranslations };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  // Handle POST (manual login from form)
-  const redirectUrl = await login(request);
+  const result = await login(request);
 
-  // If login() returns a redirect URL, send it back
-  return { redirectUrl };
+  // If login() triggers a redirect, pass it back to the client
+  return { redirectUrl: result.redirectUrl || null, errors: loginErrorMessage(result) };
 };
 
 export default function Auth() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [shop, setShop] = useState("");
-  const { errors } = actionData || loaderData;
+  const errors = actionData?.errors || loaderData.errors;
 
-  // Client-side redirect (in case action returned a redirect URL)
   useEffect(() => {
     if (actionData?.redirectUrl) {
       window.location.assign(actionData.redirectUrl);
