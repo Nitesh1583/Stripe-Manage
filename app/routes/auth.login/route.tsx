@@ -15,7 +15,7 @@ import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 import { login } from "../../models/shopify.server";
 import { useEffect, useState } from "react";
 
-import db from "../db.server";
+import db from "../../db.server";
 
 import { authenticate } from "../shopify.server";
 
