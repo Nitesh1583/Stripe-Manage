@@ -180,20 +180,21 @@ export default function Index() {
         <InlineStack align="center">
           <Badge
             tone={
-              planStatus === "PAID"
+              premiumUser === 2
                 ? "success"
-                : planStatus === "FREE"
+                : premiumUser === 1
                 ? "attention"
                 : "critical"
             }
           >
-            {planStatus === "PAID"
+            {premiumUser === 2
               ? "Paid Plan Active"
-              : planStatus === "FREE"
+              : premiumUser === 1
               ? "Free Plan Active"
               : "No Plan Active"}
           </Badge>
         </InlineStack>
+
 
         <Box
           padding="400"
