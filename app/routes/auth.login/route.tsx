@@ -24,7 +24,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   // If login() already created a session, redirect directly to /app
   if (result?.session) {
-    return redirect("/app");
+    return redirect("/app/settings");
   }
 
   // Otherwise, show login form with errors (if any)
