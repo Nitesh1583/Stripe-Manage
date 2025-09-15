@@ -15,15 +15,10 @@ import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 import { login } from "../../models/shopify.server";
 import { useEffect, useState } from "react";
 
-import db from "../../db.server";
+export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
-import { authenticate } from "../../shopify.server";
-
-
-
-/**export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
-
- * ✅ Extracts error message from login() result
+/**
+ * Extracts error message from login() result
  */
 function loginErrorMessage(result: any) {
   if (!result) return {};
@@ -35,29 +30,34 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const result = await login(request);
 
   if (result.session) {
-    // ✅ Always redirect to app when we have a DB session or cookie session
-    return redirect("/app/settings");
+    // Redirect if we already have a session (from cookie OR DB fallback)
+    return redirect("/app");
   }
 
-  const errors = loginErrorMessage(result);
-  return { errors, polarisTranslations };
+  return {
+    errors: loginErrorMessage(result),
+    polarisTranslations,
+  };
 };
-
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const result = await login(request);
 
-  // If login() triggers a redirect, pass it back to the client
-  return { redirectUrl: result.redirectUrl || null, errors: loginErrorMessage(result) };
+  return {
+    redirectUrl: result.redirectUrl || null,
+    errors: loginErrorMessage(result),
+  };
 };
 
 export default function Auth() {
-  const {loaderData } = useLoaderData<typeof loader>();
+  //  Correct usage — no destructuring mistake
+  const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const [shop, setShop] = useState("");
-  const errors = actionData?.errors || loaderData.errors;
 
-  console.log(result);
+  const [shop, setShop] = useState("");
+
+  //  Safely get errors (avoid undefined)
+  const errors = actionData?.errors || loaderData?.errors || {};
 
   useEffect(() => {
     if (actionData?.redirectUrl) {
