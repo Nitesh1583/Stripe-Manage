@@ -15,9 +15,14 @@ import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 import { login } from "../../models/shopify.server";
 import { useEffect, useState } from "react";
 
-export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
+import db from "../db.server";
 
-/**
+import { authenticate } from "../shopify.server";
+
+
+
+/**export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
+
  * ✅ Extracts error message from login() result
  */
 function loginErrorMessage(result: any) {
@@ -29,10 +34,17 @@ function loginErrorMessage(result: any) {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const result = await login(request);
 
-  if (result.session) {
-    // ✅ User already logged in, redirect to app
-    return redirect("/app/settings");
-  }
+  const auth = await authenticate.admin(request);
+  const userInfo = await db.user.findFirst({
+    where: { shop: auth.session.shop },
+  });
+
+   if (!userInfo) return redirect("/app");
+
+  // if (result.session) {
+  //   // ✅ User already logged in, redirect to app
+  //   return redirect("/app/settings");
+  // }
 
   const errors = loginErrorMessage(result);
   return { errors, polarisTranslations };
@@ -50,6 +62,8 @@ export default function Auth() {
   const actionData = useActionData<typeof action>();
   const [shop, setShop] = useState("");
   const errors = actionData?.errors || loaderData.errors;
+
+  console.log()
 
   useEffect(() => {
     if (actionData?.redirectUrl) {
