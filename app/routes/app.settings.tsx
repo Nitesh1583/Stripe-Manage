@@ -226,11 +226,11 @@ export default function SettingsPage() {
         {/* Added Testing Info Section */}
         <Card>
           <Text as="h3" variant="headingMd">
-            Testing Info
+            To Shopify moderators, Please use below credentials for testing purpose
           </Text>
-          <p>Testing Email : <strong>abcd@gmail.com</strong></p>
+          <p>Test Email : <strong>abcd@gmail.com</strong></p>
           <p>
-            Testing Stripe Api Key : <br />
+            Test Stripe Api Key : <br />
             <code>
               sk_test_51LuADsIgRSAwxCstzcJ0VohJ0AW34a6d6M1u8yBWQ296sfJdr5bkofLFbwUQKEQA6EDWH0YixxD85KSydW8bAaTj007qLBW6zW
             </code>
