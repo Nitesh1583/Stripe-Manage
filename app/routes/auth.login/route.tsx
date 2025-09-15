@@ -12,37 +12,32 @@ import {
 import polarisTranslations from "@shopify/polaris/locales/en.json";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 
-import { login, sessionStorage } from "../../models/shopify.server";
+// import { login } from "../../shopify.server";
+import { login } from "../../models/shopify.server";
 import { loginErrorMessage } from "./error.server";
 import { useEffect, useState } from "react";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  // 1. Check if there is already a valid session in storage
-  const existingSession = await sessionStorage.loadSession(request);
-
-  if (existingSession) {
-    // Session exists, redirect user to /app/settings
-    return redirect("/app/settings");
-  }
-
-  // 2. Otherwise, prepare for login
+  // First, try to log in / create session
   const result = await login(request);
 
-  // If login() already created a session during OAuth callback, redirect directly
+  // If login() already created a session, redirect directly to /app
   if (result?.session) {
     return redirect("/app/settings");
   }
 
-  // Show login form if session is not found
+  // Otherwise, show login form with errors (if any)
   const errors = loginErrorMessage(result);
   return { errors, polarisTranslations };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  // POST: attempt login
+  // Handle POST (manual login from form)
   const redirectUrl = await login(request);
+
+  // If login() returns a redirect URL, send it back
   return { redirectUrl };
 };
 
@@ -52,7 +47,7 @@ export default function Auth() {
   const [shop, setShop] = useState("");
   const { errors } = actionData || loaderData;
 
-  // Client-side redirect if login() returned redirect URL
+  // Client-side redirect (in case action returned a redirect URL)
   useEffect(() => {
     if (actionData?.redirectUrl) {
       window.location.assign(actionData.redirectUrl);
