@@ -48,37 +48,41 @@ export const authenticate = shopify.authenticate;
 export const unauthenticated = shopify.unauthenticated;
 
 /**
- * ✅ Safe login wrapper: checks Shopify cookie session, then DB.
+ * ✅ Safe login wrapper:
+ * - Reads Shopify token (if inside admin)
+ * - Finds matching session in DB
  */
 export async function login(request: Request) {
   try {
-    // 1️⃣ Try to get active Shopify session from cookies
+    // 1️⃣ Try to get active session via Shopify cookies
     const result = await shopify.login(request);
     if (result?.session) {
-      console.log("✅ Found active Shopify session from cookie:", result.session.shop);
+      console.log("✅ Found active session from cookie:", result.session.shop);
       return { session: result.session, redirectUrl: result.redirectUrl, error: null };
     }
 
-    // 2️⃣ No active cookie session → fallback to DB lookup
-    console.log("🔍 No active session cookie found, checking DB...");
-    const existingSessions = await prisma.session.findMany({
-      orderBy: { createdAt: "desc" },
-    });
+    // 2️⃣ If no session cookie, decode public token to get shop name
+    try {
+      const auth = await shopify.authenticate.public(request);
+      if (auth?.session?.shop) {
+        console.log("🔑 Extracted shop from JWT:", auth.session.shop);
 
-    console.log("🗂 Sessions in DB:", existingSessions);
+        // 3️⃣ Look up session in DB by shop name
+        const dbSession = await prisma.session.findFirst({
+          where: { shop: auth.session.shop },
+          orderBy: { createdAt: "desc" },
+        });
 
-    if (existingSessions.length > 0) {
-      const latestSession = existingSessions[0];
-      console.log("✅ Found session in DB:", latestSession.shop);
-
-      return {
-        session: latestSession,
-        redirectUrl: "/app/settings",
-        error: null,
-      };
+        if (dbSession) {
+          console.log("✅ Found session in DB for shop:", dbSession.shop);
+          return { session: dbSession, redirectUrl: "/app/settings", error: null };
+        }
+      }
+    } catch (err) {
+      console.warn("⚠️ No valid public token found in request:", err.message || err);
     }
 
-    console.warn("⚠️ No session found in DB");
+    console.warn("⚠️ No session found (cookie or DB)");
     return { session: null, redirectUrl: null, error: "No active session found" };
   } catch (err: any) {
     console.error("❌ Shopify login failed:", err.message || err);
