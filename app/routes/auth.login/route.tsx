@@ -34,20 +34,20 @@ function loginErrorMessage(result: any) {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const result = await login(request);
 
-  const auth = await authenticate.admin(request);
-  const userInfo = await db.session.findFirst({
-    where: { shop: auth.session.shop },
-  });
+  // const auth = await authenticate.admin(request);
+  // const userInfo = await db.session.findFirst({
+  //   where: { shop: auth.session.shop },
+  // });
 
-   if (!userInfo) return redirect("/app");
+  //  if (!userInfo) return redirect("/app");
 
-  // if (result.session) {
-  //   // ✅ User already logged in, redirect to app
-  //   return redirect("/app/settings");
-  // }
+  if (result.session) {
+    // ✅ User already logged in, redirect to app
+    return redirect("/app");
+  }
 
   const errors = loginErrorMessage(result);
-  return { userInfo, errors, polarisTranslations };
+  return { result, errors, polarisTranslations };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -58,12 +58,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function Auth() {
-  const {loaderData, userInfo } = useLoaderData<typeof loader>();
+  const {loaderData, result } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [shop, setShop] = useState("");
   const errors = actionData?.errors || loaderData.errors;
 
-  console.log()
+  console.log(result);
 
   useEffect(() => {
     if (actionData?.redirectUrl) {
