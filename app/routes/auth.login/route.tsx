@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 
 import db from "../../db.server";
 
-import { authenticate } from "../shopify.server";
+import { authenticate } from "../../shopify.server";
 
 
 
@@ -35,7 +35,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const result = await login(request);
 
   const auth = await authenticate.admin(request);
-  const userInfo = await db.user.findFirst({
+  const userInfo = await db.session.findFirst({
     where: { shop: auth.session.shop },
   });
 
