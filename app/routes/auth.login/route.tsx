@@ -34,21 +34,15 @@ function loginErrorMessage(result: any) {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const result = await login(request);
 
-  // const auth = await authenticate.admin(request);
-  // const userInfo = await db.session.findFirst({
-  //   where: { shop: auth.session.shop },
-  // });
-
-  //  if (!userInfo) return redirect("/app");
-
   if (result.session) {
-    // ✅ User already logged in, redirect to app
-    return redirect("/app");
+    // ✅ Always redirect to app when we have a DB session or cookie session
+    return redirect("/app/settings");
   }
 
   const errors = loginErrorMessage(result);
-  return { result, errors, polarisTranslations };
+  return { errors, polarisTranslations };
 };
+
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const result = await login(request);
@@ -58,7 +52,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function Auth() {
-  const {loaderData, result } = useLoaderData<typeof loader>();
+  const {loaderData } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [shop, setShop] = useState("");
   const errors = actionData?.errors || loaderData.errors;

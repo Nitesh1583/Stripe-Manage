@@ -53,11 +53,28 @@ export async function login(request: Request) {
   try {
     const result = await shopify.login(request);
 
-    return {
-      session: result?.session || null,
-      redirectUrl: result?.redirectUrl || null,
-      error: null,
-    };
+    // If cookie/session is valid, return it
+    if (result?.session) {
+      return { session: result.session, redirectUrl: result.redirectUrl, error: null };
+    }
+
+    /**
+     * ✅ Fallback: Manually check DB by extracting shop param
+     */
+    const url = new URL(request.url);
+    const shopParam = url.searchParams.get("shop");
+    if (shopParam) {
+      const dbSession = await prisma.session.findFirst({
+        where: { shop: shopParam },
+      });
+
+      if (dbSession) {
+        console.log("✅ Found session in DB for shop:", shopParam);
+        return { session: dbSession, redirectUrl: "/app/settings", error: null };
+      }
+    }
+
+    return { session: null, redirectUrl: null, error: "No active session found" };
   } catch (err: any) {
     console.error("❌ Shopify login failed:", err.message || err);
     return { session: null, redirectUrl: null, error: "Login failed" };
