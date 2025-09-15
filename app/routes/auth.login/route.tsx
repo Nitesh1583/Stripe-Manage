@@ -47,7 +47,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   // }
 
   const errors = loginErrorMessage(result);
-  return { errors, polarisTranslations };
+  return { userInfo, errors, polarisTranslations };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -58,7 +58,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function Auth() {
-  const loaderData = useLoaderData<typeof loader>();
+  const {loaderData, userInfo } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [shop, setShop] = useState("");
   const errors = actionData?.errors || loaderData.errors;
