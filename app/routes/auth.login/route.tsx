@@ -17,7 +17,6 @@ import { useEffect, useState } from "react";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
-/** Extracts error message from login() result */
 function loginErrorMessage(result: any) {
   if (!result) return {};
   if (result.error) return { shop: result.error };
@@ -49,7 +48,7 @@ export default function Auth() {
   const actionData = useActionData<typeof action>();
   const [shop, setShop] = useState("");
 
-  const errors = actionData?.errors || loaderData.errors;
+  const errors = actionData?.errors || loaderData?.errors || {};
 
   useEffect(() => {
     if (actionData?.redirectUrl) {
