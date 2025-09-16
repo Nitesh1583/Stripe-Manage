@@ -19,10 +19,11 @@ import { loginErrorMessage } from "./error.server";
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  console.log('starting from here ', request);
+  const url = new URL(request.url);
+  const shop = url.searchParams.get("shop"); // comes before login
   // const errors = loginErrorMessage(await login(request));
   // return { errors, polarisTranslations };
-  return { request };
+  return { shop };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
