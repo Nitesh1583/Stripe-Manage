@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
@@ -14,45 +13,36 @@ import {
 import polarisTranslations from "@shopify/polaris/locales/en.json";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 
-// NOTE: default import for shopify, named imports for others
-import shopify, { login, authenticate } from "../../shopify.server";
+import { login, authenticate } from "../../shopify.server";
 import { loginErrorMessage } from "./error.server";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const url = new URL(request.url);
-  const shopParam = url.searchParams.get("shop") || undefined;
+  const url = new URLSearchParams(window.location.href);
 
-  let shopifyAuth = null;
-  try {
-    // begin OAuth flow if shop param present — safe-guarded with try/catch
-    shopifyAuth = await shopify.auth.begin({
-      shop: shopParam,
-      callbackPath: "/auth/callback",
-      isOnline: false,
-    });
-  } catch (err) {
-    console.warn("shopify.auth.begin failed:", err);
-    shopifyAuth = null;
-  }
-
-  // return polarisTranslations so client has i18n
-  return { shopifyAuth, polarisTranslations };
+  // const shop = url.split('/'); // comes before login
+  // const errors = loginErrorMessage(await login(request));
+  // return { errors, polarisTranslations };
+  return { url };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  // Return the redirect URL from login if any
-  const redirectResult = await login(request);
-  return { redirectUrl: redirectResult.redirectUrl || null, errors: loginErrorMessage(redirectResult) };
+  // Return the redirect URL instead of trying App Bridge redirect
+  const redirectUrl = await login(request);
+  return { redirectUrl };
 };
 
 export default function Auth() {
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [shop, setShop] = useState("");
-  const errors = actionData?.errors || (loaderData as any)?.errors || {};
+  const { errors } = actionData || loaderData;
+  console.log("Loader Data: ", loaderData);
+  console.log('Action Data: ', actionData);
+  console.log("Shop Name: ", shop);
 
+  // Client-side redirect without App Bridge
   useEffect(() => {
     if (actionData?.redirectUrl) {
       window.location.assign(actionData.redirectUrl);
@@ -60,12 +50,14 @@ export default function Auth() {
   }, [actionData]);
 
   return (
-    <PolarisAppProvider i18n={(loaderData as any)?.polarisTranslations}>
+    <PolarisAppProvider i18n={loaderData.polarisTranslations}>
       <Page>
         <Card>
           <Form method="post">
             <FormLayout>
-              <Text variant="headingMd" as="h2">Log in</Text>
+              <Text variant="headingMd" as="h2">
+                Log in
+              </Text>
               <TextField
                 type="text"
                 name="shop"
