@@ -39,12 +39,11 @@ const shopify = shopifyApp({
     ? { customShopDomains: [process.env.SHOP_CUSTOM_DOMAIN] }
     : {}),
 });
-
 export default shopify;
 export const apiVersion = LATEST_API_VERSION;
 export const addDocumentResponseHeaders = shopify.addDocumentResponseHeaders;
 export const authenticate = shopify.authenticate;
 export const unauthenticated = shopify.unauthenticated;
-// export const login = shopify.login;
+export const login = shopify.login;
 export const registerWebhooks = shopify.registerWebhooks;
 export const sessionStorage = shopify.sessionStorage;
