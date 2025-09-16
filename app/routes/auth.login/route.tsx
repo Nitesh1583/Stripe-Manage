@@ -13,13 +13,13 @@ import {
 import polarisTranslations from "@shopify/polaris/locales/en.json";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 
-import { login, authenticate } from "../../shopify.server";
+// import { login, authenticate } from "../../shopify.server";
 import { loginErrorMessage } from "./error.server";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const url = new URLSearchParams(window.location.href);
+  const url = new URL();
 
   // const shop = url.split('/'); // comes before login
   // const errors = loginErrorMessage(await login(request));
@@ -41,6 +41,7 @@ export default function Auth() {
   console.log("Loader Data: ", loaderData);
   console.log('Action Data: ', actionData);
   console.log("Shop Name: ", shop);
+  console.log('Default URL: ', window.location.href);
 
   // Client-side redirect without App Bridge
   useEffect(() => {
