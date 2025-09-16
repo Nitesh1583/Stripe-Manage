@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import {
@@ -13,24 +13,24 @@ import {
 import polarisTranslations from "@shopify/polaris/locales/en.json";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 
-// import { login, authenticate } from "../../shopify.server";
+import { login } from "../../shopify.server";
+
 import { loginErrorMessage } from "./error.server";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const url = new URL();
+  const errors = loginErrorMessage(await login(request));
 
-  // const shop = url.split('/'); // comes before login
-  // const errors = loginErrorMessage(await login(request));
-  // return { errors, polarisTranslations };
-  return { url };
+  return { errors, polarisTranslations };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  // Return the redirect URL instead of trying App Bridge redirect
-  // const redirectUrl = await login(request);
-  // return { redirectUrl };
+  const errors = loginErrorMessage(await login(request));
+
+  return {
+    errors,
+  };
 };
 
 export default function Auth() {
@@ -38,17 +38,6 @@ export default function Auth() {
   const actionData = useActionData<typeof action>();
   const [shop, setShop] = useState("");
   const { errors } = actionData || loaderData;
-  console.log("Loader Data: ", loaderData);
-  console.log('Action Data: ', actionData);
-  console.log("Shop Name: ", shop);
-  console.log('Default URL: ', window.location.href);
-
-  // Client-side redirect without App Bridge
-  useEffect(() => {
-    if (actionData?.redirectUrl) {
-      window.location.assign(actionData.redirectUrl);
-    }
-  }, [actionData]);
 
   return (
     <PolarisAppProvider i18n={loaderData.polarisTranslations}>
@@ -67,7 +56,7 @@ export default function Auth() {
                 value={shop}
                 onChange={setShop}
                 autoComplete="on"
-                error={errors?.shop}
+                error={errors.shop}
               />
               <Button submit>Log in</Button>
             </FormLayout>
