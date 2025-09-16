@@ -29,8 +29,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   // Return the redirect URL instead of trying App Bridge redirect
-  const redirectUrl = await login(request);
-  return { redirectUrl };
+  // const redirectUrl = await login(request);
+  // return { redirectUrl };
 };
 
 export default function Auth() {
