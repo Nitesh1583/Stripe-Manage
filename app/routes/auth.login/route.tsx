@@ -20,7 +20,7 @@ export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
-  const shop = url.split('/'); // comes before login
+  // const shop = url.split('/'); // comes before login
   // const errors = loginErrorMessage(await login(request));
   // return { errors, polarisTranslations };
   return { shop };
