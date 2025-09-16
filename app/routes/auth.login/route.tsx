@@ -23,7 +23,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   // const shop = url.split('/'); // comes before login
   // const errors = loginErrorMessage(await login(request));
   // return { errors, polarisTranslations };
-  return { shop };
+  return { url };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
