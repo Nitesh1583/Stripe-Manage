@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { ActionFunctionArgs, LoaderFunctionArgs, redirect  } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import {
   AppProvider as PolarisAppProvider,
@@ -13,19 +13,23 @@ import {
 import polarisTranslations from "@shopify/polaris/locales/en.json";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 
-import { login, shopify , authenticate } from "../../shopify.server";
-// import { loginErrorMessage } from "./error.server";
+import { login, shopify, authenticate } from "../../shopify.server";
+import { loginErrorMessage } from "./error.server";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const url = new URL(request.url);
   const shopifyAuth = await shopify.auth.begin({
     shop: new URL(request.url).searchParams.get("shop")!,
     callbackPath: "/auth/callback",
     isOnline: false,
   });
 
-  return shopifyAuth;
+  // const shop = url.split('/'); // comes before login
+  // const errors = loginErrorMessage(await login(request));
+  // return { errors, polarisTranslations };
+  return { shopifyAuth };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
