@@ -1,3 +1,4 @@
+// app/models/shopify.server.tsx
 import "@shopify/shopify-app-remix/adapters/node";
 import {
   AppDistribution,
@@ -27,8 +28,12 @@ const shopify = shopifyApp({
   },
   hooks: {
     afterAuth: async ({ session }) => {
-      console.log("✅ afterAuth hook - saving session:", session.shop);
-      await shopify.registerWebhooks({ session });
+      console.log("afterAuth hook - session.shop:", session?.shop);
+      try {
+        await shopify.registerWebhooks({ session });
+      } catch (err) {
+        console.warn("registerWebhooks failed:", err);
+      }
     },
   },
   future: {
@@ -48,44 +53,48 @@ export const authenticate = shopify.authenticate;
 export const unauthenticated = shopify.unauthenticated;
 
 /**
- * ✅ Safe login wrapper:
- * - Reads Shopify token (if inside admin)
- * - Finds matching session in DB
+ * Safe login wrapper:
+ * - Try shopify.login(request) (cookie/session)
+ * - If none, fallback to session table in DB (prisma.session)
+ * - Returns consistent shape: { session, redirectUrl, error }
  */
 export async function login(request: Request) {
   try {
-    // 1️⃣ Try to get active session via Shopify cookies
+    // 1) Try the library login (reads cookies / oauth callback)
     const result = await shopify.login(request);
+
     if (result?.session) {
-      console.log("✅ Found active session from cookie:", result.session.shop);
-      return { session: result.session, redirectUrl: result.redirectUrl, error: null };
+      // result.session may be an object from shopify library
+      console.log("shopify.login() returned session:", result.session?.shop);
+      return {
+        session: result.session,
+        redirectUrl: result.redirectUrl || null,
+        error: null,
+      };
     }
 
-    // 2️⃣ If no session cookie, decode public token to get shop name
-    try {
-      const auth = await shopify.authenticate.public(request);
-      if (auth?.session?.shop) {
-        console.log("🔑 Extracted shop from JWT:", auth.session.shop);
+    // 2) Fallback: check session table in DB for any stored session
+    // Note: your Session model (in schema.prisma) does not appear to have createdAt,
+    // so we'll findFirst — if you have multiple shops you'll want to filter by shop.
+    console.log("No session cookie. Checking prisma.session table for any session...");
 
-        // 3️⃣ Look up session in DB by shop name
-        const dbSession = await prisma.session.findFirst({
-          where: { shop: auth.session.shop },
-          orderBy: { createdAt: "desc" },
-        });
+    const dbSession = await prisma.session.findFirst();
 
-        if (dbSession) {
-          console.log("✅ Found session in DB for shop:", dbSession.shop);
-          return { session: dbSession, redirectUrl: "/app/settings", error: null };
-        }
-      }
-    } catch (err) {
-      console.warn("⚠️ No valid public token found in request:", err.message || err);
+    console.log(" prisma.session.findFirst() ->", dbSession);
+
+    if (dbSession && dbSession.shop) {
+      // return the DB session row; loader will read dbSession.shop and upsert user
+      return {
+        session: dbSession,
+        redirectUrl: "/app/settings",
+        error: null,
+      };
     }
 
-    console.warn("⚠️ No session found (cookie or DB)");
+    // nothing found
     return { session: null, redirectUrl: null, error: "No active session found" };
   } catch (err: any) {
-    console.error("❌ Shopify login failed:", err.message || err);
+    console.error("shopify.login() threw:", err?.message ?? err);
     return { session: null, redirectUrl: null, error: "Login failed" };
   }
 }
