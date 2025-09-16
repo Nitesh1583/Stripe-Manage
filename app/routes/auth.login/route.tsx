@@ -19,11 +19,10 @@ import { loginErrorMessage } from "./error.server";
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const auth = await authenticate.admin(request);
-  console.log('starting from here ', auth);
+  console.log('starting from here ', request);
   // const errors = loginErrorMessage(await login(request));
   // return { errors, polarisTranslations };
-  return { auth };
+  return { request };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -37,7 +36,9 @@ export default function Auth() {
   const actionData = useActionData<typeof action>();
   const [shop, setShop] = useState("");
   const { errors } = actionData || loaderData;
-  console.log(loaderData);
+  console.log("Loader Data: ", loaderData);
+  console.log('Action Data: ', actionData);
+  console.log("Shop Name: ", shop);
 
   // Client-side redirect without App Bridge
   useEffect(() => {
