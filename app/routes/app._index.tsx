@@ -115,6 +115,8 @@ export default function Index() {
   console.log("Recent Payouts List => ", recentPayouts);
   console.log("Next Payout  => ", nextPayout);
 
+  console.log("Transaction currency:", transactions.currency);
+
   // Helper function to format Stripe's created timestamp
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp * 1000); // Stripe gives seconds, JS needs ms
@@ -188,10 +190,9 @@ export default function Index() {
 
   const handleSettingsRedirect = () => {
     if (userInfo?.shop) {
-      const redirect = Redirect.create(shopify);
-      redirect.dispatch(
-        Redirect.Action.ADMIN_PATH,
+      window.open(
         `/apps/stripe-manage/app/settings`
+        "_top"
       );
     }
   };
