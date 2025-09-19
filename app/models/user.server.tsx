@@ -9,18 +9,18 @@ export async function createUserIfNotExists(shop: string, data: any = {}) {
     const existingUser = await db.user.findFirst({ where: { shop } });
 
     if (existingUser) {
-      return { message: "User already exists", user: existingUser, isError: true };
+      const user = await db.user.update({
+      where: { shop },
+      data: {
+        shop,
+      },
+    });
+      return { message: "User already exists", user, isError: true };
     }
 
     const user = await db.user.create({
       data: {
         shop,
-        email: data.email ?? null,
-        stripePublishKey: data.stripePublishKey ?? null,
-        stripeSecretKey: data.stripeSecretKey ?? null,
-        premiumUser: data.premiumUser ?? 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       },
     });
 
@@ -30,36 +30,6 @@ export async function createUserIfNotExists(shop: string, data: any = {}) {
     return { message: `Unable to create user: ${error.message}`, isError: true };
   }
 }
-
-// Update user only if shop exists
-export async function updateUserIfExists(shop: string, data: any = {}) {
-  try {
-    const existingUser = await db.user.findFirst({ where: { shop } });
-
-    if (!existingUser) {
-      return { message: "User does not exist", isError: true };
-    }
-
-    const updatedUser = await db.user.update({
-      where: { shop },
-      data: {
-        email: data.email ?? existingUser.email,
-        stripePublishKey: data.stripePublishKey ?? existingUser.stripePublishKey,
-        stripeSecretKey: data.stripeSecretKey ?? existingUser.stripeSecretKey,
-        premiumUser: data.premiumUser ?? existingUser.premiumUser,
-        updatedAt: new Date(),
-      },
-    });
-
-    return { message: "User updated successfully", user: updatedUser, isError: false };
-  } catch (error: any) {
-    console.error("Error updating user:", error);
-    return { message: `Unable to update user: ${error.message}`, isError: true };
-  }
-}
-
-
-
 
 //create shopify stripe app user
 export async function createUser(formData, shop){
