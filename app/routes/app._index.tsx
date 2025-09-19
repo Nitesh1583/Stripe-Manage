@@ -29,12 +29,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
 
     const auth = await authenticate.admin(request);
+    const shop = auth.session.shop;
 
-    const userInfo = await db.user.findFirst({
-      where: { shop: auth.session.shop },
-    });
-    console.error("auth:", auth);
-    console.error("userInfo:", userInfo);
+    let userInfo = await db.user.findFirst({ where: { shop } });
+
+     if (!userInfo) {
+      // create if not exists
+      userInfo = await createUser(shop);
+      console.log("User created:", userInfo);
+    } else {
+      // update if exists
+      userInfo = await updateUser(shop);
+      console.log("User updated:", userInfo);
+    }
 
     if (!userInfo) return redirect("/app");
 
