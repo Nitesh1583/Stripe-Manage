@@ -2,25 +2,30 @@ import db from "../db.server";
 import { redirect } from '@remix-run/node';
 import { getShopifyPlanStatus } from "./payouts.server";
 import { authenticate } from "../shopify.server";
- 
-//fetch shop from session and upsert into user table
-export async function syncShopFromSession(shop) {
-  try {
 
-    // Upsert into user table
-    const user = await db.user.create({
-        data: {
-          shop: shop
-        }
-      })
+//fetch shop from session and upsert into user table
+export async function syncShopFromSession(shop: string) {
+  try {
+    const user = await db.user.upsert({
+      where: { shop }, 
+      update: {
+        updatedAt: new Date(),
+      },
+      create: {
+        shop,
+        premiumUser: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    });
 
     return { message: "Shop synced successfully", user, isError: false };
-
   } catch (error: any) {
     console.error("Error syncing shop from session:", error);
     return { message: `Unable to sync shop: ${error.message}`, isError: true };
   }
 }
+
 
 
 //create shopify stripe app user
