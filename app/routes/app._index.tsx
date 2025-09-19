@@ -484,7 +484,7 @@ export default function Index() {
                     The Ultimate Stripe Console Management Dashboard for Shopify 🎉
                   </Text>
                   <Text variant="bodyMd" as="p">
-                    Tired of juggling multiple platforms to manage your payments? Say hello to Stripe Console App, the all-in-one payment management dashboard designed exclusively for Shopify. Unlike traditional payment processors, Stripe Console is not a payment gateway—it’s a powerful management console that brings Stripe-like functionality directly into your Shopify environment. Now you can manage payments, customers, products, disputes, and more, all from one centralized, user-friendly dashboard.
+                    Tired of juggling multiple platforms to manage your payments? Say hello to Stripe Console App, the ultimate payment management dashboard designed exclusively for Shopify. Unlike traditional payment processors, Stripe Console isn’t just a gateway—it’s a centralized console that brings Stripe-like functionality directly into your Shopify store. Now you can manage payments, customers, products, subscriptions, payouts, invoices, and account balances all from one user-friendly dashboard.
                   </Text>
                 </BlockStack>
                 <BlockStack gap="200">
@@ -507,6 +507,9 @@ export default function Index() {
                       </Text>
                       <Text as="p" variant="bodyMd">
                         * Track transactions, filter by status, and export data for reporting.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        * Monitor today’s or yesterday’s transactions instantly.
                       </Text>
                     </BlockStack>
                 </BlockStack>
@@ -541,14 +544,14 @@ export default function Index() {
                 
                 <BlockStack gap="200">
                     <Text as="h4" variant="headingSm">
-                      4. Dispute Resolution:
+                      4. Payouts & Invoices::
                     </Text>
                     <BlockStack gap="100">
                       <Text as="p" variant="bodyMd">
-                        * Manage and resolve disputes efficiently with the Disputes List.
+                        * Track upcoming and past payouts to your Stripe account
                       </Text>
                       <Text as="p" variant="bodyMd">
-                        * Stay on top of chargebacks and customer issues with real-time updates.  
+                        * Monitor your invoices effortlessly, all in one place. 
                       </Text>
                     </BlockStack>
                 </BlockStack>
@@ -567,11 +570,40 @@ export default function Index() {
                       </Text>
                     </BlockStack>
                 </BlockStack>
+
+                <BlockStack gap="200">
+                    <Text as="h4" variant="headingSm">
+                      6. Subscription Management:
+                    </Text>
+                    <BlockStack gap="100">
+                      <Text as="p" variant="bodyMd">
+                        * Manage all active subscriptions, plan details, and renewal statuses.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        * Stay on top of recurring payments with ease.
+                      </Text>
+                    </BlockStack>
+                </BlockStack>
+
+                <BlockStack gap="200">
+                    <Text as="h4" variant="headingSm">
+                      7. Stripe Account Overview:
+                    </Text>
+
+                    <BlockStack gap="100">
+                      <Text as="p" variant="bodyMd">
+                        * View your Stripe account balance in real-time.
+                      </Text>
+                      <Text as="p" variant="bodyMd">
+                        *  Get quick insights into your financials without leaving Shopify.
+                      </Text>
+                    </BlockStack>
+                </BlockStack>
                 
 
                 <BlockStack gap="200">
                     <Text as="h4" variant="headingSm">
-                      6. Improved Accessibility:
+                      8. Improved Accessibility:
                     </Text>
 
                     <BlockStack gap="100">
@@ -587,7 +619,7 @@ export default function Index() {
 
                 <BlockStack gap="200">
                     <Text as="h4" variant="headingSm">
-                      7. Enhanced User Experience:
+                      9. Enhanced User Experience:
                     </Text>
                     <BlockStack gap="100">
                       <Text as="p" variant="bodyMd">
@@ -602,7 +634,7 @@ export default function Index() {
 
                 <BlockStack gap="200">
                     <Text as="h4" variant="headingSm">
-                      8. Real-Time Analytics and Reporting:
+                      10. Real-Time Analytics and Reporting:
                     </Text>
                     <BlockStack gap="100">
                       <Text as="p" variant="bodyMd">
@@ -614,23 +646,6 @@ export default function Index() {
                     </BlockStack>
                 </BlockStack>
                 
-
-                <BlockStack gap="200">
-                    <Text as="h4" variant="headingSm">
-                      9. 7-Day Free Trial:
-                    </Text>
-
-                    <BlockStack gap="100">
-                      <Text as="p" variant="bodyMd">
-                        * Try Stripe Console App risk-free for 7 days and experience the benefits of a centralized payment management dashboard.
-                      </Text>
-                      <Text as="p" variant="bodyMd">
-                        *  After the trial, continue with a subscription-based plan tailored to your business needs.
-                      </Text>
-                    </BlockStack>
-                </BlockStack>
-                
-
                 <BlockStack gap="200">
                     <Text as="h4" variant="headingSm">
                       Why Choose Stripe Console App?
@@ -665,13 +680,10 @@ export default function Index() {
                         1.Install the App: Add Stripe Console App to your Shopify store in just a few clicks.
                       </Text>
                       <Text as="p" variant="bodyMd">
-                        2.Start Your Free Trial: Explore all the features risk-free for 7 days.
+                        2.Manage Payments: Use the dashboard to manage payments, customers, products, payouts, and more—all within Shopify.
                       </Text>
                       <Text as="p" variant="bodyMd">
-                        3.Manage Payments: Use the dashboard to manage payments, customers, products, disputes, and more—all within Shopify.
-                      </Text>
-                      <Text as="p" variant="bodyMd">
-                        4.Upgrade to a Subscription: Continue using the app with a flexible subscription plan after your trial ends.
+                        3.Upgrade to a Subscription: Continue using the app with a flexible subscription plan.
                       </Text>
                     </BlockStack>
                 </BlockStack>
@@ -691,7 +703,7 @@ export default function Index() {
                  
                  <BlockStack gap="200">
                     <Text as="h4" variant="headingSm">
-                      Ready to simplify your payment management? Install Stripe Console App today and start your 7-day free trial. Experience the future of payment management, built exclusively for Shopify.
+                      Ready to simplify your payment management? Install Stripe Console App today. Experience the future of payment management, built exclusively for Shopify.
                     </Text>
                 </BlockStack>
               </BlockStack>
