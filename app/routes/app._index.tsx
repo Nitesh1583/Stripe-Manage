@@ -30,15 +30,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     const auth = await authenticate.admin(request);
 
-    const shopSyncResult = await syncShopFromSession();
+    // Pass shop explicitly
+    const shopSyncResult = await syncShopFromSession(auth.session.shop);
 
-     console.log("ShopSyncData:", shopSyncResult);
+    console.log("ShopSyncData:", shopSyncResult);
 
     const userInfo = await db.user.findFirst({
       where: { shop: auth.session.shop },
     });
-    console.error("auth:", auth);
-    console.error("userInfo:", userInfo);
 
     if (!userInfo) return redirect("/app");
 
