@@ -3,32 +3,16 @@ import { redirect } from '@remix-run/node';
 import { getShopifyPlanStatus } from "./payouts.server";
 import { authenticate } from "../shopify.server";
  
-// fetch shop from session and create/update in user table
-export async function syncShopFromSession(shop: string) {
+//fetch shop from session and upsert into user table
+export async function syncShopFromSession(shop) {
   try {
-    // Check if shop already exists
-    const existingUser = await db.user.findUnique({
-      where: { shop },
-    });
 
-    let user;
-
-    if (existingUser) {
-      // Update existing shop
-      user = await db.user.update({
-        where: { shop },
+    // Upsert into user table
+    const user = await db.user.create({
         data: {
-          updatedAt: new Date(), // optional, if you have updatedAt field
-        },
-      });
-    } else {
-      //  Create new shop
-      user = await db.user.create({
-        data: {
-          shop,
-        },
-      });
-    }
+          shop: shop
+        }
+      })
 
     return { message: "Shop synced successfully", user, isError: false };
 
@@ -37,7 +21,6 @@ export async function syncShopFromSession(shop: string) {
     return { message: `Unable to sync shop: ${error.message}`, isError: true };
   }
 }
-
 
 
 //create shopify stripe app user
