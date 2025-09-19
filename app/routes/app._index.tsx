@@ -114,7 +114,7 @@ export default function Index() {
   console.log("Recent Invoices List => ", recentInvoices);
   console.log("Recent Payouts List => ", recentPayouts);
   console.log("Next Payout  => ", nextPayout);
-
+  console.log("Transaction currency:", transactions);
   console.log("Transaction currency:", transactions.currency);
 
   // Helper function to format Stripe's created timestamp
