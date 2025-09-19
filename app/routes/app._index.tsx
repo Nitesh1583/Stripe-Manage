@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { useFetcher, useLoaderData  } from "@remix-run/react";
+import { Redirect } from "@shopify/app-bridge/actions";
 import {
   Page,
   Layout,
@@ -185,6 +186,16 @@ export default function Index() {
     }
   };
 
+  const handleSettingsRedirect = () => {
+    if (userInfo?.shop) {
+      const redirect = Redirect.create(shopify);
+      redirect.dispatch(
+        Redirect.Action.ADMIN_PATH,
+        `/apps/stripe-manage/app/settings`
+      );
+    }
+  };
+
   return (
     <Page>
       <BlockStack gap="500">
@@ -203,7 +214,7 @@ export default function Index() {
               ? "Paid Plan Active"
               : premiumUser === 1
               ? "Free Plan Active"
-              : "No Plan Active"}
+              : ""}
           </Badge>
         </InlineStack>
 
@@ -219,12 +230,12 @@ export default function Index() {
             {premiumUser === 0 && (
               <>
                 <p style={{ textAlign: "center" }}>
-                  No plan is currently active on your account. Please choose a plan
-                  to unlock all features.
+                  Almost there! Please head to the Settings page and enter your email and 
+                  Stripe API key to view your Stripe Console.
                 </p>
                 <InlineStack align="center" gap="200">
-                  <Button onClick={handlePricing} variant="primary">
-                    Choose Plan
+                  <Button onClick={handleSettingsRedirect} variant="primary">
+                    Update Settings
                   </Button>
                 </InlineStack>
               </>
