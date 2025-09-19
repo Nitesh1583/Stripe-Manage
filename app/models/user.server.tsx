@@ -3,28 +3,61 @@ import { redirect } from '@remix-run/node';
 import { getShopifyPlanStatus } from "./payouts.server";
 import { authenticate } from "../shopify.server";
 
-//fetch shop from session and upsert into user table
-export async function syncShopFromSession(shop: string) {
+// Create user only if shop not exists
+export async function createUserIfNotExists(shop: string, data: any = {}) {
   try {
-    const user = await db.user.upsert({
-      where: { shop }, 
-      update: {
-        updatedAt: new Date(),
-      },
-      create: {
+    const existingUser = await db.user.findFirst({ where: { shop } });
+
+    if (existingUser) {
+      return { message: "User already exists", user: existingUser, isError: true };
+    }
+
+    const user = await db.user.create({
+      data: {
         shop,
-        premiumUser: 0,
+        email: data.email ?? null,
+        stripePublishKey: data.stripePublishKey ?? null,
+        stripeSecretKey: data.stripeSecretKey ?? null,
+        premiumUser: data.premiumUser ?? 0,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
     });
 
-    return { message: "Shop synced successfully", user, isError: false };
+    return { message: "User created successfully", user, isError: false };
   } catch (error: any) {
-    console.error("Error syncing shop from session:", error);
-    return { message: `Unable to sync shop: ${error.message}`, isError: true };
+    console.error("Error creating user:", error);
+    return { message: `Unable to create user: ${error.message}`, isError: true };
   }
 }
+
+// Update user only if shop exists
+export async function updateUserIfExists(shop: string, data: any = {}) {
+  try {
+    const existingUser = await db.user.findFirst({ where: { shop } });
+
+    if (!existingUser) {
+      return { message: "User does not exist", isError: true };
+    }
+
+    const updatedUser = await db.user.update({
+      where: { shop },
+      data: {
+        email: data.email ?? existingUser.email,
+        stripePublishKey: data.stripePublishKey ?? existingUser.stripePublishKey,
+        stripeSecretKey: data.stripeSecretKey ?? existingUser.stripeSecretKey,
+        premiumUser: data.premiumUser ?? existingUser.premiumUser,
+        updatedAt: new Date(),
+      },
+    });
+
+    return { message: "User updated successfully", user: updatedUser, isError: false };
+  } catch (error: any) {
+    console.error("Error updating user:", error);
+    return { message: `Unable to update user: ${error.message}`, isError: true };
+  }
+}
+
 
 
 
