@@ -28,21 +28,18 @@ getShopifyPlanStatus, getNextPayout} from "../models/payouts.server";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
 
-    const auth = await authenticate.admin(request);
+    const auth = await authenticate.admin(request); 
+    
+    const shopSyncResult = await syncShopFromSession(); 
+    console.log("ShopSyncData:", shopSyncResult); 
+    const userInfo = await db.user.findFirst({ 
+      where: { shop: auth.session.shop }, 
+    }); 
 
-    const shopSyncResult = await syncShopFromSession();
-
-     console.log("ShopSyncData:", shopSyncResult);
-
-    const userInfo = await db.user.findFirst({
-      where: { shop: auth.session.shop },
-    });
-    console.error("auth:", auth);
-    console.error("userInfo:", userInfo);
-
+    console.error("auth:", auth); 
+    console.error("userInfo:", userInfo); 
+    
     if (!userInfo) return redirect("/app");
-
-
 
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
     const balance = await fetchStripeBalance(userInfo);

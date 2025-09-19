@@ -3,22 +3,52 @@ import { redirect } from '@remix-run/node';
 import { getShopifyPlanStatus } from "./payouts.server";
 import { authenticate } from "../shopify.server";
  
-//fetch shop from session and upsert into user table
-export async function syncShopFromSession(shop) {
+// Create user only if shop exists in session table
+export async function syncShopFromSession(shop: string) {
   try {
+    // 1. Check if shop exists in session table
+    const sessionShop = await db.session.findFirst({
+      where: { shop },
+    });
 
-    // Upsert into user table
+    if (!sessionShop) {
+      return {
+        message: `Shop ${shop} not found in session table`,
+        isError: true,
+      };
+    }
+
+    // 2. Check if user already exists
+    const existingUser = await db.user.findFirst({
+      where: { shop },
+    });
+
+    if (existingUser) {
+      return {
+        message: `User already exists for shop ${shop}`,
+        user: existingUser,
+        isError: false,
+      };
+    }
+
+    // 3. Create new user using shop name from session table
     const user = await db.user.create({
-        data: {
-          shop: shop
-        }
-      })
+      data: {
+        shop: sessionShop.shop, // take shop name directly from session table
+      },
+    });
 
-    return { message: "Shop synced successfully", user, isError: false };
-
+    return {
+      message: "User created successfully from session shop",
+      user,
+      isError: false,
+    };
   } catch (error: any) {
     console.error("Error syncing shop from session:", error);
-    return { message: `Unable to sync shop: ${error.message}`, isError: true };
+    return {
+      message: `Unable to sync shop: ${error.message}`,
+      isError: true,
+    };
   }
 }
 
