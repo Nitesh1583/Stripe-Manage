@@ -191,7 +191,7 @@ export default function Index() {
   const handleSettingsRedirect = () => {
     if (userInfo?.shop) {
       window.open(
-        `/apps/stripe-manage/app/settings`
+        `/apps/stripe-manage/app/settings`,
         "_top"
       );
     }
