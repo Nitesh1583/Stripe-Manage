@@ -2,34 +2,43 @@ import db from "../db.server";
 import { redirect } from '@remix-run/node';
 import { getShopifyPlanStatus } from "./payouts.server";
 import { authenticate } from "../shopify.server";
-
-// Create user only if shop not exists
-export async function createUserIfNotExists(shop: string, data: any = {}) {
+ 
+// fetch shop from session and create/update in user table
+export async function syncShopFromSession(shop: string) {
   try {
-    const existingUser = await db.user.findFirst({ where: { shop } });
+    // Check if shop already exists
+    const existingUser = await db.user.findUnique({
+      where: { shop },
+    });
+
+    let user;
 
     if (existingUser) {
-      const user = await db.user.update({
-      where: { shop },
-      data: {
-        shop,
-      },
-    });
-      return { message: "User already exists", user, isError: true };
+      // Update existing shop
+      user = await db.user.update({
+        where: { shop },
+        data: {
+          updatedAt: new Date(), // optional, if you have updatedAt field
+        },
+      });
+    } else {
+      //  Create new shop
+      user = await db.user.create({
+        data: {
+          shop,
+        },
+      });
     }
 
-    const user = await db.user.create({
-      data: {
-        shop,
-      },
-    });
+    return { message: "Shop synced successfully", user, isError: false };
 
-    return { message: "User created successfully", user, isError: false };
   } catch (error: any) {
-    console.error("Error creating user:", error);
-    return { message: `Unable to create user: ${error.message}`, isError: true };
+    console.error("Error syncing shop from session:", error);
+    return { message: `Unable to sync shop: ${error.message}`, isError: true };
   }
 }
+
+
 
 //create shopify stripe app user
 export async function createUser(formData, shop){

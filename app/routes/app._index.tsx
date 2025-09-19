@@ -18,7 +18,7 @@ import { authenticate } from "../shopify.server";
 import { json, redirect } from "@remix-run/node";
 
 import db from "../db.server";
-import { createUserIfNotExists } from "../models/user.server";
+import { syncShopFromSession } from "../models/user.server";
 import { fetchStripeRecentCustomers } from "../models/customer.server";
 import { fetchStripeRecentPaymentData } from "../models/payment.server";
 import { fetchStripeRecentInvoices } from "../models/invoices.server";
@@ -29,15 +29,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
 
     const auth = await authenticate.admin(request);
-    const shop = auth.session.shop;
 
-    let userInfo = await db.user.findFirst({ where: { shop } });
+    const shopSyncResult = await syncShopFromSession();
 
-     if (!userInfo) {
-      // create if not exists
-      userInfo = await createUserIfNotExists(shop);
-      console.log("User created:", userInfo);
-    } 
+     console.log("ShopSyncData:", shopSyncResult);
+
+    const userInfo = await db.user.findFirst({
+      where: { shop: auth.session.shop },
+    });
+    console.error("auth:", auth);
+    console.error("userInfo:", userInfo);
 
     if (!userInfo) return redirect("/app");
 
