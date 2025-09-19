@@ -1,5 +1,5 @@
 import React from "react";
-import { redirect json } from "@remix-run/node";
+import { redirect , json } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useRouteError } from "@remix-run/react";
 
 import { NavMenu } from "@shopify/app-bridge-react";
