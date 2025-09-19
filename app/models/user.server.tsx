@@ -18,7 +18,6 @@ export async function syncShopFromSession(shop: string) {
       };
     }
 
-    // 2. Check if user already exists
     const existingUser = await db.user.findFirst({
       where: { shop },
     });
@@ -34,7 +33,7 @@ export async function syncShopFromSession(shop: string) {
     // 3. Create new user using shop name from session table
     const user = await db.user.create({
       data: {
-        shop: sessionShop.shop, // take shop name directly from session table
+        shop: sessionShop.shop,
       },
     });
 
