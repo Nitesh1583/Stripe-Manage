@@ -3,8 +3,27 @@ import { redirect } from '@remix-run/node';
 import { getShopifyPlanStatus } from "./payouts.server";
 import { authenticate } from "../shopify.server";
  
-//create shopify stripe app user
+//fetch shop from session and upsert into user table
+export async function syncShopFromSession(shop) {
+  try {
 
+    // Upsert into user table
+    const user = await db.user.create({
+        data: {
+          shop: shop
+        }
+      })
+
+    return { message: "Shop synced successfully", user, isError: false };
+
+  } catch (error: any) {
+    console.error("Error syncing shop from session:", error);
+    return { message: `Unable to sync shop: ${error.message}`, isError: true };
+  }
+}
+
+
+//create shopify stripe app user
 export async function createUser(formData, shop){
   try {
     const formInput = Object.fromEntries(formData);
@@ -15,7 +34,9 @@ export async function createUser(formData, shop){
     const stripepublishKeyRegex = /^pk_(test|live)_/;
     const stripesecretKeyRegex = /^(sk_test|sk_live)_/;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
+    console.error("user create started");
+    console.error("formData:", formData);
+    console.error("shop:", shop);
     // Validate Email
     if (!emailRegex || !emailRegex.test(email)) {
       errors.email = "Please enter a valid Email Address";
@@ -61,6 +82,9 @@ export async function createUser(formData, shop){
 
 export async function updateUserAccountSetting(formData, shop){
   try {
+    console.error("upsert started");
+    console.error("formData:", formData);
+    console.error("shop:", shop);
     const formInput = Object.fromEntries(formData);
     const email = formInput["email"];
 

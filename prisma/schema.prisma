@@ -29,11 +29,11 @@ model Session {
 }
 
 model User {
-  id               String            @id @unique @default(uuid())
+  id               String            @id @default(uuid())
   stripePublishKey String?
   stripeSecretKey  String?
   email            String?
-  shop             String            @unique
+  shop             String            
   premiumUser      Int?              @default(0) @db.TinyInt
   subCount         Int?              @default(0) @db.TinyInt
   shopifyChargeId  String?

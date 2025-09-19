@@ -1,24 +1,40 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "a707ffcad54fde6cb1463dfb03b7d0de"
-application_url = "https://mw-anyone-jackson-polish.trycloudflare.com"
+name = "Stripe Console"
+application_url = "https://stripe-console.kodrite.com/"
 embedded = true
-name = "stripe-console"
-handle = "stripe-console-management"
+handle = "stripe-manage"
 
 [build]
-include_config_on_deploy = true
 automatically_update_urls_on_dev = true
+include_config_on_deploy = true
 
 [webhooks]
 api_version = "2025-01"
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/customer_data_erasure"
+  compliance_topics = [ "customers/redact" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/customer_data_request"
+  compliance_topics = [ "customers/data_request" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/shop_data_erasure"
+  compliance_topics = [ "shop/redact" ]
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "write_products"
 
 [auth]
-redirect_urls = ["https://mw-anyone-jackson-polish.trycloudflare.com/auth/callback", "https://mw-anyone-jackson-polish.trycloudflare.com/auth/shopify/callback", "https://mw-anyone-jackson-polish.trycloudflare.com/api/auth/callback"]
+redirect_urls = [
+  "https://stripe-console.kodrite.com/auth/callback",
+  "https://stripe-console.kodrite.com/auth/shopify/callback",
+  "https://stripe-console.kodrite.com/api/auth/callback"
+]
 
 [pos]
 embedded = false

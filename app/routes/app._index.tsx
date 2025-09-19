@@ -18,6 +18,7 @@ import { authenticate } from "../shopify.server";
 import { json, redirect } from "@remix-run/node";
 
 import db from "../db.server";
+import { syncShopFromSession } from "../models/user.server";
 import { fetchStripeRecentCustomers } from "../models/customer.server";
 import { fetchStripeRecentPaymentData } from "../models/payment.server";
 import { fetchStripeRecentInvoices } from "../models/invoices.server";
@@ -26,13 +27,22 @@ getShopifyPlanStatus, getNextPayout} from "../models/payouts.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
+
     const auth = await authenticate.admin(request);
+
+    const shopSyncResult = await syncShopFromSession(auth.session.shop);
+
+     console.log("ShopSyncData:", shopSyncResult);
 
     const userInfo = await db.user.findFirst({
       where: { shop: auth.session.shop },
     });
+    console.error("auth:", auth);
+    console.error("userInfo:", userInfo);
 
     if (!userInfo) return redirect("/app");
+
+
 
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
     const balance = await fetchStripeBalance(userInfo);
@@ -57,6 +67,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const { recentPayouts } = await fetchStripeRecentPayouts(userInfo);
 
     return json({
+      shopSyncResult,
       transactions,
       balanceAvailable: balance.available,
       balancePending: balance.pending,
@@ -87,8 +98,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const { transactions, balanceAvailable, balancePending, planStatus, activeSubs, recentStripeCustomers, 
+  const {shopSyncResult , transactions, balanceAvailable, balancePending, planStatus, activeSubs, recentStripeCustomers, 
   recentPaymentsData, recentInvoices, recentPayouts, userInfo, nextPayout } = useLoaderData<typeof loader>();
+
+  useEffect(() => {
+  console.log("Shop Sync Result:", shopSyncResult);
+}, [shopSyncResult]);
 
   // Extract premiumUser value
   const premiumUser = userInfo?.premiumUser ?? 0; // fallback to 0 if null
