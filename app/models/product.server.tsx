@@ -6,7 +6,7 @@ import db from "../db.server";
 
 export async function fetchStripeProducts(userInfo) {
   const stripe = new Stripe(userInfo.stripeSecretKey);
-  const products = await stripe.products.list();
+  const products = await stripe.products.list({ limit: 99 });
 
   const currencyData= currency.find((item)=>{
     return item.code === products.currency;
@@ -38,7 +38,6 @@ export async function fetchStripeProducts(userInfo) {
         created: product.created,
         updated: product.updated,
         description: product.description,
-        // images: imageUrls, // Push image URLs directly
         price:
           prices?.data?.length > 0 ? prices.data[0].unit_amount / 100 : null,
         currency: prices?.data?.length > 0 ? prices.data[0].currency : null,
