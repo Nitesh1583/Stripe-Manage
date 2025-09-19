@@ -1,5 +1,5 @@
 import React from "react";
-import { redirect, json } from "@remix-run/node";
+import {  json } from "@remix-run/node";
 import { Link, Outlet, useLoaderData, useRouteError } from "@remix-run/react";
 
 import { NavMenu } from "@shopify/app-bridge-react";
@@ -20,12 +20,12 @@ export const loader = async ({ request }) => {
   });
 
    // If no userInfo or no stripeSecretKey, force redirect to settings page
-  if (!userInfo || !userInfo.stripeSecretKey) {
-    const url = new URL(request.url);
-    if (!url.pathname.includes("/app/settings")) {
-      return redirect("/app/settings");
-    }
-  }
+  // if (!userInfo || !userInfo.stripeSecretKey) {
+  //   const url = new URL(request.url);
+  //   if (!url.pathname.includes("/app/settings")) {
+  //     return redirect("/app/settings");
+  //   }
+  // }
 
 
   return json({
