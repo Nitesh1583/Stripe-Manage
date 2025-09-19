@@ -45,7 +45,7 @@ export default function PaymentRow({ payment, isActive, setActiveIndex }) {
       onNavigation={`/app/payment/${id}`}
     >
       <IndexTable.Cell>{`${payment.orderID}`}</IndexTable.Cell>
-       <IndexTable.Cell>{`${payment.symbolNative} ${payment.amount / 100} ${payment.currencycode}`}</IndexTable.Cell>
+       <IndexTable.Cell>{`${payment.amount / 100} ${payment.currencycode}`}</IndexTable.Cell>
       <IndexTable.Cell>
         <Badge tone={payment.status === "succeeded" ? "success" : "critical"}>
           {payment.status === "succeeded" ? "Success" : "Failed"}

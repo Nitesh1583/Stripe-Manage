@@ -114,8 +114,6 @@ export default function Index() {
   console.log("Recent Invoices List => ", recentInvoices);
   console.log("Recent Payouts List => ", recentPayouts);
   console.log("Next Payout  => ", nextPayout);
-  console.log("Transaction currency:", transactions);
-  console.log("Transaction currency:", transactions.currency);
 
   // Helper function to format Stripe's created timestamp
   const formatDate = (timestamp: number) => {
@@ -153,15 +151,24 @@ export default function Index() {
   const todayTotal = todayTransactions.reduce((sum, tx) => sum + tx.amount, 0) / 100;
   const yesterdayTotal = yesterdayTransactions.reduce((sum, tx) => sum + tx.amount, 0) / 100;
 
-  const shopify = useAppBridge();
-  
-  const isLoading =
-    ["loading", "submitting"].includes(fetcher.state) &&
-    fetcher.formMethod === "POST";
-  const productId = fetcher.data?.product?.id.replace(
-    "gid://shopify/Product/",
-    "",
-  );
+  // Get today's currency (from the first transaction, fallback to USD if none)
+  const todayCurrency = todayTransactions.length > 0 
+    ? todayTransactions[0].currency.toUpperCase() 
+    : "USD";
+
+  const yesterdayCurrency = yesterdayTransactions.length > 0 
+    ? yesterdayTransactions[0].currency.toUpperCase() 
+    : "USD";
+
+    const shopify = useAppBridge();
+    
+    const isLoading =
+      ["loading", "submitting"].includes(fetcher.state) &&
+      fetcher.formMethod === "POST";
+    const productId = fetcher.data?.product?.id.replace(
+      "gid://shopify/Product/",
+      "",
+    );
 
   useEffect(() => {
     if (productId) {
@@ -271,7 +278,7 @@ export default function Index() {
                       Today volume
                     </Text>
                      <Text variant="heading2xl" as="p">
-                      ${todayTotal.toFixed(2)}
+                      {todayTotal.toFixed(2)} {todayCurrency}
                     </Text>
                     <Text tone="subdued">
                       as of{" "}
@@ -293,7 +300,7 @@ export default function Index() {
                       Yesterday
                     </Text>
                     <Text variant="headingLg" as="p">
-                      ${yesterdayTotal.toFixed(2)}
+                      {yesterdayTotal.toFixed(2)} {yesterdayCurrency}
                     </Text>
                   </BlockStack>
                 </InlineStack>
@@ -301,7 +308,7 @@ export default function Index() {
                 {/* Bottom Row: USD Balance + Payouts */}
                 <InlineStack align="space-between">
                   <BlockStack gap="100">
-                    <Text variant="headingSm">USD Balance</Text>
+                    <Text variant="headingSm">Stripe Balance</Text>
 
                     <Text tone="subdued">
                       Available:{" "}
@@ -809,7 +816,7 @@ const PaymentPlaceholder = ({height = 'auto', width = 'auto', recentPaymentsData
                 </IndexTable.Cell>
                 <IndexTable.Cell>{payment.orderID}</IndexTable.Cell>
                 <IndexTable.Cell>
-                  {payment.symbolNative} {(payment.amount / 100).toFixed(2)}{" "}
+                  {/*{payment.symbolNative} */} {(payment.amount / 100).toFixed(2)}{" "}
                   {payment.currencycode}
                 </IndexTable.Cell>
                 <IndexTable.Cell>
@@ -940,11 +947,11 @@ const InvoicesPlaceholder = ({
                           cursor: "pointer",
                         }}
                       >
-                        {invoice.currency} {parseFloat(invoice.amount).toFixed(2)}
+                        {parseFloat(invoice.amount).toFixed(2)} {invoice.currency}
                       </span>
                     </Tooltip>
                   ) : (
-                    `${invoice.currency} ${parseFloat(invoice.amount).toFixed(2)}`
+                    `${parseFloat(invoice.amount).toFixed(2)} ${invoice.currency}`
                   )}
                 </IndexTable.Cell>
 
