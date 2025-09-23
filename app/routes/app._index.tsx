@@ -198,7 +198,7 @@ export default function Index() {
   const handleSettingsRedirect = () => {
     if (userInfo?.shop) {
       window.open(
-        `/apps/stripe-manage/app/settings`,
+        `https://admin.shopify.com/store/${userInfo.shop.split(".")[0]}/apps/stripe-manage/app`,
         "_top"
       );
     }
