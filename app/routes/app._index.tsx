@@ -99,6 +99,9 @@ export default function Index() {
   const {shopSyncResult , transactions, balanceAvailable, balancePending, planStatus, activeSubs, recentStripeCustomers, 
   recentPaymentsData, recentInvoices, recentPayouts, userInfo, nextPayout } = useLoaderData<typeof loader>();
 
+  console.log(userInfo);
+  console.log(userInfo.email);
+  console.log(userInfo.stripeSecretKey);
   useEffect(() => {
   console.log("Shop Sync Result:", shopSyncResult);
 }, [shopSyncResult]);
@@ -107,13 +110,13 @@ export default function Index() {
   const premiumUser = userInfo?.premiumUser ?? 0; // fallback to 0 if null
 
   // Client debug logs
-  console.log("CLIENT DEBUG: Plan Status =>", planStatus);
-  console.log("CLIENT DEBUG: Active Subscriptions =>", activeSubs);
-  console.log("Recent Customers => ", recentStripeCustomers);
-  console.log("Recent Payment List => ", recentPaymentsData);
-  console.log("Recent Invoices List => ", recentInvoices);
-  console.log("Recent Payouts List => ", recentPayouts);
-  console.log("Next Payout  => ", nextPayout);
+  // console.log("CLIENT DEBUG: Plan Status =>", planStatus);
+  // console.log("CLIENT DEBUG: Active Subscriptions =>", activeSubs);
+  // console.log("Recent Customers => ", recentStripeCustomers);
+  // console.log("Recent Payment List => ", recentPaymentsData);
+  // console.log("Recent Invoices List => ", recentInvoices);
+  // console.log("Recent Payouts List => ", recentPayouts);
+  // console.log("Next Payout  => ", nextPayout);
 
   // Helper function to format Stripe's created timestamp
   const formatDate = (timestamp: number) => {
@@ -197,8 +200,10 @@ export default function Index() {
 
   const handleSettingsRedirect = () => {
     if (userInfo?.shop) {
+      console.log(userInfo.shop);
+      console.log(`https://admin.shopify.com/store/${userInfo.shop.split(".")[0]}/apps/stripe-manage/app/settings`)
       window.open(
-        `https://admin.shopify.com/store/${userInfo.shop.split(".")[0]}/apps/stripe-manage/app`,
+        `https://admin.shopify.com/store/${userInfo.shop.split(".")[0]}/apps/stripe-manage/app/settings`,
         "_top"
       );
     }
@@ -234,8 +239,8 @@ export default function Index() {
           justifyContent="center"
         >
           <BlockStack gap="400" align="center">
-            {/* Show Text only when premiumUser is 0 (No Plan active) */}
-            {premiumUser === 0 && (
+            {/* Show Text only when user do not update email or key */}
+            {(userInfo.email === null  || userInfo.stripeSecretKey === null) &&(
               <>
                 <p style={{ textAlign: "center" }}>
                   Almost there! Please head to the Settings page and enter your email and 
@@ -244,6 +249,20 @@ export default function Index() {
                 <InlineStack align="center" gap="200">
                   <Button onClick={handleSettingsRedirect} variant="primary">
                     Update Settings
+                  </Button>
+                </InlineStack>
+              </>
+            )}
+
+            {/* Show Text only when premiumUser is 0 (No Plan active) */}
+            {(userInfo.email && userInfo.stripeSecretKey && premiumUser === 0 ) && (
+              <>
+                <p style={{ textAlign: "center" }}>
+                  No plan is currently active on your account. Please choose a plan to unlock all features.
+                </p>
+                <InlineStack align="center" gap="200">
+                  <Button onClick={handlePricing} variant="primary">
+                    Upgrade Now
                   </Button>
                 </InlineStack>
               </>

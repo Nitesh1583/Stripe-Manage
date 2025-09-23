@@ -6,7 +6,7 @@ import db from "../db.server";
 
 export async function fetchStripeProducts(userInfo) {
   const stripe = new Stripe(userInfo.stripeSecretKey);
-  const products = await stripe.products.list({ limit: 99 });
+  const products = await stripe.products.list();
 
   const currencyData= currency.find((item)=>{
     return item.code === products.currency;
