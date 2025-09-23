@@ -6,7 +6,7 @@ export async function fetchStripeInvoices(userInfo) {
     const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
 
     // Fetch all invoices (no customer filter)
-    const invoices = await stripe.invoices.list({ limit: 99 });
+    const invoices = await stripe.invoices.list({ limit: 20 });
 
     const invoiceData = invoices.data.map((inv) => ({
       id: inv.id,

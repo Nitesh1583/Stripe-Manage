@@ -19,7 +19,7 @@ export async function getStripeSubscriptions(userInfo) {
     });
 
     // Fetch all subscriptions
-    const subscriptionsList = await stripe.subscriptions.list({limit : 99});
+    const subscriptionsList = await stripe.subscriptions.list({limit : 20 });
 
     // Extract and format required fields
     const subscriptionData = subscriptionsList.data.map((subscription) => {

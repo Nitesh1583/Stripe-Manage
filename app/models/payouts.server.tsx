@@ -11,7 +11,7 @@ export async function fetchStripePayouts(userInfo) {
     const stripe = new Stripe(userInfo.stripeSecretKey, { apiVersion: "2023-10-16" });
 
     // Fetch all payouts
-    const payouts = await stripe.payouts.list({ limit: 99 });
+    const payouts = await stripe.payouts.list({ limit: 20 });
 
     const payoutsData = payouts.data.map((payouts) => ({
       id: payouts.id,
