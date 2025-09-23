@@ -228,7 +228,7 @@ export default function SettingsPage() {
           <Text as="h3" variant="headingMd">
             To Shopify moderators, Please use below credentials for testing purpose
           </Text>
-          <p>Test Email : <strong>abcd@gmail.com</strong></p>
+          <p>Test Email : Use any random email address</p>
           <p>
             Test Stripe Api Key : <br />
             <code>
