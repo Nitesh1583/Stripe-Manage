@@ -13,7 +13,7 @@ export async function createStripeCustomer(){
 export async function fetchStripeCustomers(userInfo) {
   try {
     const stripe = new Stripe(userInfo.stripeSecretKey);
-    const customers = await stripe.customers.list({limit: 99});
+    const customers = await stripe.customers.list({limit: 20});
     const data = customers.data;
     let  customerData = [];
     let paymentMethod = '';
