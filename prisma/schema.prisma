@@ -29,18 +29,20 @@ model Session {
 }
 
 model User {
-  id               String            @id @default(uuid())
-  stripePublishKey String?
-  stripeSecretKey  String?
-  email            String?
-  shop             String            @unique
-  premiumUser      Int?              @default(0) @db.TinyInt
-  subCount         Int?              @default(0) @db.TinyInt
-  shopifyChargeId  String?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @default(now()) @updatedAt
-  premiumPurchases PremiumPurchase[]
-
+  id                  String             @id @default(uuid())
+  stripePublishKey    String?
+  stripeSecretKey     String?
+  email               String?
+  shop                String             @unique
+  premiumUser         Int?               @default(0) @db.TinyInt // 0 = none, 1 = free, 2 = paid
+  shopifyChargeId     String?
+  plan_type           String?                     // "monthly" | "yearly"
+  subscription_status String?                     // "active" | "cancelled" | "expired"
+  start_date          DateTime?                   // when plan started
+  end_date            DateTime?                   // when plan expires
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @default(now()) @updatedAt
+  premiumPurchases    PremiumPurchase[]
 }
 
 model Admin {
