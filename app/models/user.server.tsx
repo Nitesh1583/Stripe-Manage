@@ -212,7 +212,7 @@ export async function updateUserStripeSetting(formData, shop, userinfo){
 }
 
 
-xport async function saveShopifyChargeId(shop: string, chargeId: string, request?: Request) {
+export async function saveShopifyChargeId(shop: string, chargeId: string, request?: Request) {
   try {
     let premiumValue = 0;
     let planType: "monthly" | "yearly" | null = null;
