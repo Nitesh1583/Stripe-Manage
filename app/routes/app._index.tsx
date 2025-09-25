@@ -31,8 +31,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     const auth = await authenticate.admin(request); 
     
+    // Sync shop info
     const shopSyncResult = await syncShopFromSession(auth.session.shop); 
     console.log("ShopSyncData:", shopSyncResult); 
+
+     // Fetch user from DB
     const userInfo = await db.user.findFirst({ 
       where: { shop: auth.session.shop }, 
     }); 
@@ -42,11 +45,23 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     
     if (!userInfo) return redirect("/app");
 
+    // 🔹 Subscription check
+    if (
+      userInfo.subscription_status !== "active" ||
+      !userInfo.end_date ||
+      userInfo.end_date <= new Date()
+    ) {
+      console.warn(`Subscription expired or inactive for shop: ${auth.session.shop}`);
+      // return redirect("/app/billing"); // send to billing page
+    }
+    
+
+    // Stripe + Shopify data
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
     const balance = await fetchStripeBalance(userInfo);
     const { nextPayout } = await getNextPayout(userInfo);
     
-    // Fetch plan status + subscriptions
+    // Fetch plan status + subscriptions ,  Plan status from Shopify
     const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
     const normalizedPlanStatus = planStatus === "PAID" || planStatus === "FREE" ? planStatus : "NONE";
 
