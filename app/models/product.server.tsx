@@ -1,6 +1,7 @@
 import { Stripe } from "stripe";
 import { currency } from "../utils/currency";
 import db from "../db.server";
+import { authenticate } from "../shopify.server";
 
 //Fetch Stripe Products
 
