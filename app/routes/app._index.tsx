@@ -25,7 +25,6 @@ import { fetchStripeRecentPaymentData } from "../models/payment.server";
 import { fetchStripeRecentInvoices } from "../models/invoices.server";
 import { fetchStripeRecentPayouts, fetchStripeBalanceTransactions, fetchStripeBalance, 
 getShopifyPlanStatus, getNextPayout} from "../models/payouts.server";
-import { getShopifyProducts } from "../models/product.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
@@ -55,10 +54,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       console.warn(`Subscription expired or inactive for shop: ${auth.session.shop}`);
       // return redirect("/app/billing"); // send to billing page
     }
-
-    const { productsRes } = await getShopifyProducts(request);
     
-
     // Stripe + Shopify data
     const { transactions } = await fetchStripeBalanceTransactions(userInfo);
     const balance = await fetchStripeBalance(userInfo);
@@ -95,7 +91,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       recentPayouts,
       userInfo,
       nextPayout,
-      products: productsRes.products,
     });
   } catch (error) {
     console.error("Loader failed:", error);
@@ -116,9 +111,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
   const {shopSyncResult , transactions, balanceAvailable, balancePending, planStatus, activeSubs, recentStripeCustomers, 
-  recentPaymentsData, recentInvoices, recentPayouts, userInfo, nextPayout, products } = useLoaderData<typeof loader>();
+  recentPaymentsData, recentInvoices, recentPayouts, userInfo, nextPayout, } = useLoaderData<typeof loader>();
 
-  console.log("Shopify Products:", products);
   console.log(userInfo);
   console.log(userInfo.email);
   console.log(userInfo.stripeSecretKey);
