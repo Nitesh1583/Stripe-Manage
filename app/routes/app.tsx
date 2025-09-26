@@ -19,15 +19,6 @@ export const loader = async ({ request }) => {
     where: { shop: auth.session.shop },
   });
 
-   // If no userInfo or no stripeSecretKey, force redirect to settings page
-  // if (!userInfo || !userInfo.stripeSecretKey) {
-  //   const url = new URL(request.url);
-  //   if (!url.pathname.includes("/app/settings")) {
-  //     return redirect("/app/settings");
-  //   }
-  // }
-
-
   return json({
     apiKey: process.env.SHOPIFY_API_KEY || "",
     userInfo,
@@ -74,7 +65,7 @@ export default function App() {
           <Link to="/app/payouts">Payouts</Link>
           <Link to="/app/invoices">Invoices</Link>
           <Link to="/app/subscription">Subscriptions</Link>
-          {/*<Link to="/app" onClick={handlePricing}>Pricing</Link>*/}
+          <Link to="/app/shopify-orders">Shopify Orders</Link>
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
       ) : (
