@@ -95,3 +95,47 @@ export async function fetchStripeSingleProductByPriceid(userInfo, defaultPriceId
     return { message: "An unexpected error occurred when fetching the product.", isError: true };
   }
 }
+
+// Get Shopify Products through Shopify API
+export async function getShopifyProducts(request: Request) {
+  try {
+    const { admin } = await authenticate.admin(request);
+
+    const response = await admin.graphql(`
+      {
+        products(first: 10, sortKey: TITLE) {
+          edges {
+            node {
+              id
+              title
+              createdAt
+              totalInventory
+              variants(first: 5) {
+                edges {
+                  node {
+                    id
+                    price
+                    sku
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
+
+    const data = await response.json();
+
+    const products =
+      data?.data?.products?.edges?.map((edge: any) => edge.node) ?? [];
+
+    console.log("DEBUG: Shopify Products =>", products);
+
+    return { products };
+  } catch (error) {
+    console.error("Error fetching Shopify Products:", error);
+    return { products: [] };
+  }
+}
+
