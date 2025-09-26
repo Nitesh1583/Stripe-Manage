@@ -2,7 +2,6 @@ import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
 
-// 🔹 Loader to fetch orders from Shopify Admin GraphQL
 export async function loader({ request }) {
   const { admin } = await authenticate.admin(request);
 
@@ -15,14 +14,14 @@ export async function loader({ request }) {
             name
             email
             createdAt
-            totalPriceSet {
+            currentTotalPriceSet {
               shopMoney {
                 amount
                 currencyCode
               }
             }
-            financialStatus
-            displayFulfillmentStatus   # ✅ fixed field
+            displayFulfillmentStatus   # ✅ replacement for fulfillmentStatus
+            paymentGatewayNames        # ✅ replacement for financialStatus
             customer {
               firstName
               lastName
@@ -38,7 +37,6 @@ export async function loader({ request }) {
   return json(data);
 }
 
-// 🔹 React Component to render orders
 export default function ShopifyOrdersPage() {
   const data = useLoaderData();
   const orders = data?.data?.orders?.edges || [];
@@ -70,12 +68,16 @@ export default function ShopifyOrdersPage() {
                   : "Guest"}
               </p>
               <p>
-                <strong>Total:</strong> {node.totalPriceSet.shopMoney.amount}{" "}
-                {node.totalPriceSet.shopMoney.currencyCode}
+                <strong>Total:</strong>{" "}
+                {node.currentTotalPriceSet.shopMoney.amount}{" "}
+                {node.currentTotalPriceSet.shopMoney.currencyCode}
               </p>
               <p>
-                <strong>Status:</strong> {node.displayFulfillmentStatus} |{" "}
-                {node.financialStatus}
+                <strong>Fulfillment:</strong> {node.displayFulfillmentStatus}
+              </p>
+              <p>
+                <strong>Payment Gateways:</strong>{" "}
+                {node.paymentGatewayNames.join(", ")}
               </p>
               <p>
                 <strong>Created At:</strong>{" "}
