@@ -1,28 +1,19 @@
-// app/routes/app.shopify-orders.tsx
-
-import { json, redirect } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
-import db from "../db.server";
 
+// 🔹 Loader to fetch orders from Shopify Admin GraphQL
 export async function loader({ request }) {
-  // Step 1: Authenticate
-  const auth = await authenticate.admin(request);
+  const { admin } = await authenticate.admin(request);
 
-  // Step 2: Ensure user exists in DB
-  const userInfo = await db.user.findFirst({
-    where: { shop: auth.session.shop },
-  });
-  if (!userInfo) return redirect("/app");
-
-  // Step 3: Call Shopify GraphQL API for orders
-  const response = await auth.admin.graphql(`
+  const response = await admin.graphql(`
     {
       orders(first: 10, sortKey: CREATED_AT, reverse: true) {
         edges {
           node {
             id
             name
+            email
             createdAt
             totalPriceSet {
               shopMoney {
@@ -30,11 +21,13 @@ export async function loader({ request }) {
                 currencyCode
               }
             }
+            financialStatus
+            displayFulfillmentStatus   # ✅ fixed field
             customer {
-              displayName
+              firstName
+              lastName
               email
             }
-            fulfillmentStatus
           }
         }
       }
@@ -42,36 +35,52 @@ export async function loader({ request }) {
   `);
 
   const data = await response.json();
-
-  const orders = data?.data?.orders?.edges?.map((edge: any) => edge.node) ?? [];
-
-  return json({ userInfo, orders });
+  return json(data);
 }
 
-
+// 🔹 React Component to render orders
 export default function ShopifyOrdersPage() {
-  const { userInfo, orders } = useLoaderData<typeof loader>();
+  const data = useLoaderData();
+  const orders = data?.data?.orders?.edges || [];
 
   return (
-    <div style={{ padding: "1rem" }}>
-      <h1 className="text-xl font-bold mb-4">Shopify Orders</h1>
-      <p className="mb-4">Shop: {userInfo?.shop}</p>
+    <div style={{ padding: "20px" }}>
+      <h1>Shopify Orders</h1>
 
       {orders.length === 0 ? (
         <p>No orders found.</p>
       ) : (
-        <ul className="space-y-2">
-          {orders.map((order) => (
-            <li key={order.id} className="p-3 border rounded">
-              <strong>{order.name}</strong> — {order.totalPriceSet.shopMoney.amount}{" "}
-              {order.totalPriceSet.shopMoney.currencyCode}  
-              <br />
-              Customer: {order.customer?.displayName || "Guest"} (
-              {order.customer?.email || "No email"})
-              <br />
-              Status: {order.fulfillmentStatus || "Unfulfilled"}
-              <br />
-              Created: {new Date(order.createdAt).toLocaleString()}
+        <ul style={{ listStyle: "none", padding: 0 }}>
+          {orders.map(({ node }) => (
+            <li
+              key={node.id}
+              style={{
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                padding: "12px",
+                marginBottom: "12px",
+                background: "#fafafa",
+              }}
+            >
+              <h3>{node.name}</h3>
+              <p>
+                <strong>Customer:</strong>{" "}
+                {node.customer
+                  ? `${node.customer.firstName} ${node.customer.lastName} (${node.customer.email})`
+                  : "Guest"}
+              </p>
+              <p>
+                <strong>Total:</strong> {node.totalPriceSet.shopMoney.amount}{" "}
+                {node.totalPriceSet.shopMoney.currencyCode}
+              </p>
+              <p>
+                <strong>Status:</strong> {node.displayFulfillmentStatus} |{" "}
+                {node.financialStatus}
+              </p>
+              <p>
+                <strong>Created At:</strong>{" "}
+                {new Date(node.createdAt).toLocaleString()}
+              </p>
             </li>
           ))}
         </ul>
