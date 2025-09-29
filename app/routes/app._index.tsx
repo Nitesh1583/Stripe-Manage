@@ -808,7 +808,7 @@ export const CustomerPlaceholder = ({ recentStripeCustomers = [] }) => {
 };
 
 // ------------------ Payment Placeholder ------------------
-export const PaymentPlaceholder = ({ recentPaymentsData = [] }) => {
+export const PaymentPlaceholder = ({ recentPaymentsData = null }) => {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => setIsClient(true), []);
@@ -819,7 +819,7 @@ export const PaymentPlaceholder = ({ recentPaymentsData = [] }) => {
     <Card title="Recent Payments">
       <IndexTable
         resourceName={{ singular: "payment", plural: "payments" }}
-        itemCount={recentPaymentsData?.length || 0}
+        itemCount={recentPaymentsData?.recentPaymentsData?.length || 0}
         headings={[
           { title: "Name / Email" },
           { title: "Order ID" },
@@ -828,8 +828,8 @@ export const PaymentPlaceholder = ({ recentPaymentsData = [] }) => {
         ]}
         selectable={false}
       >
-        {recentPaymentsData?.length > 0 ? (
-          recentPaymentsData.map((payment, index) => (
+        {recentPaymentsData?.recentPaymentsData?.length > 0 ? (
+          recentPaymentsData.recentPaymentsData.map((payment, index) => (
             <IndexTable.Row id={payment.id} key={payment.id} position={index}>
               <IndexTable.Cell>
                 <div style={{ display: "flex", flexDirection: "column" }}>
