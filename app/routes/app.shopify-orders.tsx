@@ -12,7 +12,6 @@ export async function loader({ request }) {
           node {
             id
             name
-            email
             createdAt
             currentTotalPriceSet {
               shopMoney {
@@ -20,8 +19,8 @@ export async function loader({ request }) {
                 currencyCode
               }
             }
-            displayFulfillmentStatus   # ✅ replacement for fulfillmentStatus
-            paymentGatewayNames        # ✅ replacement for financialStatus
+            displayFulfillmentStatus
+            paymentGatewayNames
             customer {
               firstName
               lastName
