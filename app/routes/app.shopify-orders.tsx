@@ -13,19 +13,8 @@ export async function loader({ request }) {
             id
             name
             createdAt
-            currentTotalPriceSet {
-              shopMoney {
-                amount
-                currencyCode
-              }
-            }
             displayFulfillmentStatus
             paymentGatewayNames
-            customer {
-              firstName
-              lastName
-              email
-            }
           }
         }
       }
