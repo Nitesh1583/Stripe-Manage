@@ -212,131 +212,131 @@ export async function updateUserStripeSetting(formData, shop, userinfo){
 }
 
 
-export async function saveShopifyChargeId(shop: string, chargeId: string, request?: Request) {
-  try {
-    let premiumValue = 0;
-    let planType: "monthly" | "yearly" | null = null;
-    let subscriptionStatus: "active" | "cancelled" | "expired" = "active";
-
-    let startDate: Date | null = null;
-    let endDate: Date | null = null;
-
-    if (request) {
-      const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
-
-      if (planStatus === "FREE") {
-        premiumValue = 1;
-        subscriptionStatus = "active";
-        planType = null;
-      }
-
-      if (planStatus === "PAID") {
-        premiumValue = 2;
-        subscriptionStatus = "active";
-
-        // Detect monthly or yearly plan
-        const activePlan = activeSubs?.[0]; // assume 1 active sub at a time
-        const price = activePlan?.lineItems?.[0]?.plan?.pricingDetails?.price?.amount || 0;
-
-        if (Number(price) === 9.99) {
-          planType = "monthly";
-          startDate = new Date();
-          endDate = new Date(new Date().setMonth(new Date().getMonth() + 1)); // +30 days
-        }
-
-        if (Number(price) === 99.99) {
-          planType = "yearly";
-          startDate = new Date();
-          endDate = new Date(new Date().setFullYear(new Date().getFullYear() + 1)); // +1 year
-        }
-      }
-    }
-
-    // Update or create the User record
-    const updatedUser = await db.user.upsert({
-      where: { shop },
-      update: { 
-        shopifyChargeId: chargeId,
-        premiumUser: premiumValue,
-        plan_type: planType,
-        subscription_status: subscriptionStatus,
-        start_date: startDate,
-        end_date: endDate,
-        updatedAt: new Date(),
-      },
-      create: {
-        shop,
-        shopifyChargeId: chargeId,
-        premiumUser: premiumValue,
-        plan_type: planType,
-        subscription_status: subscriptionStatus,
-        start_date: startDate,
-        end_date: endDate,
-      },
-    });
-
-    return { 
-      message: "Charge ID & subscription saved successfully", 
-      user: updatedUser, 
-      isError: false 
-    };
-
-  } catch (error: any) {
-    console.error("Error saving chargeId & subscription:", error);
-    return { message: `Unable to save charge ID: ${error.message}`, isError: true };
-  }
-}
-
 // export async function saveShopifyChargeId(shop: string, chargeId: string, request?: Request) {
 //   try {
-
-//     // Determine plan status (only if request is provided)
 //     let premiumValue = 0;
+//     let planType: "monthly" | "yearly" | null = null;
+//     let subscriptionStatus: "active" | "cancelled" | "expired" = "active";
+
+//     let startDate: Date | null = null;
+//     let endDate: Date | null = null;
+
 //     if (request) {
-//       const { planStatus } = await getShopifyPlanStatus(request);
-//       if (planStatus === "FREE") premiumValue = 1;
-//       if (planStatus === "PAID") premiumValue = 2;
+//       const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
+
+//       if (planStatus === "FREE") {
+//         premiumValue = 1;
+//         subscriptionStatus = "active";
+//         planType = null;
+//       }
+
+//       if (planStatus === "PAID") {
+//         premiumValue = 2;
+//         subscriptionStatus = "active";
+
+//         // Detect monthly or yearly plan
+//         const activePlan = activeSubs?.[0]; // assume 1 active sub at a time
+//         const price = activePlan?.lineItems?.[0]?.plan?.pricingDetails?.price?.amount || 0;
+
+//         if (Number(price) === 9.99) {
+//           planType = "monthly";
+//           startDate = new Date();
+//           endDate = new Date(new Date().setMonth(new Date().getMonth() + 1)); // +30 days
+//         }
+
+//         if (Number(price) === 99.99) {
+//           planType = "yearly";
+//           startDate = new Date();
+//           endDate = new Date(new Date().setFullYear(new Date().getFullYear() + 1)); // +1 year
+//         }
+//       }
 //     }
 
-//     // Save subscription data
-//     const subscriptionUserData = await db.subscriptionUser.upsert({
-//       where: { subscription_id: chargeId },
-//       update: {
-//         subscription_status: "active",
-//         created_date: new Date(), // updating with today's date
-//         sub_update_date: new Date().toISOString(),
-//       },
-//       create: {
-//         shop_url: shop,
-//         subscription_id: chargeId,
-//         created_date: new Date(),
-//         subscription_status: "active",
-//       },
-//     });
-
-//     // Update or create User table
+//     // Update or create the User record
 //     const updatedUser = await db.user.upsert({
 //       where: { shop },
 //       update: { 
 //         shopifyChargeId: chargeId,
 //         premiumUser: premiumValue,
+//         plan_type: planType,
+//         subscription_status: subscriptionStatus,
+//         start_date: startDate,
+//         end_date: endDate,
 //         updatedAt: new Date(),
 //       },
 //       create: {
 //         shop,
 //         shopifyChargeId: chargeId,
 //         premiumUser: premiumValue,
+//         plan_type: planType,
+//         subscription_status: subscriptionStatus,
+//         start_date: startDate,
+//         end_date: endDate,
 //       },
 //     });
 
 //     return { 
-//       message: "Charge ID & premium status saved successfully", 
+//       message: "Charge ID & subscription saved successfully", 
 //       user: updatedUser, 
-//       subscription: subscriptionUserData, 
 //       isError: false 
 //     };
+
 //   } catch (error: any) {
-//      console.error("Error saving chargeId & premiumUser:", error);
+//     console.error("Error saving chargeId & subscription:", error);
 //     return { message: `Unable to save charge ID: ${error.message}`, isError: true };
 //   }
 // }
+
+export async function saveShopifyChargeId(shop: string, chargeId: string, request?: Request) {
+  try {
+
+    // Determine plan status (only if request is provided)
+    let premiumValue = 0;
+    if (request) {
+      const { planStatus } = await getShopifyPlanStatus(request);
+      if (planStatus === "FREE") premiumValue = 1;
+      if (planStatus === "PAID") premiumValue = 2;
+    }
+
+    // Save subscription data
+    const subscriptionUserData = await db.subscriptionUser.upsert({
+      where: { subscription_id: chargeId },
+      update: {
+        subscription_status: "active",
+        created_date: new Date(), // updating with today's date
+        sub_update_date: new Date().toISOString(),
+      },
+      create: {
+        shop_url: shop,
+        subscription_id: chargeId,
+        created_date: new Date(),
+        subscription_status: "active",
+      },
+    });
+
+    // Update or create User table
+    const updatedUser = await db.user.upsert({
+      where: { shop },
+      update: { 
+        shopifyChargeId: chargeId,
+        premiumUser: premiumValue,
+        updatedAt: new Date(),
+      },
+      create: {
+        shop,
+        shopifyChargeId: chargeId,
+        premiumUser: premiumValue,
+      },
+    });
+
+    return { 
+      message: "Charge ID & premium status saved successfully", 
+      user: updatedUser, 
+      subscription: subscriptionUserData, 
+      isError: false 
+    };
+  } catch (error: any) {
+     console.error("Error saving chargeId & premiumUser:", error);
+    return { message: `Unable to save charge ID: ${error.message}`, isError: true };
+  }
+}
