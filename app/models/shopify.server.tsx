@@ -13,7 +13,17 @@ const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "",
   apiVersion: LATEST_API_VERSION,
-  scopes: process.env.SCOPES?.split(","),
+  // scopes: process.env.SCOPES?.split(","),
+  scopes: [
+    "read_products",
+    "read_orders",
+    "read_draft_orders", // required
+  ],
+  logger: {
+    log: (level, message, context) => {
+      console.log(`[Shopify][${level}] ${message}`, context || "");
+    },
+  },
   appUrl: process.env.SHOPIFY_APP_URL || "",
   authPathPrefix: "/auth",
   sessionStorage: new PrismaSessionStorage(prisma),
@@ -27,6 +37,7 @@ const shopify = shopifyApp({
   },
   hooks: {
     afterAuth: async ({ session }) => {
+      console.log("✅ Granted scopes:", session.scope);
       shopify.registerWebhooks({ session });
     },
   },
