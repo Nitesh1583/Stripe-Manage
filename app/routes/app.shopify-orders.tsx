@@ -1,82 +1,148 @@
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
 import { authenticate } from "../shopify.server";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import db from "../db.server";
+import { syncShopFromSession } from "../models/user.server";
+import { json, redirect } from "@remix-run/node";
+import { useFetcher, useLoaderData  } from "@remix-run/react";
 
-export async function loader({ request }) {
-  const { admin, session } = await authenticate.admin(request);
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  try {
 
-  console.log(" Granted scopes:", session.scope); 
+    const auth = await authenticate.admin(request); 
 
-  const response = await admin.graphql(`
-    {
-      orders(first: 10, sortKey: CREATED_AT, reverse: true) {
-        edges {
-          node {
-            id
-            name
-            createdAt
-            displayFulfillmentStatus
-            paymentGatewayNames
-          }
-        }
-      }
-    }
-  `);
+    // Sync shop info
+    const shopSyncResult = await syncShopFromSession(auth.session.shop); 
+    console.log("ShopSyncData:", shopSyncResult); 
 
-  const data = await response.json();
-  return json(data);
+     // Fetch user from DB
+    const userInfo = await db.user.findFirst({ 
+      where: { shop: auth.session.shop }, 
+    }); 
+
+    console.error("auth:", auth); 
+    console.error("userInfo:", userInfo);
+
+     if (!userInfo) return redirect("/app");
+
+     return json({
+      shopSyncResult,
+      userInfo,
+    });
+
+  }catch (error) {
+    console.error("Loader failed:", error);
+    return json(
+      { status: 500 }
+    );
+  }
 }
 
 export default function ShopifyOrdersPage() {
-  const data = useLoaderData();
-  const orders = data?.data?.orders?.edges || [];
-
-  return (
-    <div style={{ padding: "20px" }}>
-      <h1>Shopify Orders</h1>
-
-      {orders.length === 0 ? (
-        <p>No orders found.</p>
-      ) : (
-        <ul style={{ listStyle: "none", padding: 0 }}>
-          {orders.map(({ node }) => (
-            <li
-              key={node.id}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                padding: "12px",
-                marginBottom: "12px",
-                background: "#fafafa",
-              }}
-            >
-              <h3>{node.name}</h3>
-              <p>
-                <strong>Customer:</strong>{" "}
-                {node.customer
-                  ? `${node.customer.firstName} ${node.customer.lastName} (${node.customer.email})`
-                  : "Guest"}
-              </p>
-              <p>
-                <strong>Total:</strong>{" "}
-                {node.currentTotalPriceSet.shopMoney.amount}{" "}
-                {node.currentTotalPriceSet.shopMoney.currencyCode}
-              </p>
-              <p>
-                <strong>Fulfillment:</strong> {node.displayFulfillmentStatus}
-              </p>
-              <p>
-                <strong>Payment Gateways:</strong>{" "}
-                {node.paymentGatewayNames.join(", ")}
-              </p>
-              <p>
-                <strong>Created At:</strong>{" "}
-                {new Date(node.createdAt).toLocaleString()}
-              </p>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
+  const fetcher = useFetcher<typeof action>();
+  const {shopSyncResult, userInfo } = useLoaderData<typeof loader>();
+  console.log("Shopify Orders page:", userInfo);
+  useEffect(() => {
+    console.log("Shopify Orders page Shop Sync Result:", shopSyncResult);
+  }, [shopSyncResult]);
 }
+
+// export async function loader({ request }) {
+//   // const { admin } = await authenticate.admin(request);
+//   const testConsole = "Test";
+
+// //   const response = await admin.graphql(`
+// //   {
+// //     orders(first: 10, sortKey: CREATED_AT, reverse: true) {
+// //       edges {
+// //         node {
+// //           id
+// //           name
+// //           createdAt
+// //           displayFinancialStatus
+// //           displayFulfillmentStatus
+// //           currentTotalPriceSet {
+// //             shopMoney {
+// //               amount
+// //               currencyCode
+// //             }
+// //           }
+// //           customer {
+// //             firstName
+// //             lastName
+// //             email
+// //           }
+// //         }
+// //       }
+// //     }
+// //     draftOrders(first: 10, sortKey: UPDATED_AT, reverse: true) {
+// //       edges {
+// //         node {
+// //           id
+// //           name
+// //           createdAt
+// //           status
+// //           totalPriceSet {
+// //             shopMoney {
+// //               amount
+// //               currencyCode
+// //             }
+// //           }
+// //           customer {
+// //             firstName
+// //             lastName
+// //             email
+// //           }
+// //         }
+// //       }
+// //     }
+// //   }
+// // `);
+
+
+// //   const data = await response.json();
+// //   return json(data);
+
+//   return testConsole;
+// }
+
+// export default function ShopifyOrdersPage() {
+//   const data = useLoaderData();
+
+//   console.log("test");
+//   console.log(data);
+//   // const orders = data?.data?.orders?.edges || [];
+//   // const drafts = data?.data?.draftOrders?.edges || [];
+
+//   // return (
+//   //   <div style={{ padding: "20px" }}>
+//   //     <h1>Shopify Orders</h1>
+
+//   //     <h2>Regular Orders</h2>
+//   //     {orders.length === 0 ? (
+//   //       <p>No orders found.</p>
+//   //     ) : (
+//   //       <ul>
+//   //         {orders.map(({ node }) => (
+//   //           <li key={node.id}>
+//   //             {node.name} – {node.displayFinancialStatus} – {node.displayFulfillmentStatus}
+//   //           </li>
+//   //         ))}
+//   //       </ul>
+//   //     )}
+
+//   //     <h2>Draft Orders</h2>
+//   //     {drafts.length === 0 ? (
+//   //       <p>No draft orders found.</p>
+//   //     ) : (
+//   //       <ul>
+//   //         {drafts.map(({ node }) => (
+//   //           <li key={node.id}>
+//   //             {node.name} – {node.status}
+//   //           </li>
+//   //         ))}
+//   //       </ul>
+//   //     )}
+//   //   </div>
+//   // );
+// }
