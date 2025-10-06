@@ -65,7 +65,8 @@ export default function App() {
           <Link to="/app/payouts">Payouts</Link>
           <Link to="/app/invoices">Invoices</Link>
           <Link to="/app/subscription">Subscriptions</Link>
-          <Link to="/app/shopify-orders">Shopify Orders</Link>
+          <Link to="/app/shopifyorders">Shopify Orders</Link>
+          <Link to="/app/shopify_payments">Stripe Payments</Link>
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
       ) : (
