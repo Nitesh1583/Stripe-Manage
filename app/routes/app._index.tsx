@@ -33,7 +33,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     
     // Sync shop info
     const shopSyncResult = await syncShopFromSession(auth.session.shop); 
-    console.log("ShopSyncData:", shopSyncResult); 
+    // console.log("ShopSyncData:", shopSyncResult); 
 
      // Fetch user from DB
     const userInfo = await db.user.findFirst({ 
@@ -42,16 +42,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
     console.error("auth:", auth); 
     console.error("userInfo:", userInfo); 
+    console.error("Reached error");
     
     if (!userInfo) return redirect("/app");
 
-    // 🔹 Subscription check
+    // Subscription check
     if (
       userInfo.subscription_status !== "active" ||
       !userInfo.end_date ||
       userInfo.end_date <= new Date()
     ) {
-      console.warn(`Subscription expired or inactive for shop: ${auth.session.shop}`);
+      // console.warn(`Subscription expired or inactive for shop: ${auth.session.shop}`);
       // return redirect("/app/billing"); // send to billing page
     }
     
@@ -64,7 +65,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const { planStatus, activeSubs } = await getShopifyPlanStatus(request);
     const normalizedPlanStatus = planStatus === "PAID" || planStatus === "FREE" ? planStatus : "NONE";
 
-    console.log("SERVER DEBUG: Plan Status =>", planStatus);
+    // console.log("SERVER DEBUG: Plan Status =>", planStatus);
     activeSubs.forEach((sub) => {
       console.log(
         `SERVER DEBUG: Subscription Name: ${sub.name}, Status: ${sub.status}, Price: ${
@@ -113,11 +114,11 @@ export default function Index() {
   const {shopSyncResult , transactions, balanceAvailable, balancePending, planStatus, activeSubs, recentStripeCustomers, 
   recentPaymentsData, recentInvoices, recentPayouts, userInfo, nextPayout, } = useLoaderData<typeof loader>();
 
-  console.log(userInfo);
-  console.log(userInfo.email);
-  console.log(userInfo.stripeSecretKey);
+  // console.log(userInfo);
+  // console.log(userInfo.email);
+  // console.log(userInfo.stripeSecretKey);
   useEffect(() => {
-  console.log("Shop Sync Result:", shopSyncResult);
+  // console.log("Shop Sync Result:", shopSyncResult);
 }, [shopSyncResult]);
 
   // Extract premiumUser value
@@ -214,7 +215,7 @@ export default function Index() {
 
   const handleSettingsRedirect = () => {
     if (userInfo?.shop) {
-      console.log(userInfo.shop);
+      // console.log(userInfo.shop);
       console.log(`https://admin.shopify.com/store/${userInfo.shop.split(".")[0]}/apps/stripe-manage/app/settings`)
       window.open(
         `https://admin.shopify.com/store/${userInfo.shop.split(".")[0]}/apps/stripe-manage/app/settings`,
