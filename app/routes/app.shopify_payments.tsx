@@ -5,7 +5,7 @@ import db from "../db.server";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { getShopifyOrders } from "../models/shopifyorders.server";
-import { getStripePaymentByShopifyOrder } from "../models/shopify_stripe_payments.server";
+import { getStripePaymentByShopifyOrder, getStripePaymentsWithShopifySession } from "../models/shopify_stripe_payments.server";
 
 import {
   Card,
@@ -18,34 +18,114 @@ import {
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const auth = await authenticate.admin(request);
+  const session = auth.session;
 
-  // Fetch user from DB
+  // FIX: correct REST client
+  const graphql = auth.admin.graphql;
+  const rest = auth.rest;   //  correct REST client
+
+  console.log("AUTH:", Object.keys(auth));
+  console.log("ADMIN:", Object.keys(auth.admin));
+
+  // 1. Fetch User From DB
   const userInfo = await db.user.findFirst({
-    where: { shop: auth.session.shop },
+    where: { shop: session.shop },
   });
   if (!userInfo) return redirect("/app");
 
-  // Fetch Shopify orders
-  const { shopifyOrdersData } = await getShopifyOrders(request);
-  const orders = shopifyOrdersData?.data?.orders?.edges || [];
+  // -----------------------------------------
+  // 2. Fetch Shopify Orders using GraphQL
+  // -----------------------------------------
+  const ORDER_QUERY = `
+    query GetOrders {
+      orders(first: 20) {
+        edges {
+          node {
+            id
+            name
+            paymentGatewayNames
+          }
+        }
+      }
+    }
+  `;
 
-  // Fetch Stripe payments for each order
+  const ordersResponse = await graphql(ORDER_QUERY);
+  const ordersJson = await ordersResponse.json();
+  const orders = ordersJson?.data?.orders?.edges || [];
+
   const paymentsByOrder: Record<string, any[]> = {};
+  const transactionsByOrder: Record<string, any> = {};
 
+  // -----------------------------------------
+  // 3. Loop Orders → Fetch REST Transactions
+  // -----------------------------------------
   for (const { node } of orders) {
-    // Strip prefix to match Stripe metadata
-    const orderId = node.id.replace("gid://shopify/Order/", "");
-    const payments = await getStripePaymentByShopifyOrder(orderId, userInfo);
-    paymentsByOrder[orderId] = payments;
+    const orderGID = node.id;
+    const orderId = orderGID.replace("gid://shopify/Order/", "");
+    console.log("orderId: ", orderId);
+
+    // REST API call
+    const tx = await rest.get({
+      path: `/orders/${orderId}/transactions.json`,
+    });
+
+    console.log("tx: ", tx);
+
+    const transactionList = tx?.body?.transactions || [];
+     console.log("transactionList: ", transactionList);
+    const firstTx = transactionList[0] || null;
+     console.log("firstTx: ", firstTx);
+
+    // Receipt details
+    const receipt = firstTx?.receipt || null;
+     console.log("receipt: ", receipt);
+    const receiptPaymentId = receipt?.payment_id || null;
+     console.log("receiptPaymentId: ", receiptPaymentId);
+    const networkTxId = receipt?.network_transaction_id || null;
+
+    // Payment session id
+    const paymentSessionId =
+      node.paymentGatewayNames?.[0]?.replace("gid://shopify/PaymentSession/", "") || null;
+
+      console.log("paymentSessionId: ", paymentSessionId);
+
+    transactionsByOrder[orderId] = {
+      orderId,
+      transactions: transactionList,
+      receiptPaymentId,
+      networkTxId,
+      paymentSessionId,
+    };
+
+    // Stripe payments related to this order
+    const stripePayments = await getStripePaymentByShopifyOrder(
+      orderId,
+      userInfo
+    );
+
+    paymentsByOrder[orderId] = stripePayments;
   }
 
-  return json({ orders, paymentsByOrder });
+  // ----------------------------------------
+  // 4. Return Final Response
+  // ----------------------------------------
+  return json({
+    orders,
+    paymentsByOrder,
+    transactionsByOrder,
+  });
 };
 
+
+
 export default function ShopifyPaymentsPage() {
-  const { orders, paymentsByOrder } = useLoaderData<typeof loader>();
+  const { orders, paymentsByOrder, transactionsByOrder, stripePayments } = useLoaderData<typeof loader>();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
+
+ console.log("Shopify Transactions:", transactionsByOrder);
+  console.log("Stripe Payment Sessions:", stripePayments);
 
   // Pagination
   const paginatedOrders = orders.slice(
