@@ -33,6 +33,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       userInfo,
     });
   } catch (error) {
+    console.error("reached error shopify page ");
     console.error("Loader failed:", error);
     return json({ status: 500 });
   }
