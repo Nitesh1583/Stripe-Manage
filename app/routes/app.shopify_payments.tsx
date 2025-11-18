@@ -4,8 +4,11 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import db from "../db.server";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { getShopifyOrders } from "../models/shopifyorders.server";
-import { getStripePaymentByShopifyOrder, getStripePaymentsWithShopifySession } from "../models/shopify_stripe_payments.server";
+
+import {
+  getStripePaymentByShopifyOrder,
+  getStripePaymentsWithShopifySession
+} from "../models/shopify_stripe_payments.server";
 
 import {
   Card,
@@ -16,26 +19,23 @@ import {
   Text
 } from "@shopify/polaris";
 
+//  LOADER =======================>
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+
+  // 1️ AUTHENTICATION
   const auth = await authenticate.admin(request);
   const session = auth.session;
 
-  // FIX: correct REST client
+  const shopDomain = session.shop; // Needed to open orders in Shopify admin
   const graphql = auth.admin.graphql;
-  const rest = auth.rest;   //  correct REST client
 
-  console.log("AUTH:", Object.keys(auth));
-  console.log("ADMIN:", Object.keys(auth.admin));
-
-  // 1. Fetch User From DB
   const userInfo = await db.user.findFirst({
-    where: { shop: session.shop },
+    where: { shop: shopDomain },
   });
   if (!userInfo) return redirect("/app");
 
-  // -----------------------------------------
-  // 2. Fetch Shopify Orders using GraphQL
-  // -----------------------------------------
+  // 2️ GET LAST 20 ORDERS
   const ORDER_QUERY = `
     query GetOrders {
       orders(first: 20) {
@@ -44,6 +44,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
             id
             name
             paymentGatewayNames
+            createdAt
+            customer {
+              firstName
+              lastName
+              email
+            }
           }
         }
       }
@@ -57,158 +63,227 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const paymentsByOrder: Record<string, any[]> = {};
   const transactionsByOrder: Record<string, any> = {};
 
-  // -----------------------------------------
-  // 3. Loop Orders → Fetch REST Transactions
-  // -----------------------------------------
+  // 3️ PROCESS EACH ORDER
   for (const { node } of orders) {
+
     const orderGID = node.id;
     const orderId = orderGID.replace("gid://shopify/Order/", "");
-    console.log("orderId: ", orderId);
 
-    // REST API call
-    const tx = await rest.get({
-      path: `/orders/${orderId}/transactions.json`,
-    });
+    // --- FETCH ORDER TRANSACTIONS ---
+    const TX_QUERY = `
+      query GetOrderTransactions($id: ID!) {
+        order(id: $id) {
+          transactions {
+            id
+            kind
+            status
+            gateway
+            paymentId
+            createdAt
+          }
+        }
+      }
+    `;
 
-    console.log("tx: ", tx);
+    const txResponse = await graphql(TX_QUERY, { variables: { id: orderGID } });
+    const txJson = await txResponse.json();
+    const transactionList = txJson?.data?.order?.transactions || [];
 
-    const transactionList = tx?.body?.transactions || [];
-     console.log("transactionList: ", transactionList);
-    const firstTx = transactionList[0] || null;
-     console.log("firstTx: ", firstTx);
+    // Save all transactions
+    transactionsByOrder[orderId] = transactionList;
 
-    // Receipt details
-    const receipt = firstTx?.receipt || null;
-     console.log("receipt: ", receipt);
-    const receiptPaymentId = receipt?.payment_id || null;
-     console.log("receiptPaymentId: ", receiptPaymentId);
-    const networkTxId = receipt?.network_transaction_id || null;
+    // --- EXTRACT paymentId ---
+    const paymentId = transactionList[0]?.paymentId || null;
 
-    // Payment session id
-    const paymentSessionId =
-      node.paymentGatewayNames?.[0]?.replace("gid://shopify/PaymentSession/", "") || null;
+    // --- BUILD PAYMENT SESSION GID ---
+    const paymentSessionGID = paymentId
+      ? `gid://shopify/PaymentSession/${paymentId}`
+      : null;
 
-      console.log("paymentSessionId: ", paymentSessionId);
+    // --- STRIPE SEARCH USING metadata.order_id ---
+    const stripeOrderPayments = await getStripePaymentByShopifyOrder(orderId, userInfo);
 
-    transactionsByOrder[orderId] = {
-      orderId,
-      transactions: transactionList,
-      receiptPaymentId,
-      networkTxId,
-      paymentSessionId,
-    };
+    // --- STRIPE SEARCH USING metadata.session id ---
+    let stripeSessionPayments = [];
+    if (paymentSessionGID) {
+      stripeSessionPayments = await getStripePaymentsWithShopifySession(
+        paymentSessionGID,
+        shopDomain,
+        userInfo
+      );
+    }
 
-    // Stripe payments related to this order
-    const stripePayments = await getStripePaymentByShopifyOrder(
-      orderId,
-      userInfo
-    );
-
-    paymentsByOrder[orderId] = stripePayments;
+    // Merge stripe payments
+    paymentsByOrder[orderId] = [
+      ...stripeOrderPayments,
+      ...stripeSessionPayments
+    ];
   }
 
-  // ----------------------------------------
-  // 4. Return Final Response
-  // ----------------------------------------
+  // REMOVE ORDERS WITH NO STRIPE PAYMENTS
+  const filteredOrders = orders.filter(({ node }) => {
+    const orderId = node.id.replace("gid://shopify/Order/", "");
+    const payments = paymentsByOrder[orderId] || [];
+    return payments.length > 0;
+  });
+
   return json({
-    orders,
+    orders: filteredOrders,
     paymentsByOrder,
     transactionsByOrder,
+    shopDomain, // Needed for View Order button
   });
 };
 
 
+// =======================
+//  COMPONENT
+// =======================
 
 export default function ShopifyPaymentsPage() {
-  const { orders, paymentsByOrder, transactionsByOrder, stripePayments } = useLoaderData<typeof loader>();
+  const { orders, paymentsByOrder, transactionsByOrder, shopDomain } =
+    useLoaderData<typeof loader>();
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(8);
+  const itemsPerPage = 8;
 
- console.log("Shopify Transactions:", transactionsByOrder);
-  console.log("Stripe Payment Sessions:", stripePayments);
-
-  // Pagination
   const paginatedOrders = orders.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
   const totalPages = Math.ceil(orders.length / itemsPerPage);
 
-  const handlePagination = (newPage: number) => setCurrentPage(newPage);
+  // REFUND HANDLER (UI only)
+  const handleRefund = async (paymentIntentId: string) => {
+    if (!confirm("Are you sure you want to refund this payment?")) return;
+
+    const res = await fetch("/app/refund-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paymentIntentId }),
+    });
+
+    const data = await res.json();
+    alert(data.message);
+  };
 
   return (
     <Page title="Shopify Payments" backAction={{ content: "Home", url: "/app" }}>
       <Layout>
         <Layout.Section>
-          {orders.length === 0 ? (
-            <Text>No Shopify orders found.</Text>
-          ) : (
-            <Card>
-              <IndexTable
-                resourceName={{ singular: "order", plural: "orders" }}
-                itemCount={orders.length}
-                headings={[
-                  { title: "Order ID" },
-                  { title: "Amount" },
-                  { title: "Customer" },
-                  { title: "Stripe Payments" },
-                ]}
-                selectable={false}
-              >
-                {paginatedOrders.map(({ node }, index) => {
-                  const orderId = node.id.replace("gid://shopify/Order/", "");
-                  const payments = paymentsByOrder[orderId] || [];
+          <Card>
+            <IndexTable
+              resourceName={{ singular: "order", plural: "orders" }}
+              itemCount={orders.length}
+              headings={[
+                { title: "Order" },
+                { title: "Customer" },
+                { title: "Email" },
+                { title: "Stripe Payment" },
+                { title: "Amount" },
+                { title: "Date" },
+                { title: "Actions" },
+              ]}
+              selectable={false}
+            >
+              {paginatedOrders.map(({ node }, index) => {
+                const orderId = node.id.replace("gid://shopify/Order/", "");
+                const payments = paymentsByOrder[orderId] || [];
 
-                  return (
-                    <IndexTable.Row
-                      id={node.id}
-                      key={node.id}
-                      position={index}
-                    >
-                      <IndexTable.Cell>{node.name}</IndexTable.Cell>
-                      <IndexTable.Cell>
-                        {node.currentTotalPriceSet?.shopMoney?.amount}{" "}
-                        {node.currentTotalPriceSet?.shopMoney?.currencyCode}
-                      </IndexTable.Cell>
-                      <IndexTable.Cell>
-                        {node.customer
-                          ? `${node.customer.firstName || ""} ${node.customer.lastName || ""} (${node.customer.email})`
-                          : "Guest"}
-                      </IndexTable.Cell>
-                      <IndexTable.Cell>
-                        {payments.length === 0 ? (
-                          <Text>No Stripe payment</Text>
-                        ) : (
-                          payments.map((pi, idx) => (
-                            <div key={idx} style={{ marginBottom: "4px" }}>
-                              <Text>
-                                {pi.description || "No description"} -{" "}
-                                {pi.amount / 100} {pi.currency.toUpperCase()} -{" "}
-                                {pi.status.toUpperCase()}
-                              </Text>
-                              <Text small>
-                                Metadata: order_name={pi.metadata.order_name}, customer_email={pi.metadata.customer_email}
-                              </Text>
-                            </div>
-                          ))
-                        )}
-                      </IndexTable.Cell>
-                    </IndexTable.Row>
-                  );
-                })}
-              </IndexTable>
+                // Customer info
+                const customerName = `${node.customer?.firstName || ""} ${
+                  node.customer?.lastName || ""
+                }`;
+                const customerEmail = node.customer?.email || "N/A";
 
-              <Pagination
-                hasPrevious={currentPage > 1}
-                hasNext={currentPage < totalPages}
-                onPrevious={() => handlePagination(currentPage - 1)}
-                onNext={() => handlePagination(currentPage + 1)}
-              />
-            </Card>
-          )}
+                return (
+                  <IndexTable.Row id={node.id} key={node.id} position={index}>
+                    
+                    {/* Order ID */}
+                    <IndexTable.Cell>{node.name}</IndexTable.Cell>
+
+                    {/* Customer Name */}
+                    <IndexTable.Cell>{customerName}</IndexTable.Cell>
+
+                    {/* Customer Email */}
+                    <IndexTable.Cell>{customerEmail}</IndexTable.Cell>
+
+                    {/* Stripe PaymentIntent ID */}
+                    <IndexTable.Cell>
+                      {payments.map((pi, idx) => (
+                        <div key={idx}>{pi.id}</div>
+                      ))}
+                    </IndexTable.Cell>
+
+                    {/* Amount */}
+                    <IndexTable.Cell>
+                      {payments.map((pi, idx) => (
+                        <div key={idx}>
+                          {(pi.amount / 100).toFixed(2)}{" "}
+                          {pi.currency.toUpperCase()}
+                        </div>
+                      ))}
+                    </IndexTable.Cell>
+
+                    {/* Date */}
+                    <IndexTable.Cell>
+                      {new Date(node.createdAt).toLocaleString()}
+                    </IndexTable.Cell>
+
+                    {/* Actions */}
+                    <IndexTable.Cell>
+                      <div style={{ display: "flex", gap: "10px" }}>
+                        {/* View Shopify Order */}
+                        <a
+                          href={`https://${shopDomain}/admin/orders/${orderId}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: "6px",
+                            background: "#006fbb",
+                            color: "white",
+                            textDecoration: "none",
+                            fontSize: "13px",
+                          }}
+                        >
+                          View
+                        </a>
+
+                        {/* Refund Button */}
+                        {/*{payments.length > 0 && (
+                          <button
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: "6px",
+                              background: "#e53935",
+                              color: "white",
+                              border: "none",
+                              cursor: "pointer",
+                              fontSize: "13px",
+                            }}
+                            onClick={() => handleRefund(payments[0].id)}
+                          >
+                            Refund
+                          </button>
+                        )}*/}
+                      </div>
+                    </IndexTable.Cell>
+                  </IndexTable.Row>
+                );
+              })}
+            </IndexTable>
+
+            <Pagination
+              hasPrevious={currentPage > 1}
+              hasNext={currentPage < totalPages}
+              onPrevious={() => setCurrentPage(currentPage - 1)}
+              onNext={() => setCurrentPage(currentPage + 1)}
+            />
+          </Card>
         </Layout.Section>
       </Layout>
     </Page>
   );
 }
+
