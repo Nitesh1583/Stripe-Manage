@@ -59,14 +59,14 @@ export default function App() {
         /* CASE 3: Full Access (premiumUser = 2) */
         <NavMenu>
           <Link to="/app" rel="home">Dashboard</Link>
+          <Link to="/app/shopify_payments">Shopify Orders</Link>
           <Link to="/app/products">Products</Link>
           <Link to="/app/customers">Customers</Link>
-          <Link to="/app/payments">Payments</Link>
+          {/*<Link to="/app/payments">Payments</Link>*/}
           <Link to="/app/payouts">Payouts</Link>
           <Link to="/app/invoices">Invoices</Link>
           <Link to="/app/subscription">Subscriptions</Link>
-          <Link to="/app/shopifyorders">Shopify Orders</Link>
-          <Link to="/app/shopify_payments">Stripe Payments</Link>
+          {/*<Link to="/app/shopifyorders">Shopify Orders</Link>*/}
           <Link to="/app/settings">Settings</Link>
         </NavMenu>
       ) : (

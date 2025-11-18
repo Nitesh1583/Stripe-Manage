@@ -168,8 +168,15 @@ export default function ShopifyPaymentsPage() {
   };
 
   return (
-    <Page title="Shopify Payments" backAction={{ content: "Home", url: "/app" }}>
+    <Page title="Shopify Orders" backAction={{ content: "Home", url: "/app" }}>
       <Layout>
+        {/* Description under page title */}
+        <Layout.Section>
+          <p style={{ fontSize: "14px", marginBottom: "10px", color: "#555" }}>
+            These are the Shopify orders placed using Stripe payments.
+          </p>
+        </Layout.Section>
+      
         <Layout.Section>
           <Card>
             <IndexTable
