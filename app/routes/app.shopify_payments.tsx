@@ -19,7 +19,7 @@ import {
   Text
 } from "@shopify/polaris";
 
-//  LOADER =======================>
+//  LOADER ========================>
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 
@@ -176,7 +176,7 @@ export default function ShopifyPaymentsPage() {
             These are the Shopify orders placed using Stripe payments.
           </p>
         </Layout.Section>
-      
+
         <Layout.Section>
           <Card>
             <IndexTable
